@@ -3121,7 +3121,7 @@ OptiFine jar 合成 —— 上面每一条验收数字都是那样量出来的�
 
 10 个 GitHub Release 通过 GitHub API 创建,资产用 `Invoke-RestMethod` 上传,每个 Release 附**一个** jar、
 正文里写该线的验收数字与已接受缺陷。逐个 Release 的 URL、字节数与 SHA-256 见上表
-(Release URL 形如 `https://github.com/Kynarain/OptifiNeoforge/releases/tag/v1.0.0+mc1.21.4`)。
+(Release URL 形如 `https://github.com/Kynarain/OptiNeoforge/releases/tag/v1.0.0+mc1.21.4`)。
 标签全部是附注标签(`git tag -a`),消息里带产物名、字节数与 SHA-256;`git push origin <tag>` 逐个推送。
 
 ## 2026-09-18(下半):五条"构建不出来"的线全部结清

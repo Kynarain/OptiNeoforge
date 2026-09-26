@@ -173,7 +173,7 @@ if(!legacyTarget){
         }
 
         mods {
-            optifineoforge {
+            optineoforge {
                 sourceSet sourceSets.main
             }
         }

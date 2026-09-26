@@ -9,10 +9,10 @@ modLoader = "javafml"
 # so this stays permissive; it is not the NeoForge version.
 loaderVersion = "[1,)"
 license = "MPL-2.0"
-issueTrackerURL = "https://github.com/Kynarain/OptifiNeoforge/issues"
+issueTrackerURL = "https://github.com/Kynarain/OptiNeoforge/issues"
 
 [[mods]]
-modId = "optifineoforge"
+modId = "optineoforge"
 version = "${version}"
 displayName = "OptiNeoforge"
 # Keep this short: it is what the mod list shows.
@@ -25,14 +25,14 @@ authors = "kynarain"
 # net.neoforged:forge:1.20.1-47.1.106. Naming "neoforge" there would require a mod that the
 # distribution does not contain. From 20.2.88 onwards the id is "neoforge" and the mod version
 # equals the artifact version.
-[[dependencies.optifineoforge]]
+[[dependencies.optineoforge]]
 modId = "${neoforge_modid}"
 type = "required"
 versionRange = "[${neoforge_modversion},)"
 ordering = "NONE"
 side = "CLIENT"
 
-[[dependencies.optifineoforge]]
+[[dependencies.optineoforge]]
 modId = "minecraft"
 type = "required"
 versionRange = "[${minecraft_version},${minecraft_version}]"
