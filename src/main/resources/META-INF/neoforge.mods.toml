@@ -9,7 +9,7 @@ modLoader = "javafml"
 # so this stays permissive; it is not the NeoForge version.
 loaderVersion = "[1,)"
 license = "MPL-2.0"
-issueTrackerURL = "https://github.com/Kynarain/OptiNeoforge/issues"
+issueTrackerURL = "https://github.com/Kynarain/OptifiNeoforge/issues"
 
 [[mods]]
 modId = "optifineoforge"

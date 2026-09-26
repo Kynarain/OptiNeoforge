@@ -5,7 +5,7 @@ publish 实现**。本文就是那一步,配上两个可重复执行的脚本,�
 
 ## 发布到哪
 
-三个检出是**同一个 GitHub 仓库**(`Kynarain/OptiNeoforge`)的三个分支,产物各按自己的 MC 版本发一个 Release:
+三个检出是**同一个 GitHub 仓库**(`Kynarain/OptifiNeoforge`)的三个分支,产物各按自己的 MC 版本发一个 Release:
 
 | 检出 / 分支 | 负责的线 |
 |---|---|

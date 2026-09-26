@@ -71,8 +71,8 @@ There is no installer and nothing is written into your game files.
 
 #### Links
 
-* **Downloads:** https://github.com/Kynarain/OptiNeoforge/releases
-* **Issues / source:** https://github.com/Kynarain/OptiNeoforge
+* **Downloads:** https://github.com/Kynarain/OptifiNeoforge/releases
+* **Issues / source:** https://github.com/Kynarain/OptifiNeoforge
 * **OptiFine (required, not included):** https://optifine.net/downloads
 
 ---
@@ -122,6 +122,6 @@ There is no installer and nothing is written into your game files.
 
 #### 链接
 
-* **下载:** https://github.com/Kynarain/OptiNeoforge/releases
-* **问题反馈 / 源码:** https://github.com/Kynarain/OptiNeoforge
+* **下载:** https://github.com/Kynarain/OptifiNeoforge/releases
+* **问题反馈 / 源码:** https://github.com/Kynarain/OptifiNeoforge
 * **OptiFine(必需,但不随本模组分发):** https://optifine.net/downloads
