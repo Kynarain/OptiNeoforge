@@ -4,7 +4,7 @@
 
 ```
 <MAJOR>.<MINOR>.<PATCH>+mc<Minecraft 版本>
-例如  OptifiNeoforge-1.0.0+mc1.20.4.jar
+例如  OptiNeoforge-1.0.0+mc1.20.4.jar
 ```
 
 ## 现在处于 0.x
@@ -12,10 +12,10 @@
 加载器还没有跑通,所以这条线的四个产物都停在 `0.1.0`:
 
 ```
-OptifiNeoforge-0.1.0+mc1.20.1.jar
-OptifiNeoforge-0.1.0+mc1.20.2.jar
-OptifiNeoforge-0.1.0+mc1.20.4.jar
-OptifiNeoforge-0.1.0+mc1.20.6.jar
+OptiNeoforge-0.1.0+mc1.20.1.jar
+OptiNeoforge-0.1.0+mc1.20.2.jar
+OptiNeoforge-0.1.0+mc1.20.4.jar
+OptiNeoforge-0.1.0+mc1.20.6.jar
 ```
 
 0.x 表示仍在开发中,任何东西都可能变。**第一个在真实游戏里跑起来的产物才升到 `1.0.0`**,从那时起下面的规则才生效。同一个逻辑改动要在四个版本上都发布时,四个产物各自按自己的验证进度跟上,不必同时进入 `1.x`。

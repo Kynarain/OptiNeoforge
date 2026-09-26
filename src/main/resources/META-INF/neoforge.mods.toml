@@ -9,14 +9,14 @@ modLoader = "javafml"
 # so this stays permissive; it is not the NeoForge version.
 loaderVersion = "[1,)"
 license = "MPL-2.0"
-issueTrackerURL = "https://github.com/Kynarain/OptifiNeoforge/issues"
+issueTrackerURL = "https://github.com/Kynarain/OptiNeoforge/issues"
 
 [[mods]]
 modId = "optifineoforge"
 version = "${version}"
-displayName = "OptifiNeoforge"
+displayName = "OptiNeoforge"
 # Keep this short: it is what the mod list shows.
-description = '''Loads OptiFine into NeoForge. Put the OptiFine jar for ${minecraft_version} next to this mod; OptifiNeoforge patches and applies it at runtime. This jar contains no OptiFine code: no net.optifine classes and no file copied from OptiFine. Not affiliated with or endorsed by OptiFine or NeoForge.'''
+description = '''Loads OptiFine into NeoForge. Put the OptiFine jar for ${minecraft_version} next to this mod; OptiNeoforge patches and applies it at runtime. This jar contains no OptiFine code: no net.optifine classes and no file copied from OptiFine. Not affiliated with or endorsed by OptiFine or NeoForge.'''
 authors = "kynarain"
 
 # Both the id and the version below are the mod's, not the Maven artifact's, and on 1.20.1 the two

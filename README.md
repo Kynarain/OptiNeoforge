@@ -1,4 +1,4 @@
-# OptifiNeoforge
+# OptiNeoforge
 
 在 **NeoForge** 上加载 **OptiFine** 的客户端模组,做法与 OptiFabric 在 Fabric Loader 上的做法相同:把 OptiFine 的 jar 和本模组一起放进 `mods/`,启动时由本模组运行 OptiFine 自带的补丁流程,并把打过补丁的 Minecraft 类接进 NeoForge 的类转换流程。
 
@@ -12,10 +12,10 @@
 
 | Minecraft | NeoForge | 产物 | OptiFine 正式版 | OptiFine 最新 preview | Java | 状态(实测) |
 |---|---|---|---|---|---|---|
-| 1.20.1 | `net.neoforged:forge:1.20.1-47.1.106` | `OptifiNeoforge-1.0.0+mc1.20.1.jar` | `OptiFine_1.20.1_HD_U_I6.jar` | `preview_OptiFine_1.20.1_HD_U_I6_pre6.jar` | 17 | 已验证 · **未发布**(构建已通过,见下文;`[OptiFine]` 157 行、stderr 27 字节、无崩溃报告) |
-| 1.20.2 | `20.2.88` | `OptifiNeoforge-1.0.0+mc1.20.2.jar` | 无 | `preview_OptiFine_1.20.2_HD_U_I7_pre1.jar` | 17 | 已验证 · **未发布**(构建已通过,见下文;`[OptiFine]` 239 行、stderr 14 625 字节、无崩溃报告) |
-| 1.20.4 | `20.4.251` | `OptifiNeoforge-1.0.0+mc1.20.4.jar` | `OptiFine_1.20.4_HD_U_I7.jar` | `preview_OptiFine_1.20.4_HD_U_I8_pre4.jar` | 17 | 已验证 · 已发布(241 行、stderr 14 481 字节、无崩溃报告) |
-| 1.20.6 | `20.6.141` | `OptifiNeoforge-1.0.0+mc1.20.6.jar` | 无 | `preview_OptiFine_1.20.6_HD_U_J1_pre18.jar` | 21 | 已验证 · 已发布(222 行、stderr 0 字节、无崩溃报告;这一版起 FML 拒绝原版 OptiFine jar,必须用本项目的重打包) |
+| 1.20.1 | `net.neoforged:forge:1.20.1-47.1.106` | `OptiNeoforge-1.0.0+mc1.20.1.jar` | `OptiFine_1.20.1_HD_U_I6.jar` | `preview_OptiFine_1.20.1_HD_U_I6_pre6.jar` | 17 | 已验证 · **未发布**(构建已通过,见下文;`[OptiFine]` 157 行、stderr 27 字节、无崩溃报告) |
+| 1.20.2 | `20.2.88` | `OptiNeoforge-1.0.0+mc1.20.2.jar` | 无 | `preview_OptiFine_1.20.2_HD_U_I7_pre1.jar` | 17 | 已验证 · **未发布**(构建已通过,见下文;`[OptiFine]` 239 行、stderr 14 625 字节、无崩溃报告) |
+| 1.20.4 | `20.4.251` | `OptiNeoforge-1.0.0+mc1.20.4.jar` | `OptiFine_1.20.4_HD_U_I7.jar` | `preview_OptiFine_1.20.4_HD_U_I8_pre4.jar` | 17 | 已验证 · 已发布(241 行、stderr 14 481 字节、无崩溃报告) |
+| 1.20.6 | `20.6.141` | `OptiNeoforge-1.0.0+mc1.20.6.jar` | 无 | `preview_OptiFine_1.20.6_HD_U_J1_pre18.jar` | 21 | 已验证 · 已发布(222 行、stderr 0 字节、无崩溃报告;这一版起 FML 拒绝原版 OptiFine jar,必须用本项目的重打包) |
 
 两列 OptiFine 都只表示"该构建存在",不代表可用;这里也不表示正式版比 preview 更适合移植。
 
@@ -87,7 +87,7 @@
 **在 PowerShell 里 `-P...` 必须加引号**:不加时 `1.20.6` 会被拆开,报
 `Task '.20.6' not found in root project`(Gradle 9.6.1 实测);`cmd.exe` 下不加引号也可以。
 
-产物为 `build/libs/OptifiNeoforge-<版本>+mc<MC 版本>.jar`,例如 `OptifiNeoforge-1.0.0+mc1.20.6.jar`。
+产物为 `build/libs/OptiNeoforge-<版本>+mc<MC 版本>.jar`,例如 `OptiNeoforge-1.0.0+mc1.20.6.jar`。
 **四个目标现在都能构建。**
 
 ### 1.20.1 与 1.20.2 走另一条路(不经过 ModDevGradle)
