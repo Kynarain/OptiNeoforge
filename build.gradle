@@ -224,7 +224,7 @@ tasks.withType(JavaCompile).configureEach {
     options.release = targetJavaVersion
 }
 
-// The offline tools (kynarain.cn.optifineoforge.optifine) compile against the ASM version named in
+// The offline tools (kynarain.cn.optineoforge.optifine) compile against the ASM version named in
 // gradle.properties, not against the one this line's NeoForge pins: 20.4.251's modDevApiElements
 // demands an older org.ow2.asm, whose Remapper has no API-version constructor, and SrgRemap needs it -
 // measured here: "cannot apply Remapper's constructor to the given types; required: no arguments,

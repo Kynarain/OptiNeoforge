@@ -21,7 +21,7 @@
 | 1.21.x | 1.21.1 | 21.1.250 | **已验证**(2026-09-16) | `STARTED (40s)`、`Setting user` ✓、313 个类换装(目标 426)、223 行 `[OptiFine]`、`Pre-stitch` ×14、CTM ×3、着色器 ✓、`Caught error: 0`、**stderr 0 字节**;载荷父类被改写(`CapabilityProvider` → `AttachmentHolder`) |
 | 1.21.x | 1.21.3 | 21.3.97 | **已验证**(2026-09-16) | 一次性跑通:`STARTED (40s)`、`Setting user` ✓、268 个类换装(目标 445)、225 行 `[OptiFine]`、`Pre-stitch` ×14、CTM ×3、着色器 ✓、`Caught error: 0`、**stderr 0 字节**;载荷父类改写与 1.21.1 同形(`CapabilityProvider` → `AttachmentHolder`) |
 | 1.21.x | 1.21.4 | 21.4.149 | **已验证** | 启动成功、OptiFine 474 targets、模型烘焙(`missingModel=SimpleBakedModel`)、1024×1024 贴图集、232 行 `[OptiFine]`、`Pre-stitch` ×14、stderr 0 字节;这一线走 OptiFine 自己的运行期补丁,不换类 |
-| 1.21.x | 1.21.6 / 1.21.7 / 1.21.8 | 21.6.20-beta / 21.7.25-beta / 21.8.54 | **已验证**(2026-09-16) | 三条都 `STARTED (40s)`、`Setting user` ✓、**stderr 0 字节**、无本次运行的 crash report:1.21.6 340 行 `[OptiFine]`,1.21.7 340 行,1.21.8 337 行;三条都换装 ~500 个类并回填 ~350 个成员。三条的上游缺陷(OptiFine 预览版开启着色器会崩在 OptiFine 内部)使验收不含着色器,见 `OptifiNeoforge-121x/docs/PLAN.md` |
+| 1.21.x | 1.21.6 / 1.21.7 / 1.21.8 | 21.6.20-beta / 21.7.25-beta / 21.8.54 | **已验证**(2026-09-16) | 三条都 `STARTED (40s)`、`Setting user` ✓、**stderr 0 字节**、无本次运行的 crash report:1.21.6 340 行 `[OptiFine]`,1.21.7 340 行,1.21.8 337 行;三条都换装 ~500 个类并回填 ~350 个成员。三条的上游缺陷(OptiFine 预览版开启着色器会崩在 OptiFine 内部)使验收不含着色器,见 `OptiNeoforge-121x/docs/PLAN.md` |
 | 1.21.x | 1.21 / 1.21.9 / 1.21.10 / 1.21.11 | 21.0.167 / 21.9.16-beta / 21.10.64 / 21.11.45 | **未开始** | 1.21.2 与 1.21.5 没有 OptiFine 构建;1.21 只是前置(NeoForge 21.0.167 未装);**1.21.9 起 NeoForge 不再用 ModLauncher**(实测 21.11.45 的 profile:主类 `net.neoforged.fml.startup.Client`,库里没有 modlauncher/securejarhandler,只有 FML 10 + sponge-mixin),挂载点要换成 `ClassProcessor`,而 OptiFine 1.21.11 J9 **不含** processor,要自己写 |
 | 26.x | 26.1.2 | 26.1.2.109 | **未开始** | FML 11 去掉 ModLauncher;OptiFine K1_pre2 自带 `OptiFineClassProcessor`,需先绕过 `IncompatibleModReason` 与 `loaderVersion` |
 
@@ -73,7 +73,7 @@ origin/1.21.x : 10 files
 origin/26.x   : 39 files
 ```
 
-`26.x` 上那 39 个文件包含**全部实现**:loader 侧的 `OptifiNeoforgeTransformationService` 与各项修补
+`26.x` 上那 39 个文件包含**全部实现**:loader 侧的 `OptiNeoforgeTransformationService` 与各项修补
 (`TagHelperFix`、`PackRootsFix`、`ReloadProbeFix`、`ModelProbeFix`、`NativeImageProbeFix`、
 `MemberRestoreTransformer`、`RenderTargetFix`、`ReloadableResourceManagerFix`、`ConventionTags`)、离线工具
 (`MemberRestorePlan`、`ForgeApiShims`、`OptifineJar`、`OptifineJarFixer`、`OptifinePipeline`、
@@ -121,7 +121,7 @@ gave a smaller answer than expected:
   `ForgeApiShims`. A Java 17 class file loads on the 21 and 25 runtimes just as
   well, so no line needs it changed.
 - All nine loader transformers depend on ModLauncher
-  (`OptifiNeoforgeTransformationService`, `MemberRestoreTransformer`,
+  (`OptiNeoforgeTransformationService`, `MemberRestoreTransformer`,
   `TagHelperFix`, `PackRootsFix`, `ReloadProbeFix`, `ModelProbeFix`,
   `NativeImageProbeFix`, `RenderTargetFix`, `ReloadableResourceManagerFix`).
   That confirms from the code side that 26.x needs the loader layer rewritten
@@ -312,7 +312,7 @@ After the Java 17 and Forge-shell rules from the previous round, the 1.20.1 run 
 all the way through mod loading with the mod present:
 
     OptiFineTransformationService: Targets: 412
-    OptifiNeoforge: Member restore plan: 550 members across 87 classes
+    OptiNeoforge: Member restore plan: 550 members across 87 classes
     NeoForge mod loading, version 47.1.106, for MC 1.20.1
     NeoForge v47.1.106 Initialized
 
@@ -616,7 +616,7 @@ SRG 名(所以 412 个目标全部 `Base resource not found`)。结论是这一�
 1. **同一份 jar,去掉 `patched-index.txt` 后能正常启动**:把离线载荷产物复制到探针目录并删掉
    `optifineoforge/patched-index.txt`,再启动 —— `VERDICT: STARTED (40s)`、截图已存、stderr 只有
    `Failed to load forge logo`,而且日志明确写着
-   `No /optifineoforge/patched-index.txt in this jar; no classes will be swapped in`。
+   `No /optineoforge/patched-index.txt in this jar; no classes will be swapped in`。
    所以**出错的是"本 mod 的 transformer 真的开始换类"这件事**,不是 jar 的内容(载荷布局、donor、plan 都无辜)。
 2. **把索引限制成只有 `net/minecraft/*`(354 条)后仍然以同一条栈失败** —— 触发点在 `net/minecraft/**` 里,
    不在 `com/mojang/**`(blaze3d 那些类这次根本没注册)。
@@ -710,7 +710,7 @@ Patched-class targets: 417        (= 435 - 18)
    `additionalClassesLocator: [optifine., net.optifine.]`)。也就是说那条能启动的路径里 **OptiFine 的代码从未被调用过**。
 2. 一旦有类被换(第一个被换的类 `Mth` 就调用 OptiFine),失败点正好是**第一次加载 `net.optifine.*`**。
 
-而**我们自己**的类也住在同一个 jar 里(`kynarain/cn/optifineoforge/loader/**`),它们加载得好好的。
+而**我们自己**的类也住在同一个 jar 里(`kynarain/cn/optineoforge/loader/**`),它们加载得好好的。
 所以问题不在"读 union 的 mod jar",而在 **OptiFine 自己那条取类路径**:它按 code source 算出 URL 交给
 ModLauncher(`additionalClassesLocator`),在 union 文件系统下那个 URL 是 union 形状,这一代
 securejarhandler 打不开 —— 这**正是 `OptifineJarFixer` 当初为它的 transformation service 修过的那类 bug**
@@ -938,7 +938,7 @@ rig 在 plan/stub/ship **之前**把 `$patched` 换成这份对齐后的 jar,所
 
 `0.1.0` → `0.2.0`(minor),依据是三行已实机跑通、OptiFine 功能在跑(shaders/CTM/图集/157 行 `[OptiFine]` 日志)。
 脚本三条路径都实测过:`show` ✓、`minor -DryRun`(打印 `would change 0.1.0 -> 0.2.0`)✓、`minor` 真正写入
-(UTF-8 无 BOM)✓。产物名随行变化:`OptifiNeoforge-0.2.0+mc1.20.4.jar`(本行默认目标 1.20.4),
+(UTF-8 无 BOM)✓。产物名随行变化:`OptiNeoforge-0.2.0+mc1.20.4.jar`(本行默认目标 1.20.4),
 `-Pmc=1.20.1 / 1.20.6` 时分别是 `+mc1.20.1` / `+mc1.20.6`。
 
 关于 0.x 的判据:`VERSIONING.md` / 脚本注释写的是"0.x = loader 还没在游戏里跑起来,1.0.0 要手动 `-Base` 设"。
@@ -1028,7 +1028,7 @@ profile 里的 securejarhandler:**全是 2.1.24**(20.2.86 / 20.2.88 / 20.2.93 �
 2.1.24 的第三个参数是 `Supplier<Set<String>>`,而栈上此刻是一个 `Set`。做法:
 
 1. 在我们的 jar 里放一个极小的 `Supplier<Set<String>>` 实现(带一个吃 `Set` 的构造器),放在
-   `kynarain/cn/optifineoforge/loader/` 下就行 —— rig 第 5 步本来就会把这个包的类加进产物 ✓;
+   `kynarain/cn/optineoforge/loader/` 下就行 —— rig 第 5 步本来就会把这个包的类加进产物 ✓;
 2. 在 `OptifineJarFixer` 里加一条处理:`handles()` 增认 `optifine/OptiFineJar`,在那条 `invokespecial` 之前
    **插入** `NEW helper; DUP_X1; INVOKESPECIAL helper.<init>(Ljava/util/Set;)V` —— 栈就从
    `[this,name,version,set]` 变成 `[this,name,version,supplier]`,原调用照旧执行 ✓。
@@ -1285,9 +1285,9 @@ ML 按**条目路径**找类,自然只找到运行时那一份。修法就是查
 游戏 jar 是官方名之后,用现在的 rig 去建 1.21.4 会在**打桩那一步**失败,报的是三个"类找不到":
 
 ```
-java.lang.ClassNotFoundException: kynarain.cn.optifineoforge.optifine.NestedFamilyGuard
-java.lang.ClassNotFoundException: kynarain.cn.optifineoforge.optifine.NestedNameBridge
-java.lang.ClassNotFoundException: kynarain.cn.optifineoforge.optifine.MissingTargets
+java.lang.ClassNotFoundException: kynarain.cn.optineoforge.optifine.NestedFamilyGuard
+java.lang.ClassNotFoundException: kynarain.cn.optineoforge.optifine.NestedNameBridge
+java.lang.ClassNotFoundException: kynarain.cn.optineoforge.optifine.MissingTargets
 ```
 
 原因很清楚:`1.21.x` 分支的 `optifine` 工具集只有
@@ -2263,7 +2263,7 @@ ModLauncher 线与 FML 10/11 线的 classpath 不能共用一个形状。
 **1.21 只有 preview 构建**(`/optifine/1.21` 返回 8 条,全部是 `J1_pre1..pre9`,没有 release),
 所以这一条线用的是最新的 `preview_OptiFine_1.21_HD_U_J1_pre9.jar`,与 1.21.6/1.21.7/1.21.8 同样处理。
 
-线参数落在 `build-line.ps1` 的新条目 `'121'`(`Repo` = `OptifiNeoforge-121x`、`Work` = `build-121`、
+线参数落在 `build-line.ps1` 的新条目 `'121'`(`Repo` = `OptiNeoforge-121x`、`Work` = `build-121`、
 `Out` = `mods-stage-121\optifiNeoforge-combined.jar`、`Profile` = `neoforge-21.0.167`、
 `GameDir` = `game121`),`Work` 下另建了 `optifine-mods.toml`(`neoforge` 区间 `[21.0,)`、`minecraft` 区间
 `[1.21,1.21.1)`;这个模板每个 `Work` 一份,是 `build-rig-jar.ps1` 的必需输入)。
@@ -2432,9 +2432,9 @@ stderr 15 860 字节(2 条 CNFE);本轮 game2111 出现 2 份崩溃报告(见下
 
 | 分支 | `minecraft_version` | 版本(经 `release/version.ps1`) | 产物 | 字节 |
 |---|---|---|---|---|
-| `1.20.x` | 1.20.4 | 0.2.0(未升) | `OptifiNeoforge-0.2.0+mc1.20.4.jar` | **未产出**(见下) |
-| `1.21.x` | 1.21.4 | 0.1.0 → **0.1.1**(`patch`) | `OptifiNeoforge-0.1.1+mc1.21.4.jar` | 161 231 |
-| `26.x` | 26.1.2 | 0.1.0 → **0.1.1**(`patch`) | `OptifiNeoforge-0.1.1+mc26.1.2.jar` | 124 172 |
+| `1.20.x` | 1.20.4 | 0.2.0(未升) | `OptiNeoforge-0.2.0+mc1.20.4.jar` | **未产出**(见下) |
+| `1.21.x` | 1.21.4 | 0.1.0 → **0.1.1**(`patch`) | `OptiNeoforge-0.1.1+mc1.21.4.jar` | 161 231 |
+| `26.x` | 26.1.2 | 0.1.0 → **0.1.1**(`patch`) | `OptiNeoforge-0.1.1+mc26.1.2.jar` | 124 172 |
 
 升版理由按 `docs/VERSIONING.md` 的档位表:两条线都是 `patch`(只修正行为/新增已支持版本,不改使用方式),
 `1.0.0` 仍然保留 —— 它是"加载器确实在游戏里跑起来"的断言,由 rig 的 `VERDICT: STARTED` 支撑,这一次不由打包动作给出。
@@ -2442,7 +2442,7 @@ stderr 15 860 字节(2 条 CNFE);本轮 game2111 出现 2 份崩溃报告(见下
 ### 两个真实的拦路虎(都已修,且第二个修错一次)
 
 1. **26.x:`src/main/java` 根本编译不过**。这条分支的目标是 FML 11(没有 ModLauncher),而 `src/main/java` 里
-   放着 ModLauncher 时代的 `OptifiNeoforgeTransformationService` 与 13 个 transformer ⇒ 100 个错误,
+   放着 ModLauncher 时代的 `OptiNeoforgeTransformationService` 与 13 个 transformer ⇒ 100 个错误,
    全是 `程序包 cpw.mods.modlauncher.api 不存在`。修法不是删,是**搬**:`src/main/java` → `src/ml11/java`
    (与 1.20.x 分支既有的 `src/ml10` / `src/ml11` 约定一致),`src/main/java` 只留这个 MC 目标能编译的东西
    (mod 入口 + 离线工具)。搬完 `BUILD SUCCESSFUL`。
@@ -2464,7 +2464,7 @@ stderr 15 860 字节(2 条 CNFE);本轮 game2111 出现 2 份崩溃报告(见下
 
 `gradlew build` 停在 `:createMinecraftArtifacts`(约 3–4 分钟后超时),失败信息是
 maven.neoforged.net 的 TLS 握手被断开(`Remote host terminated the handshake`,与 26.x 第一次失败同因)。
-代码侧没有改动,`release/version.ps1 show` 给出的产物名是 `OptifiNeoforge-0.2.0+mc1.20.4.jar`,
+代码侧没有改动,`release/version.ps1 show` 给出的产物名是 `OptiNeoforge-0.2.0+mc1.20.4.jar`,
 下一轮重试这个任务即可 —— 判据是 `build/libs/` 里出现该文件。
 
 ### 当前修订(2026-09-18)
@@ -2655,7 +2655,7 @@ stderr 15 860 字节),说明探针本身没有扰动这条线。
 
 ```
 BUILD SUCCESSFUL in 1m 15s     (Minecraft 1.20.4, NeoForge 20.4.251, Java 17)
-build/libs/OptifiNeoforge-0.2.0+mc1.20.4.jar   159 588 字节
+build/libs/OptiNeoforge-0.2.0+mc1.20.4.jar   159 588 字节
 ```
 
 `release/version.ps1 show` 给的产物名与之一致。**没有**打标签、**没有**建 Release(用户未授权发布)。
@@ -2713,7 +2713,7 @@ client url:
 | 1.21.x | 1.21.11 | 21.11.45 | 挂载点已装 391 个类、`[OptiFine]` 182 行;两问都已量清(见上),**未通过** |
 | 1.21.x | 1.21.9 / 1.21.10 | 21.9.16-beta / 21.10.64 | OptiFine 已取;NeoForge 卡在 maven 不可达 |
 
-**打包**:`1.20.x` 的 `build/libs/OptifiNeoforge-0.2.0+mc1.20.4.jar` 已产出(159 588 字节);
+**打包**:`1.20.x` 的 `build/libs/OptiNeoforge-0.2.0+mc1.20.4.jar` 已产出(159 588 字节);
 `1.21.x` 与 `26.x` 上一轮的产物不变;**未发布**(无标签、无 Release)。
 
 ---
@@ -2881,7 +2881,7 @@ PowerShell 5.1 根本解析不了**(`Invalid JSON primitive: 4 97 114 103 ...`,�
 | 1.21.x | **1.21.11** | 21.11.45 | **已验证**(`STARTED` + `Setting user` + `Sound engine` + `[OptiFine]` 196 行 + 装 400 个类 + stderr 107 字节=对照跑的 107 + 无崩溃报告)⇒ **13/15 条** |
 | 1.21.x | 1.21.9 / 1.21.10 | 21.9.16-beta / 21.10.64 | OptiFine ✓、原版 jar ✓、NeoForge 装完 ✓;差"参数化挂载点编译用的 loader 版本"后各跑一次链 |
 
-**打包**:产物不变(1.20.x `OptifiNeoforge-0.2.0+mc1.20.4.jar` 159 588、1.21.x 与 26.x 上一轮产物);
+**打包**:产物不变(1.20.x `OptiNeoforge-0.2.0+mc1.20.4.jar` 159 588、1.21.x 与 26.x 上一轮产物);
 **未发布**(无标签、无 Release)。
 
 
@@ -3186,7 +3186,7 @@ universal jar 里两种字面量都没有,所以做决定的确实是 loader jar
 还有一处本轮量了、但**不是元数据而是源码**的分界:FML 的 API 包名 —— 1.20.1 是 `net.minecraftforge.fml` +
 `net.minecraftforge.eventbus.api`,1.20.2 起是 `net.neoforged.fml` + `net.neoforged.bus.api`。一份源码跨不过去,
 所以按目标选源码根(`src/forge` 与 `src/neoforged`),与 `src/ml10`/`src/ml11` 同形。实测:1.20.1 的
-`OptifiNeoforge.class` 常量池里只有 `net/minecraftforge/**`,没有一处 `net/neoforged`。
+`OptiNeoforge.class` 常量池里只有 `net/minecraftforge/**`,没有一处 `net/neoforged`。
 
 ### 四、这一轮的网络实况:坏的是 IPv4 那一侧
 
@@ -3295,7 +3295,7 @@ NeoForge 21.4.149 / 1.21.4,game dir 干净,不带 mod:
    `OptiFine's patcher failed ... Base resource not found: fdp.class`。
 
 3. **计划装进去之后:`initModdedOverlays` 那个崩溃消失了,服务也真的被注册了**。日志里能读到
-   `OptifiNeoforgeTransformationService.onLoad, alongside [mixin, OptiFine, fml, OptifiNeoforge…]`、
+   `OptiNeoforgeTransformationService.onLoad, alongside [mixin, OptiFine, fml, OptiNeoforge…]`、
    `OptiFineTransformer: Targets: 474`、`Member restore plan: 314 members across 82 classes`,
    以及逐类的 `Restored N members in … from its donor`。本次没有崩溃报告、**stderr 0 字节**、700 行 `[OptiFine]`。
 
@@ -3331,7 +3331,7 @@ loader 的类实现 `cpw.mods.modlauncher.api.ITransformationService`,但**没�
 `META-INF/services/**` 条目数是 **0**。ModLauncher 只通过这个文件发现转换服务,所以**已发布的 9 个 ModLauncher loader jar**
 (`1.20.x` 的 2 个、`1.21.x` 的 7 个)实际上是惰性的 —— 加载侧根本不会被调用(`26.1.2` 那一线不受影响:
 它的 Gradle 产物里没有 loader 类,挂载点是 OptiFine 自己的 `ClassProcessor`)。
-实测对照:手工补上这个文件之后,日志里立刻出现 `OptifiNeoforgeTransformationService.onLoad` 那一行;
+实测对照:手工补上这个文件之后,日志里立刻出现 `OptiNeoforgeTransformationService.onLoad` 那一行;
 不补,同一份启动里本项目的加载侧一个字都没有。
 
 修法按本线已有的"每个代次一个源码根"的写法:`1.21.x` 上 `-Pmountpoint=modlauncher` 时加
@@ -3641,7 +3641,7 @@ ClassFormatError: Illegal field modifiers in class
 3. 上面第二节的崩溃正是这一类的后果之一。
 
 **所以下一问不是某个字段的标志位,而是**:loader 需要拿到**真正的运行时类**(它已经捕获了 module layer manager,
-`OptifiNeoforgeTransformationService.layers()` 就是),而不是把 `input` 当成运行时那份。
+`OptiNeoforgeTransformationService.layers()` 就是),而不是把 `input` 当成运行时那份。
 
 ### 四、边界
 
@@ -3743,9 +3743,9 @@ SRG 名随之消失。下一步因此收敛成两件互相独立的事:(a) 把 1
 同一批日志把崩溃位置夹得更紧:最后三行永远是
 
 ```
-[OptifiNeoforge/]: Replaced net.minecraft.client.renderer.texture.AbstractTexture with OptiFine's patched version (...)
-[OptifiNeoforge/]: Initialised 1 restored fields in net/minecraft/client/renderer/texture/AbstractTexture
-[OptifiNeoforge/]: Restored 3 members in net/minecraft/client/renderer/texture/AbstractTexture from its donor
+[OptiNeoforge/]: Replaced net.minecraft.client.renderer.texture.AbstractTexture with OptiFine's patched version (...)
+[OptiNeoforge/]: Initialised 1 restored fields in net/minecraft/client/renderer/texture/AbstractTexture
+[OptiNeoforge/]: Restored 3 members in net/minecraft/client/renderer/texture/AbstractTexture from its donor
 ```
 
 也就是说:**换装与成员恢复都成功返回了**,崩溃发生在"这个被换装的类第一次被游戏使用/初始化"的时候。
@@ -4196,7 +4196,7 @@ java.lang.VerifyError: Bad <init> method call
    也就是说 **1.20.1 的运行时本身还是 SRG 名**(Forge 时代),载荷也是 SRG ⇒ **这条线不需要改名**
    (`add-line.ps1` 的 `-SrgMappings` 只适用于 1.20.2 及以后的 1.20.x)。装配本身因此很干净:
    42355 条引用里只有 **3** 条缺失、`--stub` 补 0 个(3 条留给 loader)。
-2. **第一次启动死在模块解析**:`java.lang.module.ResolutionException: Modules OptifiNeoforge.mc1._20._1.registered and
+2. **第一次启动死在模块解析**:`java.lang.module.ResolutionException: Modules OptiNeoforge.mc1._20._1.registered and
    net.minecraftforge.eventbus export package net.minecraftforge...` —— 我们在 loader jar 里塞了 **Forge API 桩**
    (`ForgeApiShims` 产出的 `net/minecraftforge/**`),而 1.20.1 的 FML 自己就有真的 `net.minecraftforge.**`(它还导出了
    同一个包)⇒ 拆掉 `-StubDir` 之后这一条消失 ✔。
@@ -4359,7 +4359,7 @@ adloadx 拿得到 token,但 downloadx 返回 16 字节的 `File not found.`(HTTP
 ## 2026-09-19(晚间):在本机重建的 rig 上跑 1.20.6(实测与记录的差异),以及 1.20.4 的实测阻塞
 
 原始 rig(`optifineoforge-test`)在这台机器上**不存在**,所以这一轮是**从零重建**一个等价 rig:下载原版客户端
-与 NeoForge 安装器、把本仓库的离线流水线(`kynarain.cn.optifineoforge.optifine`)跑在**用户自己的** OptiFine jar
+与 NeoForge 安装器、把本仓库的离线流水线(`kynarain.cn.optineoforge.optifine`)跑在**用户自己的** OptiFine jar
 上、再用 rig 的 `launch.ps1` 起一次真实客户端。OptiFine 不随仓库分发,所以载荷必须现场生成 —— 这一轮从头到尾
 没有用过任何别人预打包的 OptiFine 载荷。
 
@@ -4633,14 +4633,14 @@ atives-for.ps1、get-optifine.ps1、launch.ps1(RIG_EXTRA_JVM)、
 
 #### 1. 上一节"没有任何一条线的客户端真正进过世界"**已经过期**
 
-1.20.6,jar `jars-1.20.6\OptifiNeoforge-1.0.0+mc1.20.6-registered.jar` 1744373 字节
+1.20.6,jar `jars-1.20.6\OptiNeoforge-1.0.0+mc1.20.6-registered.jar` 1744373 字节
 (SHA-256 `AAEC8AF69B7C03A08DA1B9A206F1E15E38253E8801BF57CF94E797F73E60B506`,含本节第 2 条的修复):
 
 ```
 07:00:45.663 [Server thread/INFO] PlayerList: Dev[local:E:f8ce5789] logged in with entity id 9 at (10.5, 87.0, -5.5)
 07:00:45.684 [Server thread/INFO] MinecraftServer: Dev joined the game
-07:00:46.108 [Render thread/INFO] OptifiNeoforge: Replaced …RenderChunkRegion with OptiFine's patched version (7 fields, 16 methods)
-07:00:46.110 [Render thread/INFO] OptifiNeoforge: Initialised 2 restored fields in …RenderChunkRegion
+07:00:46.108 [Render thread/INFO] OptiNeoforge: Replaced …RenderChunkRegion with OptiFine's patched version (7 fields, 16 methods)
+07:00:46.110 [Render thread/INFO] OptiNeoforge: Initialised 2 restored fields in …RenderChunkRegion
 ```
 
 同一 jar 上另一次运行 07:09:48 进入、07:14:22 仍在出帧,连续渲染约 **4.7 分钟**;两次运行里
@@ -5060,7 +5060,7 @@ rig 已有 `send-chat.ps1`,进世界后发一条 `/tp @s <x> <y> <z> <yaw> <pitc
 
 ### 十、1.20.4:所有修复都进了 jar,世界测试待做
 
-`jars-1.20.4\OptifiNeoforge-1.0.0+mc1.20.4-registered.jar`,1736876 字节,
+`jars-1.20.4\OptiNeoforge-1.0.0+mc1.20.4-registered.jar`,1736876 字节,
 SHA-256 `CE08480B05BCE393AC8DC5D6B6507D68A332AEF5698C536BA09F8D967B15E24A`,审计 0 findings,内含:
 join keep plan(3 行:`GlDebug`、`AbstractTexture.setFilter`、`IntegratedServer.initServer`)、
 用修好的生成器重做的 donor、用种类修复重做的 Forge stub(接口外壳 + Noop)、drop plan(3 行)以及本次的
@@ -5506,7 +5506,7 @@ donor 里确实带了运行期那一份(`public ... ModelDataManager$Active mode
 
 **顺带记一个 rig 级配方事实**(这次真的踩到了):1.20.1 的重建必须带 `-SkipForgeStubs`,否则
 `ForgeApiShims` 会往 loader jar 里塞 `net/minecraftforge/**`,与 FML 自己的同名包冲突,启动直接死在
-`java.lang.module.ResolutionException: Module OptifiNeoforge.mc1._20._1.registered contains package
+`java.lang.module.ResolutionException: Module OptiNeoforge.mc1._20._1.registered contains package
 net.minecraftforge.eventbus.api, module net.minecraftforge.event ...`(stderr 1721 字节、OptiFine 0 行)。
 另外 `-ProfileId 1.20.1-forge-47.4.23` 必须显式给(这线 profile 名不等于 Maven 版本号),否则脚本在
 "runtime classpath" 一步抛 `no profile json at ...`。
