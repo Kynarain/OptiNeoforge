@@ -4240,3 +4240,19 @@ Minecraft 累加进相机**(它读的是 GLFW 光标位置回调,不是消息坐
 **新增文档**:`docs/PUBLISHING.md`(VERSIONING.md 一直指向它但此前不存在)—— 记录渠道、两条命令、配对陷阱
 (1.20.1 是 `47.1.106`/Forge 坐标、1.20.6 需 `-Pmodlauncher=11 -Ptarget_java_version=21`)、
 asset `+` 转义、先删后建、脏树告警,以及"正式 Release + 说明标注"这个**知情的偏离**。
+
+## 2026-09-27 实测对照:FXAA 的 post_effect 定义"改写"会把功能弄坏,"不提供"才对
+
+为了把产物里 OptiFine 的文件换成"自己撰写"的等价定义,做过一次真机对照(1.21.8,同一存档、相机钉定 yaw 0 / pitch 45、PostMessage 投键取 F2,两对帧都有效——场景差 2.2% 与 4.6%,两次运行结束读回相机均为 0/45、零漂移):
+
+| 游戏加载的定义 | 边缘能量 | 硬边 | 判定 |
+|---|---|---|---|
+| 本项目自撰(blit 趟顶点改成 `minecraft:core/screenquad`) | **-1.1%** | -0.9% | **NOT VISIBLE** |
+| **OptiFine 原版**(本项目一个文件都不提供) | **+8.5%** | **+15.3%** | **VISIBLE** |
+
+结论:**那份 `post_effect/fxaa_of_*.json` 不能由我们改写**。1.21.8 上把 blit 趟的顶点阶段换成 `core/screenquad` 之后,FXAA 那一趟的结果没有回到主画面,画面等于没有抗锯齿。这与姊妹项目 OptiFabric 的实测结论一致(它在 26.x 上删/改 `post_effect/` 曾导致 `Could not find post chain with id: minecraft:fxaa_of_2x`,此后选择**原样保留 OptiFine 自带的那份**)。
+
+因此整改的最终形态是:**产物里不含这两个文件,运行时使用 OptiFine 自己 jar 里的那一份**;早前那处"blit 顶点改 core/screenquad"的修法只在**载荷侧**(FML10 线,由流水线对用户 OptiFine jar 的副本执行)保留,因为 1.21.9 上确实报过
+`Couldn't find source for VERTEX shader (minecraft:post/blit)`,而 1.21.9/10/11 的 FXAA 也已在修复后判定 VISIBLE。
+
+> 纪律备忘:这一轮第一次出现"判定有效但结果是否定"的情况——正是靠 **相机读回 0/45 + 场景差 2.2%/4.6%** 才敢下结论。取键改 `PostMessage`(`post-key.ps1`)后,取帧不再受"有人在用鼠标"影响。
