@@ -44,7 +44,7 @@ neoForge {
     }
 
     mods {
-        optifineoforge {
+        optineoforge {
             sourceSet sourceSets.main
         }
     }

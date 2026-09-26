@@ -4,7 +4,7 @@
 > **项目的运行日志在 [`1.20.x` 分支的 `docs/MATRIX.md`](../../blob/1.20.x/docs/MATRIX.md)**,每轮实测都追加在那里 ——
 > 包括下面这些在本文件写下之后才发生的事:15 / 15 条线全部实机验证(2026-09-18),以及 1.0.0 的第一次真实发布
 > (`v1.0.0+mc26.1.2`、`v1.0.0+mc1.21…1.21.8`、`v1.0.0+mc1.20.2/1.20.4/1.20.6`,见
-> [Releases](https://github.com/Kynarain/OptifiNeoforge/releases))。
+> [Releases](https://github.com/Kynarain/OptiNeoforge/releases))。
 > 下面第 5 行起的"阶段性总结"保留原样,是为了留下当时的判断,不是当前状态。
 
 本文只记录**实测**的差距与顺序,不重复 `docs/PLAN.md`(计划)与 `docs/DEVELOPMENT.md`(实测记录)。
