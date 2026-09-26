@@ -3,12 +3,12 @@
 鏈枃浠惰褰曟湰绾胯嚜宸辩殑瀹炴祴,浠ュ強璺ㄧ嚎鍏辩敤鐨勪袱涓皟鐮旂粨璁虹殑鍏ュ彛:`docs/RESEARCH-optifine.md`(OptiFine jar 鐨勭粨鏋勪笌琛ヤ竵鏈哄埗,7 涓瀯寤洪€愪釜鎷嗗紑鐪?涓?`docs/RESEARCH-neoforge.md`(NeoForge/FML 渚ф瘡涓増鏈厑璁镐粈涔?銆?
 ## 鎬庝箞璇?OptiFine 鐨?jar
 
-`src/main/java/kynarain/cn/optifineoforge/optifine/OptifineJar.java` 涓?`OptifineConfig.java` 鍙緷璧?JDK,涓嶄緷璧?Minecraft銆丯eoForge 鎴栦换浣?loader,鎵€浠ュ彲浠ョ洿鎺?`javac` 缂栬瘧鍚庡鐫€鐪熷疄 jar 璺?
+`src/main/java/kynarain/cn/optineoforge/optifine/OptifineJar.java` 涓?`OptifineConfig.java` 鍙緷璧?JDK,涓嶄緷璧?Minecraft銆丯eoForge 鎴栦换浣?loader,鎵€浠ュ彲浠ョ洿鎺?`javac` 缂栬瘧鍚庡鐫€鐪熷疄 jar 璺?
 
 ```powershell
 javac -d out src\main\java\kynarain\cn\optifineoforge\optifine\*.java
-java -cp out kynarain.cn.optifineoforge.optifine.OptifineJar <OptiFine jar 璺緞>
-java -cp out kynarain.cn.optifineoforge.optifine.OptifineConfig <OptiFine jar 璺緞>
+java -cp out kynarain.cn.optineoforge.optifine.OptifineJar <OptiFine jar 璺緞>
+java -cp out kynarain.cn.optineoforge.optifine.OptifineConfig <OptiFine jar 璺緞>
 ```
 
 OptiFine 鐨?jar 涓嶈繘浠撳簱(`test-downloads/` 宸插拷鐣?銆備笅杞借蛋绗笁鏂归暅鍍?娉ㄦ剰**瀹冭繑鍥炵殑 302 閲?`Location` 鏄浉瀵硅矾寰?*,`curl -L` 涓嶄竴瀹氳窡寰椾笅鍘?鐩存帴鐢ㄩ暅鍍忕殑 maven 璺緞鏇寸ǔ:
@@ -115,11 +115,11 @@ java.lang.NoSuchMethodError: 'void com.mojang.blaze3d.pipeline.RenderTarget.<ini
 | OptiFine 琛ヤ竵浜х墿(`srg/com/mojang/blaze3d/pipeline/RenderTarget.class`) | **鍙湁 `RenderTarget(boolean)`** |
 
 涔熷氨鏄:OptiFine 鐢?*鑷繁缂栬瘧鐨勪竴浠?* RenderTarget 椤舵帀浜?NeoForge 鐨勯偅浠?鑰岄偅浠芥槸鎸?Forge 鐨勫舰鐘剁紪鐨?灏戜簡 NeoForge 璋冪敤鏂硅鐨勯噸杞姐€傚悓涓€涓ā寮忚繕浼氫涪瀛楁 鈥斺€?淇帀鏋勯€犲嚱鏁颁箣鍚?涓嬩竴涓敊璇氨鏄?NeoForge 鐨?`MainTarget.allocateDepthAttachment` 鎵句笉鍒板瓧娈?`useStencil`(OptiFine 閭ｄ唤鎶婂畠鏀瑰悕鎴愪簡 `stencilEnabled`)銆?
-**澶勭悊鍔炴硶**:鍔犱竴涓垜浠嚜宸辩殑 ModLauncher 杞瀷鏈嶅姟(`OptifiNeoforgeTransformationService` + `RenderTargetFix`),鍦?`TargetType.CLASS` 闃舵鎶?OptiFine 涓㈡帀鐨勬垚鍛樿ˉ鍥炲幓(鐩墠鏄偅涓簩鍙傛瀯閫犲嚱鏁?杞皟涓€鍙?銆傚疄娴?
+**澶勭悊鍔炴硶**:鍔犱竴涓垜浠嚜宸辩殑 ModLauncher 杞瀷鏈嶅姟(`OptiNeoforgeTransformationService` + `RenderTargetFix`),鍦?`TargetType.CLASS` 闃舵鎶?OptiFine 涓㈡帀鐨勬垚鍛樿ˉ鍥炲幓(鐩墠鏄偅涓簩鍙傛瀯閫犲嚱鏁?杞皟涓€鍙?銆傚疄娴?
 
 ```
-[OptifiNeoforge/]: OptifiNeoforgeTransformationService.onLoad, alongside [mixin, OptiFine, fml, OptifiNeoforge]
-[OptifiNeoforge/]: OptifiNeoforgeTransformationService.transformers
+[OptiNeoforge/]: OptiNeoforgeTransformationService.onLoad, alongside [mixin, OptiFine, fml, OptiNeoforge]
+[OptiNeoforge/]: OptiNeoforgeTransformationService.transformers
 ```
 
 鏈嶅姟涓?OptiFine 鐨勬湇鍔″悓鏃惰鍔犺浇,`NoSuchMethodError: RenderTarget.<init>(ZZ)` 娑堝け,澶辫触鐐规帹杩涘埌涓嬩竴涓己澶辨垚鍛?`NoSuchFieldError: ... MainTarget does not have member field 'boolean useStencil'`)銆?*缁撹:淇鏂瑰悜瀵逛簡,鍙槸瑕侀€愰」琛ラ綈 OptiFine 鏇挎崲鎺夌殑鎴愬憳**(瀛楁 + 鏂规硶),杩欎竴绫讳慨澶嶅彲浠ョ户缁寜鍚屾牱鏂瑰紡鍔犮€?
@@ -380,10 +380,10 @@ public static void optifineoforge$init$<字段>(<类> self)
 转型器把这批初始化方法一起放进类里,并在**每个构造函数的每个 `RETURN` 之前**插入调用。实测确实生效:
 
 ```
-[OptifiNeoforge]: Initialised 1 restored fields in net/minecraft/client/gui/Gui
-[OptifiNeoforge]: Initialised 1 restored fields in net/minecraft/client/gui/Font
-[OptifiNeoforge]: Initialised 1 restored fields in net/minecraft/client/multiplayer/ClientLevel
-[OptifiNeoforge]: Initialised 1 restored fields in net/minecraft/client/resources/model/ModelManager
+[OptiNeoforge]: Initialised 1 restored fields in net/minecraft/client/gui/Gui
+[OptiNeoforge]: Initialised 1 restored fields in net/minecraft/client/gui/Font
+[OptiNeoforge]: Initialised 1 restored fields in net/minecraft/client/multiplayer/ClientLevel
+[OptiNeoforge]: Initialised 1 restored fields in net/minecraft/client/resources/model/ModelManager
 ```
 
 **当前新问题(未解决)**:转型器在读取某个供体时抛异常(`MemberRestoreTransformer.donor:161`),把这次启动打断了 —— 需要看完整消息确认是哪个供体、以及是不是新加的初始化方法让那个类文件写坏了(例如被搬的指令段其实不完整)。
@@ -956,7 +956,7 @@ SRG 引用,再逐个问 NeoForge 20.4 运行时是否真有这个成员:
 compile/run 方式(ASM 9.8 取自 Gradle 缓存,用 jdk-21):
 
     javac -cp asm-9.8.jar;asm-tree-9.8.jar -d build-tools/srgmap src/main/java/.../SrgMemberMap.java
-    java -cp "build-tools/srgmap;<asm>" kynarain.cn.optifineoforge.optifine.SrgMemberMap \
+    java -cp "build-tools/srgmap;<asm>" kynarain.cn.optineoforge.optifine.SrgMemberMap \
       --emit build-tools/srg1204.tsv <mcp1204-joined.tsrg> <...-mappings-merged.txt> \
       OptiFine_1.20.4_HD_U_I7.jar client-1.20.4-...-srg.jar neoforge-20.4.251-client.jar
 
@@ -1093,7 +1093,7 @@ Forge API,所以 `-ForgeStubs $false`;20.4 的运行时里 `net/minecraftforge` 
     VERDICT: STARTED (40s, marker: Sound engine started)
       OptiFineTransformationService.onLoad / OptiFine ZIP file: mods/optifiNeoforge-combined.jar
       OptiFineTransformer: Targets: 427
-      OptifiNeoforgeTransformationService.onLoad, alongside [mixin, OptiFine, mixin-synthetic-package, fml, OptifiNeoforge]
+      OptiNeoforgeTransformationService.onLoad, alongside [mixin, OptiFine, mixin-synthetic-package, fml, OptiNeoforge]
       Member restore plan: 52 members across 24 classes
       Initialised 1 restored fields in net/minecraft/client/multiplayer/ClientLevel
       Restored 1 members in net/minecraft/client/multiplayer/ClientLevel from its donor
@@ -1721,7 +1721,7 @@ net.neoforged.fml.ModLoadingException: Loading errors encountered:
    (这一版没有 ModLauncher)。**`optifine/Patcher`、`optifine/xdelta/**`、`optifine/json/**` 必须保留** ——
    删掉它们,`OptiFineBaseTransformer.<init>` 立刻 `NoClassDefFoundError: optifine/Patcher`,
    处理器实例化失败,OptiFine 完全不生效。
-4. **离线流水线**(全部来自本仓库,`src/main/java/kynarain/cn/optifineoforge/optifine/`):
+4. **离线流水线**(全部来自本仓库,`src/main/java/kynarain/cn/optineoforge/optifine/`):
    `OptifinePipeline` → 566 个成品类(net/minecraft 486);
    `HierarchyPlan` → `reparent.txt`(1 个类:`BlockEntity` 到 `AttachmentHolder`,构造器 `()V`);
    `ReparentPayload` → 换父类 + 构造器 chain 重写 + 保留运行时的接口(工具自己的日志逐条列出);

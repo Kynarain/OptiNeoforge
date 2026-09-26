@@ -63,7 +63,7 @@ origin/1.21.x : 10 files
 origin/26.x   : 39 files
 ```
 
-`26.x` 上那 39 个文件包含**全部实现**:loader 侧的 `OptifiNeoforgeTransformationService` 与各项修补
+`26.x` 上那 39 个文件包含**全部实现**:loader 侧的 `OptiNeoforgeTransformationService` 与各项修补
 (`TagHelperFix`、`PackRootsFix`、`ReloadProbeFix`、`ModelProbeFix`、`NativeImageProbeFix`、
 `MemberRestoreTransformer`、`RenderTargetFix`、`ReloadableResourceManagerFix`、`ConventionTags`)、离线工具
 (`MemberRestorePlan`、`ForgeApiShims`、`OptifineJar`、`OptifineJarFixer`、`OptifinePipeline`、
@@ -111,7 +111,7 @@ gave a smaller answer than expected:
   `ForgeApiShims`. A Java 17 class file loads on the 21 and 25 runtimes just as
   well, so no line needs it changed.
 - All nine loader transformers depend on ModLauncher
-  (`OptifiNeoforgeTransformationService`, `MemberRestoreTransformer`,
+  (`OptiNeoforgeTransformationService`, `MemberRestoreTransformer`,
   `TagHelperFix`, `PackRootsFix`, `ReloadProbeFix`, `ModelProbeFix`,
   `NativeImageProbeFix`, `RenderTargetFix`, `ReloadableResourceManagerFix`).
   That confirms from the code side that 26.x needs the loader layer rewritten
@@ -302,7 +302,7 @@ After the Java 17 and Forge-shell rules from the previous round, the 1.20.1 run 
 all the way through mod loading with the mod present:
 
     OptiFineTransformationService: Targets: 412
-    OptifiNeoforge: Member restore plan: 550 members across 87 classes
+    OptiNeoforge: Member restore plan: 550 members across 87 classes
     NeoForge mod loading, version 47.1.106, for MC 1.20.1
     NeoForge v47.1.106 Initialized
 

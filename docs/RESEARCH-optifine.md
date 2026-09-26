@@ -1,4 +1,4 @@
-# RESEARCH-optifine — OptiFine jar 结构调研（供 OptifiNeoforge 使用）
+# RESEARCH-optifine — OptiFine jar 结构调研（供 OptiNeoforge 使用）
 
 本文档只做事实记录：全部结论来自对下载到的 OptiFine jar 做 **zip 条目清单、`META-INF` 读取、`javap -p -c -constants -v` 反汇编、以及 xdelta 负载内部 ASCII 常量探测**。
 未运行 Gradle；未执行任何改变 git 状态的命令；本文件是本次任务唯一新增/修改的文件。
@@ -304,7 +304,7 @@ optifine/xdelta/licence.txt                    optifine/xdelta/SimplePrime.class
 
 ---
 
-## 8. 对 loader（OptifiNeoforge）的意义
+## 8. 对 loader（OptiNeoforge）的意义
 
 1. **两条路线要分开设计**：
    - 路线 A（复用 OptiFine 自带 `OptiFineTransformationService`）：只需修元数据（注入 `neoforge.mods.toml` / `FMLModType`），让 ModLauncher 的 transformer 自己用 `patch/srg/**` 在内存里打补丁。前提是**目标运行时的类字节与补丁 source 同族**（1.20.6+ 官方名，成立；1.20.1 需 SRG 运行时）。
