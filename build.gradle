@@ -156,7 +156,7 @@ tasks.named('build') {
     }
 }
 
-// The offline tools (kynarain.cn.optifineoforge.optifine) compile against the ASM version named in
+// The offline tools (kynarain.cn.optineoforge.optifine) compile against the ASM version named in
 // gradle.properties, not against the one NeoForge 21.4.149 pins: its modDevApiElements demands
 // org.ow2.asm:asm STRICTLY 9.8, and SrgRemap needs the API-version Remapper(int) constructor that
 // 9.8 does not have - measured: "cannot apply Remapper's constructor to the given types". Raising

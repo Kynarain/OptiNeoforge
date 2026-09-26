@@ -82,7 +82,7 @@ OptiFine 的 `optifine.OptiFineTransformationService` 只依赖 `cpw.mods.modlau
 
    .\gradlew jar -Pmc=1.21.9 -Pneoforge=21.9.16-beta -Pmountpoint=fml10
 
-   得到 uild/libs/OptifiNeoforge-1.0.0+mc1.21.9.jar(129 356 字节)—— 也就是本文件上面那段注释说的
+   得到 uild/libs/OptiNeoforge-1.0.0+mc1.21.9.jar(129 356 字节)—— 也就是本文件上面那段注释说的
    "loader-side tools and the mod skeleton alone",与预期一致 ✔。
 2. **缺的两半**:
    a. **FML 10 的 ClassProcessor 要打包进载荷 jar**:26.x 分支的 src/fml10 只有两个类
@@ -227,8 +227,8 @@ et.neoforged.fml.loading.EarlyServiceDiscovery.SERVICES 正好只有
    ⇒ jars-1.21.9\optifine-payload-fml10.jar(**2 999 556 字节**)。
 2. **FML 10 确实把它当载荷吃下去了**(launch-fml10.ps1 的日志):
    - mods/optifine-payload-fml10.jar 被发现 ✔
-   - OptifiNeoforge: early service jar recognised; the payload jar itself is disco...(locator 起作用 ✔)
-   - OptifiNeoforge: OptifinePayloadClassProcessor constructed (FML 10 mount point) ✔
+   - OptiNeoforge: early service jar recognised; the payload jar itself is disco...(locator 起作用 ✔)
+   - OptiNeoforge: OptifinePayloadClassProcessor constructed (FML 10 mount point) ✔
    - OptiFine payload: 517 finished game classes ✔,随后一条条
      OptiFine payload: installed net.minecraft.util.Mth (34 fields, 109 methods) [1 so far] …(到 16 条时日志中断)
 3. **然后仍然是安静退出**:Closing FML Loader → Clearing ModLoader,**没有 ERROR、没有异常、stderr 0 字节**,
@@ -574,7 +574,7 @@ Caused by: java.lang.RuntimeException: Cannot find class net/minecraftforge/comm
 此前 FML 10 的处理器只有 26.x 分支有源码,rig 用 `javac` 手编;也就是说**被测试的那个 jar 里的类,
 不属于任何一次提交**。现在:
 
-* `src/fml10/java/kynarain/cn/optifineoforge/fml10/` —— 两个类从 26.x 取回,放上本分支;
+* `src/fml10/java/kynarain/cn/optineoforge/fml10/` —— 两个类从 26.x 取回,放上本分支;
 * `src/fml10/resources/META-INF/services/` —— 两个 service 文件(ClassProcessor 与
   IModFileCandidateLocator),与 `src/ml11/resources` 同样的做法;
 * `build.gradle` 在 `-Pmountpoint=fml10` 时把这两个 source root 加进 `sourceSets.main`;
@@ -674,7 +674,7 @@ OptiFine 的类在里面、`Reflector` 初始化成功、游戏把用户设置�
 
 **1. 成员恢复(计划 + donor)。** 上一节停在 `Gui.layerManager` 为 null:字段被"保留运行时成员"留下来了,
 但给它赋值的初始化在 NeoForge 的构造器里,而那个构造器被 OptiFine 的副本取代了。处理器现在读
-`/optifineoforge/member-restores.txt` 与 `/optifineoforge/donors/<类>.class`,把 donor 里有、成品类里没有的
+`/optineoforge/member-restores.txt` 与 `/optineoforge/donors/<类>.class`,把 donor 里有、成品类里没有的
 字段/方法补进去,并把 donor 里的合成初始化方法**内联**:静态的进本类 `<clinit>`,实例的进每个
 "自己没有赋过这个字段"的构造器。
 
@@ -771,7 +771,7 @@ OptiFine 刚开始处理贴图之后,失败的调用是 `glClear`。
   `net/minecraft/client/renderer/MappableRingBuffer`(`BUFFER_COUNT: payload=5 runtime=3`)与
   `net/minecraft/client/resources/model/ModelDiscovery$ModelWrapper`(`SLOT_COUNT: payload=7 runtime=8`)。
   写出的 `keep-runtime.proposed.txt` 就是"这两类整个用运行时的"。另外 15 条 interface 计划、164 条 access 计划。
-* 处理器现在读 `/optifineoforge/keep-runtime.txt`(即 proposed 的正式名);被计划的类**不安装**,日志明说
+* 处理器现在读 `/optineoforge/keep-runtime.txt`(即 proposed 的正式名);被计划的类**不安装**,日志明说
   "is kept as the runtime's own class",并连"代价"一起写在计划文件里。
 
 ### 三处按症状定位、按量到的形状修的
@@ -1393,7 +1393,7 @@ null**,接口在旁边生成一个空实现 `<interface>$Noop`,工厂返回它�
 20: invokeinterface .../IClientBlockExtensions.addHitEffects:(...)Z
 ```
 
-`jars-1.21.8-payload\OptifiNeoforge-1.0.0+mc1.21.8-registered.jar` 与 1.20.2/1.20.4 的 jar 里,同一个
+`jars-1.21.8-payload\OptiNeoforge-1.0.0+mc1.21.8-registered.jar` 与 1.20.2/1.20.4 的 jar 里,同一个
 类型交付的是**类**而不是接口:
 
 ```
@@ -1698,7 +1698,7 @@ donor 里 `BlockEntity` 已经是 NeoForge 的形状
 (`javap` 验过,`work\1.21\stubs` 与 `stubs.pre-port` 都有,86 → 90 个类)。
 
 **尚未量到的部分**:这是"移植引入的"还是"重建时重新生成壳/计划带出来的",本轮没有做 A/B 对照
-(可行的做法:把 `jars-1.21\OptifiNeoforge-1.0.0+mc1.21-registered.jar.pre-port-20260922` 与现在这份
+(可行的做法:把 `jars-1.21\OptiNeoforge-1.0.0+mc1.21-registered.jar.pre-port-20260922` 与现在这份
 逐类对照,尤其是 `BlockEntity` 的超级类/接口与 `reparent` 计划)。在查清之前,**这条分支不发布**;
 三条线的旧 jar 都留在 `*.pre-port-20260922`,可以随时对照或回退。
 
@@ -1948,7 +1948,7 @@ official 名(`add-line.ps1` 的 `-SrgMappings` + `-ObfOfficial`,配套 `proguard
 `obf-official-1.21.tsrg`,8269 类 / 37906 字段 / 73419 方法),然后跑:
 
 ```
-java -cp <tools> kynarain.cn.optifineoforge.optifine.SrgResidue joined-1.21.tsrg <neoform-merged> \
+java -cp <tools> kynarain.cn.optineoforge.optifine.SrgResidue joined-1.21.tsrg <neoform-merged> \
      work\1.21\optifine-patched.jar work\1.21\runtime-1.21.jar
 ```
 
@@ -2171,10 +2171,10 @@ OptiFine 预览构建仍按 1.21.5 的写法。**因此这不是我们加载器�
 
 ### 工程目录搬到 `I:\mods`(环境变更,已复验),以及一次**被我改坏又还原**的文档编码事故
 
-* 三个仓库(`OptifiNeoforge` / `-120x` / `-26x`)与 rig(`optifineoforge-test`)整体移到 **`I:\mods\...`**;
+* 三个仓库(`OptiNeoforge` / `-120x` / `-26x`)与 rig(`optifineoforge-test`)整体移到 **`I:\mods\...`**;
   `.gradle` 按选择**留在 C:** 不动。C: 释放约 6.3 GB(现 31.0 GB 空闲),I: 余 577.7 GB。
 * 脚本/配置里的绝对路径已同步改写;**两个 worktree 用 `git worktree repair` 修好**
-  (它们原来的 `.git` 指向 `C:\...\OptifiNeoforge\.git\worktrees\...`),`git worktree list` 现在三条线都在新位置、
+  (它们原来的 `.git` 指向 `C:\...\OptiNeoforge\.git\worktrees\...`),`git worktree list` 现在三条线都在新位置、
   分支未变(`1.21.x` / `1.20.x` / `26.x`),工作区干净。
 * **复验**:在新位置跑 `retest-all.ps1 -Only 1.20.4` ⇒ STARTED / user yes / sound yes / 崩溃 0 /
   stderr **14481 = 记录值**(natives 也从 `I:\mods\optifineoforge-test\natives` 解析);rig 的十个主要脚本
@@ -2322,7 +2322,7 @@ work\1.21.9\runtime-1.21.9.jar    有 PacketProcessor,也没有 clientPreProcess
 (`OptifinePayloadClassProcessor` 第 62/460/796/1209 行)。
 
 **下一步(已具体到机制)**:
-1. 把 ml11 的 **stub 机制移植进 FML 10 处理器**(读 `/optifineoforge/stubs.txt`,对"被整类保留的类"补上列出的成员);
+1. 把 ml11 的 **stub 机制移植进 FML 10 处理器**(读 `/optineoforge/stubs.txt`,对"被整类保留的类"补上列出的成员);
 2. 给这三条线的载荷加一行 `net/minecraft/network/PacketProcessor	clientPreProcessPacket	(Lnet/minecraft/network/protocol/Packet;)V`,
    并**如实标注语义风险**:这是"每个包都经过"的路径,空实现会让 NeoForge 的客户端自定义包分发被跳过 —— 先用它把线跑起来量测,
    最终修法是让 NeoForge 的那条成员不被冲掉(处理器顺序或"在保留前先取转换后的字节")。
@@ -2351,7 +2351,7 @@ NeoForge 自己的 `scheduleIfPossible` 往队列里放 `QueuedPacket`,而 OptiF
 
 本轮动手做了上一轮定下的机制移植(FML 10 处理器原本只认 keep-runtime / member-restores+donors / reparent):
 
-1. `OptifinePayloadClassProcessor` 新增 `stubs()`(读 `/optifineoforge/stubs.txt`,格式 `owner name desc [static]`)
+1. `OptifinePayloadClassProcessor` 新增 `stubs()`(读 `/optineoforge/stubs.txt`,格式 `owner name desc [static]`)
    与 `stubMissing(node)`,并在**保留分支**(第 125 行那段"直接 return"之前)调用它 —— 被保留的类正是
    NeoForge 运行期注入成员丢失的地方;
 2. `build-fml10-payload.ps1` 把 `stub-additions-<Line>.txt` 装成载荷里的 `optifineoforge/stubs.txt`
@@ -2662,7 +2662,7 @@ release 仍未发布:26.1.2(sound NO + 世界未启动)、1.21.6/1.21.7 的后�
 #### FXAA 的像素级验证:装置已能跑 FML 10,但这一轮的 A/B 还没落地
 
 `run-fxaa-capture.ps1`(钉住存档 -> 启动客户端 -> 定时抓帧 -> 只停自己启动的那个进程)此前**只支持 ModLauncher
-线**:它按 `jars-<mc>\OptifiNeoforge-1.0.0+mc<mc>-registered.jar` + `optifine-*.jar` 选 모드,并用 `launch.ps1`。
+线**:它按 `jars-<mc>\OptiNeoforge-1.0.0+mc<mc>-registered.jar` + `optifine-*.jar` 选 모드,并用 `launch.ps1`。
 FML 10 线的两个 jar 名字完全不同(载荷 + 外壳/own-classes)、启动器也不同,所以**那三条线根本没法做像素对比**。
 已补上 `-Fml10` 开关:选 `optifine-payload-fml10.jar` + `optifine-own-classes.jar`,经 `launch-fml10.ps1` 启动,
 游戏参数用该启动器的 `-GameArgs`(ModLauncher 那侧叫 `-ExtraGameArgs`),并带上 `-JavaExe`/`-MainClass`/
@@ -2840,7 +2840,7 @@ FML 10 线的两个 jar 名字完全不同(载荷 + 外壳/own-classes)、启动
 #### FXAA 像素验证扩展到 ModLauncher 线:1.21.8 通过,方法在两代加载器上都成立
 
 把 FML 10 上验证过的那套流程(F2 抓游戏自身截图 + 钉死存档 + `MakeUp-UltraFast-9.5e.zip`)原样套到一条
-ModLauncher 线(1.21.8,`OptifiNeoforge-1.0.0+mc1.21.8-registered.jar` + `optifine-OptiFine_1.21.8_HD_U_J6_pre16.jar`,
+ModLauncher 线(1.21.8,`OptiNeoforge-1.0.0+mc1.21.8-registered.jar` + `optifine-OptiFine_1.21.8_HD_U_J6_pre16.jar`,
 经 `launch.ps1`):
 
 | 条件 | 三帧大小 | 光影包 |
@@ -3281,7 +3281,7 @@ java.lang.NoSuchMethodError: 'void net.minecraft.world.level.block.entity.BlockE
 按上一节的结论重建 1.21.4 这一线:`add-line.ps1 -Mc 1.21.4 -NeoForge 21.4.149 -OptifineJar <1.21.4 的 OptiFine jar> -SkipInstall`。
 作业**尚未结束**(gradle 阶段的 java 进程仍在跑),所以本轮**不宣称修好**。已观察到的中间状态:
 
-* `jars-1.21.4\OptifiNeoforge-1.0.0+mc1.21.4-registered.jar` 已被重写:**1870326 字节**(原 1861509,+8.8 KB),
+* `jars-1.21.4\OptiNeoforge-1.0.0+mc1.21.4-registered.jar` 已被重写:**1870326 字节**(原 1861509,+8.8 KB),
   时间 09/23 08:25 —— 体积增量与"新增了 stub 条目"相符,但**这只是相符,不是证据**;
 * `jars-1.21.4-new\...` 仍是 **09/22** 的旧产物,而 `retest-all.ps1` 里 1.21.4 恰恰用的是
   `dir = 'jars-1.21.4-new'`。**这个不一致必须在复测前解决**(否则重测的还是旧 jar,结论会误导);
@@ -3572,7 +3572,7 @@ post chain 走旧布局,加载时不打这种日志)。如果只数日志行,就
 
 #### 1.20.2:用户报的 `canSustainPlant` 崩溃**没再复现**(已实测),但 FXAA 的像素判定**这次是 NOT VISIBLE**
 
-先确认前提:出厂 jar(`jars-1.20.2\OptifiNeoforge-1.0.0+mc1.20.2-registered.jar`,09-22 04:11)里
+先确认前提:出厂 jar(`jars-1.20.2\OptiNeoforge-1.0.0+mc1.20.2-registered.jar`,09-22 04:11)里
 **确实带着**修好的计划与消费者 —— `optifineoforge/runtime-interfaces.txt`(1403 字符,含 `BlockState` 行)
 与 `PatchedClassTransformer` 都在包里。所以缺的从来不是代码,而是"真机跑一次会生成区块的场景"。
 
@@ -3727,7 +3727,7 @@ NullPointerException: Cannot invoke "java.lang.Class.getDeclaredFields()" becaus
 
 仍然成立的硬事实:旧日志 `launch-21.0.167-fixchain.err.log`(14147 B,与记录的 14141 只差 6)是
 **搬到 `I:` 之前**在 `C:\Users\kynar\IdeaProjects\optifineoforge-test` 上跑的,而且**那个目录现在已经不存在**
-(已核实 `C:\Users\kynar\IdeaProjects\optifineoforge-test` 与 `...\OptifiNeoforge` 均已删除),
+(已核实 `C:\Users\kynar\IdeaProjects\optifineoforge-test` 与 `...\OptiNeoforge` 均已删除),
 所以"用旧环境复现 4 条那次的对照"这条路**已经不可能**,不能再等它。
 
 下一步(已定位入口,便于实现并验证):1.21 这条线的构建入口是
@@ -3945,7 +3945,7 @@ public static Field getDeclaredFieldGuarded(FieldLocatorName self, Class<?> cls,
 **FML10 三条为什么 NO-RESULT(已查清,是构建前置,不是代码)**:
 
 ```
-no compiled fml10 classes at I:\mods\OptifiNeoforge\build\classes\java\main\kynarain\cn\optifineoforge\fml10
+no compiled fml10 classes at I:\mods\OptiNeoforge\build\classes\java\main\kynarain\cn\optifineoforge\fml10
 - run gradlew -Pmountpoint=fml10 compileJava first
 ```
 
@@ -4225,11 +4225,11 @@ Minecraft 累加进相机**(它读的是 GLFW 光标位置回调,不是消息坐
    执行两遍:第一遍 15 条全部发布成功;第二遍修掉一个命名缺陷(见下)。
 
 **发布中发现并修掉的缺陷**:上传走查询串,未转义的 `+` 在那里表示**空格**,GitHub 再把空格转成 `.`,
-于是第一条被发成 `OptifiNeoforge-1.0.0.mc1.20.1.jar`(线上原有资产是带 `+` 的)。已改用
-`[uri]::EscapeDataString`,并把"删除该 Release 上**所有** `OptifiNeoforge-1.0.0*` 资产再上传"写成规则,
+于是第一条被发成 `OptiNeoforge-1.0.0.mc1.20.1.jar`(线上原有资产是带 `+` 的)。已改用
+`[uri]::EscapeDataString`,并把"删除该 Release 上**所有** `OptiNeoforge-1.0.0*` 资产再上传"写成规则,
 避免两种命名同时挂着。
 
-**最终状态(API 逐个核对)**:15 个 Release、各 **1** 个资产、命名全部为 `OptifiNeoforge-1.0.0+mc<版本>.jar`、
+**最终状态(API 逐个核对)**:15 个 Release、各 **1** 个资产、命名全部为 `OptiNeoforge-1.0.0+mc<版本>.jar`、
 大小与刚构建的一致、`prerelease=False`(按用户 2026-09-23 选定的口径:全部正式 Release,未验证项写进说明)。
 
 **说明里如实标注的部分**(每条 Release 都有这张表):四项启动验收 = pass(2026-09-23 真机、逐条);
