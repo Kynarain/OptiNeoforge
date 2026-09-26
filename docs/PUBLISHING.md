@@ -5,13 +5,13 @@ publish 实现**。本文就是那一步,配上两个可重复执行的脚本,�
 
 ## 发布到哪
 
-三个检出是**同一个 GitHub 仓库**(`Kynarain/OptifiNeoforge`)的三个分支,产物各按自己的 MC 版本发一个 Release:
+三个检出是**同一个 GitHub 仓库**(`Kynarain/OptiNeoforge`)的三个分支,产物各按自己的 MC 版本发一个 Release:
 
 | 检出 / 分支 | 负责的线 |
 |---|---|
-| `OptifiNeoforge` / `1.21.x` | 1.21、1.21.1、1.21.3、1.21.4、1.21.6、1.21.7、1.21.8、1.21.9、1.21.10、1.21.11 |
-| `OptifiNeoforge-120x` / `1.20.x` | 1.20.1、1.20.2、1.20.4、1.20.6 |
-| `OptifiNeoforge-26x` / `26.x` | 26.1.2 |
+| `OptiNeoforge` / `1.21.x` | 1.21、1.21.1、1.21.3、1.21.4、1.21.6、1.21.7、1.21.8、1.21.9、1.21.10、1.21.11 |
+| `OptiNeoforge-120x` / `1.20.x` | 1.20.1、1.20.2、1.20.4、1.20.6 |
+| `OptiNeoforge-26x` / `26.x` | 26.1.2 |
 
 tag 形如 `v1.0.0+mc<MC 版本>`,**指向构建该 jar 的那次提交**(不是默认分支的头,也不是"最新"这个模糊概念)。
 
@@ -45,8 +45,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File publish-github-releases.ps1
 ## 三条必须遵守的规则(每条都有实测代价)
 
 1. **asset 名里的 `+` 必须转义**。上传走的是查询串,未转义的 `+` 在那里表示**空格**,GitHub 再把空格转成 `.`。
-   第一次执行时 `OptifiNeoforge-1.0.0+mc1.20.1.jar` 就这样被发成了 `OptifiNeoforge-1.0.0.mc1.20.1.jar`;
-   脚本现在用 `[uri]::EscapeDataString` 处理,并且**删除该 Release 上所有** `OptifiNeoforge-1.0.0*` 资产再上传,
+   第一次执行时 `OptiNeoforge-1.0.0+mc1.20.1.jar` 就这样被发成了 `OptiNeoforge-1.0.0.mc1.20.1.jar`;
+   脚本现在用 `[uri]::EscapeDataString` 处理,并且**删除该 Release 上所有** `OptiNeoforge-1.0.0*` 资产再上传,
    免得两种命名同时挂着、下载者分不清哪个是当前版本。
 2. **先删旧 jar 再构建**。`build-release-jars.ps1` 每次都删掉 `build\libs\<目标名>` 再跑 Gradle:
    "文件还在"不等于"这次构建出来的",这正是线上曾经挂着 09-17 旧构建(159~161 KB,而当时已是 180~218 KB)的成因。

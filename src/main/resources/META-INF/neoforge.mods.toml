@@ -9,18 +9,18 @@ modLoader = "javafml"
 # so this stays permissive; it is not the NeoForge version.
 loaderVersion = "[1,)"
 license = "MPL-2.0"
-issueTrackerURL = "https://github.com/Kynarain/OptifiNeoforge/issues"
+issueTrackerURL = "https://github.com/Kynarain/OptiNeoforge/issues"
 
 [[mods]]
 modId = "optifineoforge"
 version = "${version}"
-displayName = "OptifiNeoforge"
+displayName = "OptiNeoforge"
 # Keep this short: it is what the mod list shows. The wording is deliberately checkable rather than reassuring:
 # unzip the jar and the claims below can be verified in one command. It used to say "OptiFine itself is not bundled
 # or redistributed", which was not true - two post-effect definitions derived from OptiFine's own files shipped in
 # this jar (assets/minecraft/post_effect/fxaa_of_{2,4}x.json). They are now authored here (see docs/PUBLISHING.md),
 # so the statement below holds and can be tested.
-description = '''Loads OptiFine into NeoForge. Put the OptiFine jar for ${minecraft_version} next to this mod; OptifiNeoforge patches and applies it at runtime. This jar contains no OptiFine code: no net.optifine classes and no file copied from OptiFine. Not affiliated with or endorsed by OptiFine or NeoForge.'''
+description = '''Loads OptiFine into NeoForge. Put the OptiFine jar for ${minecraft_version} next to this mod; OptiNeoforge patches and applies it at runtime. This jar contains no OptiFine code: no net.optifine classes and no file copied from OptiFine. Not affiliated with or endorsed by OptiFine or NeoForge.'''
 authors = "kynarain"
 
 [[dependencies.optifineoforge]]
