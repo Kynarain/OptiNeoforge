@@ -11,7 +11,7 @@
 | mod 元数据文件 | `META-INF/neoforge.mods.toml` | NeoForge 的现代格式;待实测确认 |
 | 载入方式 | **FancyModLoader 的 `ClassProcessor`**,不是 ModLauncher | 2026-09-24 实测:NeoForge 26.1.2 / 26.2 的依赖里**已经没有 ModLauncher**;OptiFine 的 jar 同时带 `net.neoforged.neoforgespi.transformation.ClassProcessor` 与 `cpw.mods.modlauncher.api.ITransformationService`,实际生效的挂载点是前者(OptiFine 自己的 processor) |
 | mod id | `optifineoforge` | 本项目 |
-| 产物 | `OptifiNeoforge-<版本>+mc26.1.2.jar` | 本项目 |
+| 产物 | `OptiNeoforge-<版本>+mc26.1.2.jar` | 本项目 |
 
 ## 26.1.2 的全部 OptiFine 构建
 
@@ -50,7 +50,7 @@ curl.exe -s "https://bmclapi2.bangbang93.com/optifine/26.3"     # -> []
 |---|---|
 | NeoForge | `26.2.0.88`(26.2 线最新),已装入 rig |
 | Java | 25 |
-| 产物 | 已建出:`optifine-payload-fml10.jar`(3.26 MB)、`optifine-own-classes.jar`(2.77 MB)、`OptifiNeoforge-1.0.0+mc26.2.jar`(173 KB) |
+| 产物 | 已建出:`optifine-payload-fml10.jar`(3.26 MB)、`optifine-own-classes.jar`(2.77 MB)、`OptiNeoforge-1.0.0+mc26.2.jar`(173 KB) |
 | 四项验收 | ❌ **未通过,未通过的原因已知且不在 OptiFine 侧** |
 | 决定 | ⏸ **暂停,等 OptiFine 为 26.2 发布新构建后再继续** |
 
