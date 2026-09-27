@@ -115,7 +115,7 @@ public final class MemberRestoreTransformer implements NodeTransformer {
 		List<String> staticInitialisers = new ArrayList<>();
 		boolean isInterface = (input.access & Opcodes.ACC_INTERFACE) != 0;
 		for(MethodNode method : donor.methods) {
-			if(method.name.startsWith(MemberRestorePlan.INITIALISER_PREFIX)) {
+			if(method.MemberRestorePlan.isInitialiser(name)) {
 				// Two shapes: an instance initialiser takes the object, a static one takes nothing and
 				// belongs in the class's static initialiser instead of in every constructor. Ported from
 				// the 1.21.x line, where both were measured; see docs/MATRIX.md.
@@ -270,7 +270,7 @@ public final class MemberRestoreTransformer implements NodeTransformer {
 				Set<String> assigned = assignedFields(constructor, input.name);
 				List<String> wanted = new ArrayList<>();
 				for(String name : initialisers) {
-					String field = name.substring(MemberRestorePlan.INITIALISER_PREFIX.length());
+					String field = MemberRestorePlan.initialisedField(name);
 					if(!assigned.contains(field)) {
 						wanted.add(name);
 					}
