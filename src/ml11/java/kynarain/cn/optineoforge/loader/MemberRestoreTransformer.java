@@ -117,7 +117,7 @@ public final class MemberRestoreTransformer implements ITransformer<ClassNode> {
 				input.methods.add(copy);
 				restored++;
 			}
-			if(method.name.startsWith(MemberRestorePlan.INITIALISER_PREFIX)) {
+			if(method.MemberRestorePlan.isInitialiser(name)) {
 				initialisers.add(method.name);
 			}
 		}
@@ -134,7 +134,7 @@ public final class MemberRestoreTransformer implements ITransformer<ClassNode> {
 				Set<String> assigned = assignedFields(constructor, input.name);
 				List<String> wanted = new ArrayList<>();
 				for(String name : initialisers) {
-					String field = name.substring(MemberRestorePlan.INITIALISER_PREFIX.length());
+					String field = MemberRestorePlan.initialisedField(name);
 					if(!assigned.contains(field)) {
 						wanted.add(name);
 					}

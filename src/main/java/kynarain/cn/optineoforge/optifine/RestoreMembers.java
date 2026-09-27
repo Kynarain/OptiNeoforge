@@ -206,7 +206,7 @@ public final class RestoreMembers {
 				node.methods.add(copy);
 				restored++;
 			}
-			if(method.name.startsWith(MemberRestorePlan.INITIALISER_PREFIX) && !isInterface) {
+			if(method.MemberRestorePlan.isInitialiser(name) && !isInterface) {
 				if("()V".equals(method.desc)) {
 					staticInitialisers.add(method.name);
 				} else {
@@ -269,7 +269,7 @@ public final class RestoreMembers {
 			Set<String> assigned = assignedFields(constructor, internalName);
 			List<String> wanted = new ArrayList<>();
 			for(String name : initialisers) {
-				if(!assigned.contains(name.substring(MemberRestorePlan.INITIALISER_PREFIX.length()))) {
+				if(!assigned.contains(MemberRestorePlan.initialisedField(name))) {
 					wanted.add(name);
 				}
 			}

@@ -78,6 +78,27 @@ public final class MemberRestorePlan {
 	public static final String INITIALISER_PREFIX = "optineoforge$init$";
 
 	/**
+	 * The only part of an initialiser method's name a reader may depend on, because a name is not a stable
+	 * interface across a rename. Measured 2026-09-27: the donors the rig built on 2026-09-19 carry
+	 * "optifineoforge$init$&lt;field&gt;", the recognisers had just been changed to the new prefix, and the
+	 * initialisers stopped being recognised - they were installed as ordinary methods, the fields they fill
+	 * stayed null, and 1.21.9 died inside Minecraft's constructor on a null Gui.layerManager. Recognition
+	 * keys on the marker alone; generation keeps writing the prefixed name.
+	 */
+	public static final String INITIALISER_MARKER = "$init$";
+
+	/** Whether a method name is one of these initialisers, whichever build wrote it. */
+	public static boolean isInitialiser(String methodName) {
+		return methodName.indexOf(INITIALISER_MARKER) >= 0;
+	}
+
+	/** The field an initialiser fills, or null when the name carries no marker. */
+	public static String initialisedField(String methodName) {
+		int at = methodName.indexOf(INITIALISER_MARKER);
+		return at < 0 ? null : methodName.substring(at + INITIALISER_MARKER.length());
+	}
+
+	/**
 	 * Members whose donor body must not be used, only stubbed.
 	 *
 	 * <p>NeoForge's GL state backup is called before the render thread is registered, and a body that

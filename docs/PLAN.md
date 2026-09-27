@@ -49,3 +49,36 @@ OptiFine 的 `optifine.OptiFineTransformationService` 只依赖 `cpw.mods.modlau
 - 分支互相独立:`1.20.x`、`1.21.x`、`26.x` 各自有自己的 `README`、矩阵、构建配置和文档,不做跨分支的合并。
 - 文档与实测口径要一致:没在真实游戏里验证过的东西写成计划,不写成结论。
 - OptiFine 的 jar 不进仓库,也不随产物分发。
+
+## 2026-09-27 改名把 donor 初始化器变成了死方法(1.21.9 构造期崩溃的根因)
+
+改名到 OptiNeoForge 之后第一次重建 FML10 载荷,1.21.9 从 STARTED 变成 FAILED:
+
+```
+java.lang.NullPointerException: Cannot invoke net.neoforged.neoforge.client.gui.GuiLayerManager.initModdedLayers()
+  because this.layerManager is null
+    at net.minecraft.client.gui.Gui.initModdedOverlays(Gui.java:1604)
+    at net.neoforged.neoforge.client.ClientHooks.initClientHooks
+    at net.minecraft.client.Minecraft.<init>(Minecraft.java:665)
+```
+
+排查用的实测(不是推断):
+
+| 证据 | 09-23 绿运行 | 09-27 改名后 |
+|---|---|---|
+| `Gui` 的安装计数 | (92 fields, **110** methods) | (92 fields, **111** methods, 1 restored from its donor) |
+| `restored N members ... from its donor` 行数 | **0** | **17**(Gui、Mob、Font、ClientLevel、GlDevice、GlStateManager…) |
+| `initialised 1 restored instance fields in 1 constructor(s) of Gui` | **有** | **一条都没有** |
+
+那 17 个类恰好就是绿运行里被**内联初始化器**的那一批,所以不是"少做了一点",而是初始化器整批没被认出来。
+
+根因:`MemberRestorePlan.INITIALISER_PREFIX` 同时管**生成**和**识别**,改包名后它变成 `optineoforge$init$`;
+而 `work\<line>\plan\donors` 里的 89 个 donor 类是本机 09-19 生成的,27 个方法名仍是 `optifineoforge$init$<字段>`。
+识别失败后这些方法被当成普通方法装进类里(`restored++`),本该由它们赋值的字段(如 `Gui.layerManager`)保持 null。
+
+修法:识别只看**与包名无关的标记** `$init$`(`MemberRestorePlan.isInitialiser` / `initialisedField`),
+生成侧继续写带前缀的名字。三处识别点全部改到标记上:1.21.x 的 `MemberRestoreTransformer` 与 FML10 的
+`OptifinePayloadClassProcessor`,1.20.x 与 26.x 的 `MemberRestoreTransformer` / `RestoreMembers`。
+
+> 教训:凡是"生成方写名字、识别方读名字"的约定,名字里都不能带会被改名的东西;这类约定一旦破裂,
+> 症状会伪装成完全无关的 NPE。
