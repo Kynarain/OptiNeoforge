@@ -62,7 +62,21 @@ public final class OptifinePayloadClassProcessor extends SimpleClassProcessor {
 	private static final String DONOR_ROOT = "optineoforge/donors/";
 
 	/** The prefix {@code MemberRestorePlan} gives the synthetic methods that fill restored fields. */
-	private static final String INITIALISER_PREFIX = "optineoforge$init$";
+	private static final String INITIALISER_MARKER = "$init$";
+
+	/** Whether a donor method is a field initialiser, whichever build wrote its name. See
+	 * kynarain.cn.optineoforge.optifine.MemberRestorePlan.INITIALISER_MARKER for the measurement: keying
+	 * recognition on a package-qualified prefix made the rename to OptiNeoForge silently stop recognising
+	 * the initialisers already on disk, and 1.21.9 died on a null Gui.layerManager. */
+	private static boolean isInitialiser(String methodName) {
+		return methodName.indexOf(INITIALISER_MARKER) >= 0;
+	}
+
+	/** The field an initialiser fills, or null when the name carries no marker. */
+	private static String initialisedField(String methodName) {
+		int at = methodName.indexOf(INITIALISER_MARKER);
+		return at < 0 ? null : methodName.substring(at + INITIALISER_MARKER.length());
+	}
 
 	/**
 	 * The finished classes, read once. Read from this class's own jar rather than through a
@@ -553,7 +567,7 @@ public final class OptifinePayloadClassProcessor extends SimpleClassProcessor {
 		java.util.List<MethodNode> staticInitialisers = new java.util.ArrayList<>();
 		java.util.List<MethodNode> initialisers = new java.util.ArrayList<>();
 		for(MethodNode method : donor.methods) {
-			if(method.name.startsWith(INITIALISER_PREFIX)) {
+			if(isInitialiser(method.name)) {
 				// The initialisers are *inlined* and never added to the class, and that is measured rather
 				// than stylistic: they assign fields, and an instance field that is final may only be
 				// assigned from a constructor. Calling one instead produced
@@ -688,7 +702,7 @@ public final class OptifinePayloadClassProcessor extends SimpleClassProcessor {
 			org.objectweb.asm.tree.InsnList values = new org.objectweb.asm.tree.InsnList();
 			int wanted = 0;
 			for(MethodNode initialiser : initialisers) {
-				String field = initialiser.name.substring(INITIALISER_PREFIX.length());
+				String field = initialisedField(initialiser.name);
 				if(assigned.contains(field)) {
 					continue;
 				}

@@ -79,6 +79,35 @@ public final class MemberRestorePlan {
 	public static final String INITIALISER_PREFIX = "optineoforge$init$";
 
 	/**
+	 * The one part of an initialiser method's name a reader may depend on. {@link #INITIALISER_PREFIX} is
+	 * what this build writes, but the artifacts already on disk were written by earlier builds, and a name
+	 * is not a stable interface across a rename - measured 2026-09-27, when the mod was renamed to
+	 * OptiNeoForge: 27 of the 89 donor classes under the rigs work\1.21.9\plan\donors carry
+	 * "optifineoforge$init$&lt;field&gt;" from 2026-09-19 while the recogniser had just been changed to look
+	 * for "optineoforge$init$". Not one initialiser was recognised, every one of them was installed as an
+	 * ordinary method instead of being inlined into a constructor (the log line "initialised 1 restored
+	 * instance fields in 1 constructor(s) of ..." disappeared for all 17 classes and "restored 1 members in
+	 * ... from its donor" took its place), the fields they fill stayed null, and 1.21.9 died inside
+	 * Minecrafts own constructor with
+	 *   NullPointerException: Cannot invoke "GuiLayerManager.initModdedLayers()" because "this.layerManager"
+	 *     is null, at net.minecraft.client.gui.Gui.initModdedOverlays(Gui.java:1604)
+	 * Recognition therefore keys on the marker alone, so no rename can turn initialisers into dead methods
+	 * again; generation keeps writing the prefixed name.
+	 */
+	public static final String INITIALISER_MARKER = "$init$";
+
+	/** Whether a method name is one of these initialisers, whichever build wrote it. */
+	public static boolean isInitialiser(String methodName) {
+		return methodName.indexOf(INITIALISER_MARKER) >= 0;
+	}
+
+	/** The field an initialiser fills, or null when the name carries no marker. */
+	public static String initialisedField(String methodName) {
+		int at = methodName.indexOf(INITIALISER_MARKER);
+		return at < 0 ? null : methodName.substring(at + INITIALISER_MARKER.length());
+	}
+
+	/**
 	 * Members whose donor body must not be used, only stubbed.
 	 *
 	 * <p>NeoForge's GL state backup is called before the render thread is registered, and a body that

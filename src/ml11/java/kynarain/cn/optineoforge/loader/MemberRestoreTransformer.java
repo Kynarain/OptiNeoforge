@@ -144,7 +144,7 @@ public final class MemberRestoreTransformer implements ITransformer<ClassNode> {
 				input.methods.add(copy);
 				restored++;
 			}
-			if(method.name.startsWith(MemberRestorePlan.INITIALISER_PREFIX)) {
+			if(MemberRestorePlan.isInitialiser(method.name)) {
 				// Two shapes: an instance initialiser takes the object, a static one takes nothing and
 				// belongs in the class's static initialiser instead of in every constructor.
 				if(isInterface) {
@@ -274,7 +274,7 @@ public final class MemberRestoreTransformer implements ITransformer<ClassNode> {
 				Set<String> assigned = assignedFields(constructor, input.name);
 				List<String> wanted = new ArrayList<>();
 				for(String name : initialisers) {
-					String field = name.substring(MemberRestorePlan.INITIALISER_PREFIX.length());
+					String field = MemberRestorePlan.initialisedField(name);
 					if(!assigned.contains(field)) {
 						wanted.add(name);
 					}
