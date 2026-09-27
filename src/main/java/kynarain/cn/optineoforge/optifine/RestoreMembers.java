@@ -206,7 +206,7 @@ public final class RestoreMembers {
 				node.methods.add(copy);
 				restored++;
 			}
-			if(method.MemberRestorePlan.isInitialiser(name) && !isInterface) {
+			if(MemberRestorePlan.isInitialiser(method.name) && !isInterface) {
 				if("()V".equals(method.desc)) {
 					staticInitialisers.add(method.name);
 				} else {

@@ -117,7 +117,7 @@ public final class MemberRestoreTransformer implements ITransformer<ClassNode> {
 				input.methods.add(copy);
 				restored++;
 			}
-			if(method.MemberRestorePlan.isInitialiser(name)) {
+			if(MemberRestorePlan.isInitialiser(method.name)) {
 				initialisers.add(method.name);
 			}
 		}
