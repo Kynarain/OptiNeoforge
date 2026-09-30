@@ -21,9 +21,9 @@
 
 ## 二、详细描述(English)
 
-### OptiNeoforge — OptiFine on NeoForge
+### OptifiNeoforge — OptiFine on NeoForge
 
-A client-side mod that brings **OptiFine** to **NeoForge**. Put OptiNeoforge and **your own OptiFine jar** into `mods/` and it takes care of the rest: OptiFine's own patching is applied at startup and the patched game classes are fed into NeoForge's transformation pipeline — the same idea as OptiFabric on Fabric Loader.
+A client-side mod that brings **OptiFine** to **NeoForge**. Put OptifiNeoforge and **your own OptiFine jar** into `mods/` and it takes care of the rest: OptiFine's own patching is applied at startup and the patched game classes are fed into NeoForge's transformation pipeline — the same idea as OptiFabric on Fabric Loader.
 
 #### What this project is not
 
@@ -36,7 +36,7 @@ Written plain, because these are the things a reviewer or a user needs to be abl
 
 #### Supported versions
 
-One jar per Minecraft version — they are **not interchangeable**. The version is in the file name: `OptiNeoforge-1.0.0+mc1.21.8.jar`.
+One jar per Minecraft version — they are **not interchangeable**. The version is in the file name: `OptifiNeoforge-1.0.0+mc1.21.8.jar`.
 
 | Minecraft | NeoForge | Java | OptiFine build you need |
 |---|---|---|---|
@@ -56,7 +56,7 @@ The 1.20.x line (1.20.1 – 1.20.6, Java 17) and the 26.x line (26.1.2, Java 25)
 #### Installing
 
 1. Install the **NeoForge** version matching your Minecraft version.
-2. Put the matching **`OptiNeoforge-1.0.0+mc<your version>.jar`** into `mods/`.
+2. Put the matching **`OptifiNeoforge-1.0.0+mc<your version>.jar`** into `mods/`.
 3. Put the matching **OptiFine jar** (downloaded by you) into `mods/` as well.
 4. Launch with the Java version listed above.
 
@@ -71,8 +71,8 @@ There is no installer and nothing is written into your game files.
 
 #### Links
 
-* **Downloads:** https://github.com/Kynarain/OptiNeoforge/releases
-* **Issues / source:** https://github.com/Kynarain/OptiNeoforge
+* **Downloads:** https://github.com/Kynarain/OptifiNeoforge/releases
+* **Issues / source:** https://github.com/Kynarain/OptifiNeoforge
 * **OptiFine (required, not included):** https://optifine.net/downloads
 
 ---
@@ -89,9 +89,9 @@ There is no installer and nothing is written into your game files.
 
 ## 四、详细描述(中文)
 
-### OptiNeoforge —— 在 NeoForge 上加载 OptiFine
+### OptifiNeoforge —— 在 NeoForge 上加载 OptiFine
 
-这是一个把 **OptiFine** 带到 **NeoForge** 的客户端模组。把 OptiNeoforge 与你**自备的 OptiFine jar** 一起放进 `mods/`,启动时由本模组执行 OptiFine 自带的补丁流程,并把打过补丁的游戏类接进 NeoForge 的类转换管线 —— 与 OptiFabric 在 Fabric Loader 上的做法同源。
+这是一个把 **OptiFine** 带到 **NeoForge** 的客户端模组。把 OptifiNeoforge 与你**自备的 OptiFine jar** 一起放进 `mods/`,启动时由本模组执行 OptiFine 自带的补丁流程,并把打过补丁的游戏类接进 NeoForge 的类转换管线 —— 与 OptiFabric 在 Fabric Loader 上的做法同源。
 
 #### 本项目不是什么(这些都可以自行核对)
 
@@ -102,12 +102,12 @@ There is no installer and nothing is written into your game files.
 
 #### 支持的版本
 
-每个 Minecraft 版本一个 jar,**互不通用**,版本写在文件名里(如 `OptiNeoforge-1.0.0+mc1.21.8.jar`)。对照表见英文节的表格;1.20.x 线(1.20.1 – 1.20.6,Java 17)与 26.x 线(26.1.2,Java 25)在各自分支上,各有自己的 jar。
+每个 Minecraft 版本一个 jar,**互不通用**,版本写在文件名里(如 `OptifiNeoforge-1.0.0+mc1.21.8.jar`)。对照表见英文节的表格;1.20.x 线(1.20.1 – 1.20.6,Java 17)与 26.x 线(26.1.2,Java 25)在各自分支上,各有自己的 jar。
 
 #### 安装
 
 1. 装好与你 Minecraft 版本对应的 **NeoForge**;
-2. 把对应版本的 `OptiNeoforge-1.0.0+mc<你的版本>.jar` 放进 `mods/`;
+2. 把对应版本的 `OptifiNeoforge-1.0.0+mc<你的版本>.jar` 放进 `mods/`;
 3. 把你**自己下载的**对应版本 OptiFine jar 也放进 `mods/`;
 4. 用上表所列的 Java 版本启动。
 
@@ -122,6 +122,6 @@ There is no installer and nothing is written into your game files.
 
 #### 链接
 
-* **下载:** https://github.com/Kynarain/OptiNeoforge/releases
-* **问题反馈 / 源码:** https://github.com/Kynarain/OptiNeoforge
+* **下载:** https://github.com/Kynarain/OptifiNeoforge/releases
+* **问题反馈 / 源码:** https://github.com/Kynarain/OptifiNeoforge
 * **OptiFine(必需,但不随本模组分发):** https://optifine.net/downloads

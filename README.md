@@ -1,4 +1,4 @@
-# OptiNeoforge
+# OptifiNeoforge
 
 在 **NeoForge** 上加载 **OptiFine** 的客户端模组,做法与 OptiFabric 在 Fabric Loader 上的做法相同:把 OptiFine 的 jar 和本模组一起放进 `mods/`,启动时由本模组运行 OptiFine 自带的补丁流程,并把打过补丁的 Minecraft 类接进 NeoForge 的类转换流程。
 
@@ -17,16 +17,16 @@
 
 | Minecraft | NeoForge | 产物 | OptiFine 正式版 | OptiFine 最新 preview | Java | 状态(实测) |
 |---|---|---|---|---|---|---|
-| 1.21 | `21.0.167` | `OptiNeoforge-1.0.0+mc1.21.jar` | 无 | `preview_OptiFine_1.21_HD_U_J1_pre9.jar` | 21 | 已验证 · 已发布(`[OptiFine]` 252 行、stderr 14 141 字节、无崩溃报告) |
-| 1.21.1 | `21.1.250` | `OptiNeoforge-1.0.0+mc1.21.1.jar` | `OptiFine_1.21.1_HD_U_J1.jar` | `preview_OptiFine_1.21.1_HD_U_J1_pre15.jar` | 21 | 已验证 · 已发布(223 行、stderr 0 字节、无崩溃报告;本轮本机复现四项判据一致、232 行,见下) |
-| 1.21.3 | `21.3.97` | `OptiNeoforge-1.0.0+mc1.21.3.jar` | `OptiFine_1.21.3_HD_U_J2.jar` | `preview_OptiFine_1.21.3_HD_U_J2_pre12.jar` | 21 | 已验证 · 已发布(225 行、stderr 0 字节、无崩溃报告;本轮本机复现四项判据一致、225 行,见下) |
-| 1.21.4 | `21.4.149` | `OptiNeoforge-1.0.0+mc1.21.4.jar` | `OptiFine_1.21.4_HD_U_J3.jar` | `preview_OptiFine_1.21.4_HD_U_J4_pre2.jar` | 21 | 已验证 · 已发布(232 行、stderr 0 字节、无崩溃报告;本轮本机复现四项判据一致、232 行,见下) |
-| 1.21.6 | `21.6.20-beta` | `OptiNeoforge-1.0.0+mc1.21.6.jar` | 无 | `preview_OptiFine_1.21.6_HD_U_J6_pre3.jar` | 21 | 已验证 · 已发布(340 行、stderr 0 字节、无崩溃报告;**不含启用光影包**;本轮本机复现四项判据一致、347 行,见下) |
-| 1.21.7 | `21.7.25-beta` | `OptiNeoforge-1.0.0+mc1.21.7.jar` | 无 | `preview_OptiFine_1.21.7_HD_U_J6_pre7.jar` | 21 | 已验证 · 已发布(340 行、stderr 0 字节、无崩溃报告;**不含启用光影包**;本轮本机复现四项判据一致、347 行,见下) |
-| 1.21.8 | `21.8.54` | `OptiNeoforge-1.0.0+mc1.21.8.jar` | 无 | `preview_OptiFine_1.21.8_HD_U_J6_pre16.jar` | 21 | 已验证 · 已发布(337 行、stderr 0 字节、无崩溃报告;本轮本机复现四项判据一致、344 行,见下) |
-| 1.21.9 | `21.9.16-beta` | `OptiNeoforge-1.0.0+mc1.21.9.jar` | 无 | `preview_OptiFine_1.21.9_HD_U_J7_pre2.jar` | 21 | 已验证 · **未发布**(365 行、stderr 0 字节、无崩溃报告,两次一致) |
-| 1.21.10 | `21.10.64` | `OptiNeoforge-1.0.0+mc1.21.10.jar` | 无 | `preview_OptiFine_1.21.10_HD_U_J7_pre11.jar` | 21 | 已验证 · **未发布**(356 行、stderr 0 字节、无崩溃报告;未为该线改一行处理器代码) |
-| 1.21.11 | `21.11.45` | `OptiNeoforge-1.0.0+mc1.21.11.jar` | `OptiFine_1.21.11_HD_U_J9.jar` | `preview_OptiFine_1.21.11_HD_U_J9_pre4.jar` | 21 | 已验证 · **未发布**(273 行、stderr 107 字节 **与其无 mod 对照跑逐字节相同**、无崩溃报告) |
+| 1.21 | `21.0.167` | `OptifiNeoforge-1.0.0+mc1.21.jar` | 无 | `preview_OptiFine_1.21_HD_U_J1_pre9.jar` | 21 | 已验证 · 已发布(`[OptiFine]` 252 行、stderr 14 141 字节、无崩溃报告) |
+| 1.21.1 | `21.1.250` | `OptifiNeoforge-1.0.0+mc1.21.1.jar` | `OptiFine_1.21.1_HD_U_J1.jar` | `preview_OptiFine_1.21.1_HD_U_J1_pre15.jar` | 21 | 已验证 · 已发布(223 行、stderr 0 字节、无崩溃报告;本轮本机复现四项判据一致、232 行,见下) |
+| 1.21.3 | `21.3.97` | `OptifiNeoforge-1.0.0+mc1.21.3.jar` | `OptiFine_1.21.3_HD_U_J2.jar` | `preview_OptiFine_1.21.3_HD_U_J2_pre12.jar` | 21 | 已验证 · 已发布(225 行、stderr 0 字节、无崩溃报告;本轮本机复现四项判据一致、225 行,见下) |
+| 1.21.4 | `21.4.149` | `OptifiNeoforge-1.0.0+mc1.21.4.jar` | `OptiFine_1.21.4_HD_U_J3.jar` | `preview_OptiFine_1.21.4_HD_U_J4_pre2.jar` | 21 | 已验证 · 已发布(232 行、stderr 0 字节、无崩溃报告;本轮本机复现四项判据一致、232 行,见下) |
+| 1.21.6 | `21.6.20-beta` | `OptifiNeoforge-1.0.0+mc1.21.6.jar` | 无 | `preview_OptiFine_1.21.6_HD_U_J6_pre3.jar` | 21 | 已验证 · 已发布(340 行、stderr 0 字节、无崩溃报告;**不含启用光影包**;本轮本机复现四项判据一致、347 行,见下) |
+| 1.21.7 | `21.7.25-beta` | `OptifiNeoforge-1.0.0+mc1.21.7.jar` | 无 | `preview_OptiFine_1.21.7_HD_U_J6_pre7.jar` | 21 | 已验证 · 已发布(340 行、stderr 0 字节、无崩溃报告;**不含启用光影包**;本轮本机复现四项判据一致、347 行,见下) |
+| 1.21.8 | `21.8.54` | `OptifiNeoforge-1.0.0+mc1.21.8.jar` | 无 | `preview_OptiFine_1.21.8_HD_U_J6_pre16.jar` | 21 | 已验证 · 已发布(337 行、stderr 0 字节、无崩溃报告;本轮本机复现四项判据一致、344 行,见下) |
+| 1.21.9 | `21.9.16-beta` | `OptifiNeoforge-1.0.0+mc1.21.9.jar` | 无 | `preview_OptiFine_1.21.9_HD_U_J7_pre2.jar` | 21 | 已验证 · **未发布**(365 行、stderr 0 字节、无崩溃报告,两次一致) |
+| 1.21.10 | `21.10.64` | `OptifiNeoforge-1.0.0+mc1.21.10.jar` | 无 | `preview_OptiFine_1.21.10_HD_U_J7_pre11.jar` | 21 | 已验证 · **未发布**(356 行、stderr 0 字节、无崩溃报告;未为该线改一行处理器代码) |
+| 1.21.11 | `21.11.45` | `OptifiNeoforge-1.0.0+mc1.21.11.jar` | `OptiFine_1.21.11_HD_U_J9.jar` | `preview_OptiFine_1.21.11_HD_U_J9_pre4.jar` | 21 | 已验证 · **未发布**(273 行、stderr 107 字节 **与其无 mod 对照跑逐字节相同**、无崩溃报告) |
 
 `1.0.0` 的含义按 `docs/VERSIONING.md`:它由这一条线自己的实机启动记录支撑,不是"功能完备"的断言。
 表中 NeoForge 一列是**这条线实际验证用的版本**(1.21.4 用的是 `21.4.149`,不是镜像里更新的 `21.4.157`)。
@@ -500,7 +500,7 @@ build-jars(生成 prepared jar)→ **再改写 prepared jar** → 启动。
 由 `PayloadDrift` 离线实测生成的计划:
 
 - `keep-runtime.txt`(`owner<TAB>*`):整类保留运行时的副本,并把该类的补丁条目从 OptiFine jar 里删掉。只做前者不够 ——
-  实测 OptiFine 的转换服务注册在**前面**(顺序 `[mixin, OptiFine, fml, OptiNeoforge]`),而它打出来的类是它自己的编译结果,
+  实测 OptiFine 的转换服务注册在**前面**(顺序 `[mixin, OptiFine, fml, OptifiNeoforge]`),而它打出来的类是它自己的编译结果,
   于是"不装负载"留下的恰恰是 OptiFine 的那一份;补丁条目删掉之后,运行时的类才会被加载。
 - `runtime-interfaces.txt`(`owner<TAB>interface`):把运行时自己的扩展接口补回去,对**所有**被转换的类生效,不只是被替换的那些
   (上面这张表的第二行就是没补的结果)。
@@ -554,7 +554,7 @@ build-jars(生成 prepared jar)→ **再改写 prepared jar** → 启动。
 (实现 `ITransformationService` 的转换服务与各 transformer);1.21.9 起 NeoForge 已经没有 ModLauncher、
 `cpw.mods.modlauncher.api` 随之消失,那批类编不过,所以 `fml10` 不编任何挂载点根。
 
-产物为 `build/libs/OptiNeoforge-<版本>+mc<MC 版本>.jar`,例如 `OptiNeoforge-1.0.0+mc1.21.8.jar`。
+产物为 `build/libs/OptifiNeoforge-<版本>+mc<MC 版本>.jar`,例如 `OptifiNeoforge-1.0.0+mc1.21.8.jar`。
 **十条线的目标现在都能构建,而且十条各实测构建过一次**;两种挂载点的产物内容不同:
 
 | Minecraft | NeoForge | `-Pmountpoint` | jar 大小 | 条目 | `loader/**` |

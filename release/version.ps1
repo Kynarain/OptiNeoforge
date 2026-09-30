@@ -64,7 +64,7 @@ if($Base){
 if($next -match '^0\.0\.' -and $Bump -ne 'show'){ throw "$next would claim nothing works; use -Base 0.1.0 or higher" }
 
 $written = "$next$suffix"
-$artifact = "OptiNeoforge-$written+mc$minecraft.jar"
+$artifact = "OptifiNeoforge-$written+mc$minecraft.jar"
 if($Bump -eq 'show'){
 	Write-Host "line           $Repo"
 	Write-Host "minecraft      $minecraft"

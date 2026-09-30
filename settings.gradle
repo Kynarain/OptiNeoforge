@@ -22,4 +22,4 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.147' apply false
 }
 
-rootProject.name = 'OptiNeoforge-1.21.x'
+rootProject.name = 'OptifiNeoforge-1.21.x'
