@@ -412,3 +412,13 @@ Sound engine False、1 份新崩溃(crash-2026-10-01_06.41.40-client.txt)、stde
 报错里的重复签名是载荷自己的 `DataComponentType` 形状 → **恢复机制在同名成员已存在时仍往里加**。
 下一轮:用 `-Doptifineoforge.dump` 导出载入期真身,确认该类被定义时有几个 get 及是哪一步加的;
 然后给恢复机制加"写入前按名字+描述符查重,已存在则跳过并计数"(与"改名不能制造冲突"同族约束)。
+
+### dump 实证:同一成员被写入两次(写入点已缩小)
+
+用 `-Doptifineoforge.dump` 导出载入期真身,`BlockEntity$DataComponentInput.class` 里
+`get(DataComponentType)` 与 `getOrDefault(DataComponentType,Object)` **各出现两次**(同名同描述符),
+而 jar 内该文件是合法的(只有两条)→ 载入期有写入点重复添加。已排查:`PatchedClassTransformer:600-624`(有
+`hasMethod` 查重 ✓)、`MemberRestoreTransformer:140`(✓)、stub 路径(✓)。
+待查:**`PatchedClassTransformer:714` 的 `input.methods.add(created)`**、接口注入路径、
+以及 `ReloadableResourceManagerFix:77/115`、`RenderTargetFix:79`、`TagHelperFix:82`。
+下一轮修法统一为:任何 `methods.add`/`fields.add` 之前按"名字+描述符"查重,已存在则跳过并计数。
