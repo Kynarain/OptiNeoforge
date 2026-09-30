@@ -4698,3 +4698,11 @@ patched 是 `m_157487_`(SRG 名);而日志显示该内部接口被 "Left … alo
 下一轮先做最快判别:去掉 `--quickPlaySingleplayer`,在 1.21.1 上手工"标题界面→单人游戏→进世界";
 若不再崩则是 quickPlay 与配置时机的交互(rig 可用"先到标题界面再投键进世界"规避),否则再对照配置加载日志。
 1.21.7 仍待查(无崩溃报告、stderr 0 B)。
+
+### 更正:1.21.1/1.21.3 的配置未加载是次生错误
+
+运行期 `Level.guardEntityTick` 字节码显示:`NeoForgeConfig.SERVER.removeErroringEntities` 的读取位于
+**catch(Throwable) 的处理分支**(构造崩溃报告时),所以真正的错误是**某个实体 tick 抛出的异常**,被随后的
+`IllegalStateException: Cannot get config value before config is loaded` 掩盖。崩溃报告未保留原异常。
+下一步:①在 `logs\debug.log` 里找 07:33:0x 的原始异常(1.21.1 与 1.21.3 各一份);②若没有,用无实体世界复现缩小范围;
+③1.21.7 仍待查(无崩溃报告、stderr 0 B)。
