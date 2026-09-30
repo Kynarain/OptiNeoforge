@@ -356,3 +356,15 @@ jar 含 `optifineoforge/runtime-interfaces.txt`,1.20.2 列出 `BlockState → IB
 **表里有名字、调用点没被改写**,最可能是 `invokedynamic` 的引导方法句柄/`Type` 常量不在现有改写范围内。
 下一轮:扩展改写覆盖面到 `InvokeDynamicInsnNode` 引导参数与 `LdcInsnNode` 的 Handle/Type,重建复验后再覆盖
 1.21.1/1.21.3/1.21.7/1.20.4。
+
+### 更正与机制定位:1.21 的 AbstractMethodError 源自"只改引用、不改声明"
+
+更正:上一轮猜测"invokedynamic 句柄不在改写范围"**不成立** —— `renameSrgMembers` 已处理
+`InvokeDynamicInsnNode.bsmArgs` 中的 `Handle`。实测机制:表里**有** `RenderSystem$AutoStorageIndexBuffer.m_157476_
+→ ensureStorage`,但改写前会经 `declaredByInstalledPayload()` 检查"载荷自己的类是否声明了该名字";
+实测载荷类**声明了** `m_157476_`(该文件仍有 35 行 SRG 名),于是走 `kept` 分支**故意不改**。
+该规则有历史原因:早期连声明一起改,使 1.21 的 `[OptiFine]` 行从 299 变 0 并死在 OptiFine `Reflector.<clinit>`
+(OptiFine 自己的类也用同样的 m_/f_ 形状命名成员)。于是出现不一致:载荷保留 SRG 名,运行期接口名为 ensureStorage,
+lambda 接收者按官方名实现 → AbstractMethodError。
+**定向修法(下一轮)**:只对"被补丁过的游戏类"(`net/minecraft/**`、`com/mojang/**`,排除 `net/optifine/**` 与 keep 计划中的类)
+把声明与调用点**一起**改名,使类内部自洽且与运行期接口名一致;用 `-Doptifineoforge.dump` 验证载入期真身后复跑建世界。
