@@ -1139,39 +1139,12 @@ public final class PatchedClassTransformer implements ITransformer<ClassNode> {
 		}
 		int renamed = 0;
 		int kept = 0;
-		// References, plus the declarations of methods on patched game classes - and each of those two halves is a
-		// measured correction, not caution.
-		//
-		// Declarations of OptiFine's own classes must stay: renaming them rewrote OptiFine's call graph, taking
-		// 1.21's [OptiFine] lines at the title screen from 299 to 0 and dying inside its Reflector.<clinit>, because
-		// OptiFine names its own members in the same m_/f_ shape this table uses.
-		//
-		// Fields must stay everywhere: with fields renamed too, 1.21 stopped starting at all -
-		// "java.lang.IllegalArgumentException: Not bootstrapped (called from registry
-		// ResourceKey[minecraft:root / minecraft:game_event])" out of Bootstrap.checkBootstrapCalled, because the
-		// bootstrap flag is a field and the check reads it by name.
-		//
-		// A patched game class's *methods* are the other case: they have to agree with the runtime's interface and
-		// superclass names or a lambda receiver that implements the official name cannot answer a call made under
-		// the SRG name - measured as AbstractMethodError at RenderSystem$AutoStorageIndexBuffer.m_157476_ while
-		// LevelRenderer.createStars built the star buffer, with the payload's copy of that class still carrying 35
-		// SRG-named lines.
-		//
-		// What must not be renamed either way is the collision the guard below describes: a name whose official
-		// form the payload already declares as a *different* member (ModelBakery m_119364_ / loadBlockModel), and
-		// the members this jar adds itself (isStubName).
-		int declared = 0;
-		if(!node.name.startsWith("net/optifine/")) {
-			for(MethodNode method : node.methods) {
-				String official = officialName(node.name, method.name);
-				if(official != null && !official.equals(method.name)
-						&& !declaredBothNames(node.name, method.name, official)
-						&& !isStubName(node.name, method.name)) {
-					method.name = official;
-					declared++;
-				}
-			}
-		}
+		// References only, never declarations, and that is a measured correction rather than caution. With
+		// declarations renamed as well, 1.21 went from 299 [OptiFine] lines at the title screen to 0 and died
+		// inside OptiFine's own Reflector.<clinit>: OptiFine's classes name their own members in the same
+		// m_/f_ shape this table uses, so rewriting a declaration rewrites OptiFine's own name for it. What
+		// its patch data gets wrong is what it CALLS, and those members are declared by the runtime classes
+		// the table describes - so only the call sites are touched.
 		for(MethodNode method : node.methods) {
 			if(method.instructions == null) {
 				continue;
@@ -1180,7 +1153,7 @@ public final class PatchedClassTransformer implements ITransformer<ClassNode> {
 				if(insn instanceof MethodInsnNode call) {
 					String official = officialName(call.owner, call.name);
 					if(official != null) {
-						if(declaredBothNames(call.owner, call.name, official)) {
+						if(declaredByInstalledPayload(call.owner, call.name)) {
 							kept++;
 						} else {
 							call.name = official;
@@ -1190,7 +1163,7 @@ public final class PatchedClassTransformer implements ITransformer<ClassNode> {
 				} else if(insn instanceof FieldInsnNode fieldInsn) {
 					String official = officialName(fieldInsn.owner, fieldInsn.name);
 					if(official != null) {
-						if(declaredBothNames(fieldInsn.owner, fieldInsn.name, official)) {
+						if(declaredByInstalledPayload(fieldInsn.owner, fieldInsn.name)) {
 							kept++;
 						} else {
 							fieldInsn.name = official;
@@ -1206,7 +1179,7 @@ public final class PatchedClassTransformer implements ITransformer<ClassNode> {
 								&& SRG_NAME.matcher(handle.getName()).matches()) {
 							String official = officialName(handle.getOwner(), handle.getName());
 							if(official != null) {
-								if(declaredBothNames(handle.getOwner(), handle.getName(), official)) {
+								if(declaredByInstalledPayload(handle.getOwner(), handle.getName())) {
 									kept++;
 								} else {
 									dynamic.bsmArgs[index] = new Handle(handle.getTag(), handle.getOwner(),
@@ -1226,10 +1199,6 @@ public final class PatchedClassTransformer implements ITransformer<ClassNode> {
 		if(kept > 0) {
 			LOGGER.info("Kept " + kept + " SRG name(s) in " + node.name.replace('/', '.')
 					+ ": the copy this jar installs declares those members under them");
-		}
-		if(declared > 0) {
-			LOGGER.info("Renamed " + declared + " method declaration(s) in " + node.name.replace('/', '.')
-					+ ": the runtime names them officially and this copy declares only the SRG name");
 		}
 	}
 
@@ -1294,32 +1263,6 @@ public final class PatchedClassTransformer implements ITransformer<ClassNode> {
 	 */
 	private static boolean declaredByInstalledPayload(String owner, String name) {
 		return declaredNames(owner).contains(name);
-	}
-
-	/**
-	 * True when the payload copy of {@code owner} declares <em>both</em> names - the one collision this pass must
-	 * not touch.
-	 *
-	 * <p>The guard used to be "the payload declares the SRG name", which keeps a name alive while the runtime's
-	 * interface or superclass expects the official one (measured: AbstractMethodError on a lambda receiver at
-	 * {@code RenderSystem$AutoStorageIndexBuffer.m_157476_}). What the guard was written for is narrower: the
-	 * payload's {@code ModelBakery} declares both the SRG name and {@code loadBlockModel}, two different methods the
-	 * table would collapse into one, and that collapse left OptiFine's {@code CustomItems.modelsLoaded} unset so the
-	 * resource reload waited for ever. So the test is "declares both", not "declares the SRG name".</p>
-	 */
-	private static boolean declaredBothNames(String owner, String srgName, String official) {
-		Set<String> names = declaredNames(owner);
-		return names.contains(srgName) && names.contains(official);
-	}
-
-	/** Whether the stub plan gives {@code owner} a member called {@code name}: those names must not be renamed. */
-	private static boolean isStubName(String owner, String name) {
-		for(String[] member : STUBS_BY_OWNER.getOrDefault(owner, List.of())) {
-			if(member[0].equals(name)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	/**
