@@ -486,3 +486,14 @@ patched 是 `m_157487_`(SRG 名);而日志显示该内部接口被 "Left … alo
 走通路径供其余线复用:①obf-official 表取值修正(表 8,463 行含 m_7654_);②仅方法的声明改名 + 改名前的"名+描述符"查重;
 ③invokedynamic 自身 name 的改名;④字段引用不改名。
 下一轮:推广到 1.21.1/1.21.3/1.21.7(同走 SRG 机制、此前 NO-JOIN),再回到其余线与 FML10,然后进光影+FXAA。
+
+### 1.21.1 / 1.21.3 / 1.21.7:四检皆过,进世界各有不同原因(与 SRG 无关)
+
+纠正前提:rig 里没有这三条线的 obf-official/mcp_config,registered jar 里也**没有 `srg-to-official.txt`** ——
+它们**本就不走 SRG 装载改名**,1.21 的修法不适用(与此前"stderr 里没有 SRG/CNFE 错误"一致)。
+本轮按当前源码重建后实测:1.21.1 与 1.21.3 **四检全过**(STARTED/user True/sound True/0 崩溃/stderr 0),但进世界崩于
+`IllegalStateException: Cannot get config value before config is loaded`(`ModConfigSpec$ConfigValue.getRaw`
+← `Level.guardEntityTick(:581)` ← `ServerLevel.tick`),即"配置尚未加载就被读取";
+1.21.7 无崩溃报告、stderr 0 B(客户端静默失败)。
+下一轮:①1.21.1/1.21.3 用 `-Doptifineoforge.dump` 查 `Level.guardEntityTick` 是否被成员恢复替换或静态初始化未跟上;
+②1.21.7 先查为何无日志;③三条通过后回到其余线与 FML10,最后进光影+FXAA。
