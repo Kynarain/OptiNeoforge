@@ -124,6 +124,13 @@ public final class PatchedClassTransformer implements ITransformer<ClassNode> {
 			if(hasMethod(input, member[0], member[1])) {
 				continue;
 			}
+			MethodNode delegating = delegatingBody(input.name, member[0], member[1]);
+			if(delegating != null) {
+				input.methods.add(delegating);
+				LOGGER.info("Delegated stub " + input.name.replace('/', '.') + "." + member[0] + member[1]
+						+ " to the runtime's own append, because a do-nothing body would drop what the caller stores");
+				continue;
+			}
 			input.methods.add(defaultBody(member[0], member[1], (input.access & Opcodes.ACC_INTERFACE) != 0));
 			LOGGER.info("Stubbed " + input.name.replace('/', '.') + "." + member[0] + member[1]);
 		}
@@ -386,6 +393,43 @@ public final class PatchedClassTransformer implements ITransformer<ClassNode> {
 				}
 			}
 		}
+		return method;
+	}
+
+	/**
+	 * The stubs that must not be a do-nothing body, or null for every other member.
+	 *
+	 * <p>A stub exists so that a call site does not fail, and for a getter the default value is enough:
+	 * "nothing" is the honest answer to a question about a member this runtime does not have, and the
+	 * caller cannot tell it apart from an empty result. A member whose job is to <em>store</em> something
+	 * is the other case, and there the default value is a lie with consequences - the caller believes it
+	 * stored its value, the value is gone, and nothing anywhere reports it.</p>
+	 *
+	 * <p>Measured on 1.21.4 (2026-10-01). The plan lists
+	 * {@code net/minecraft/nbt/ListTag.add(Ljava/lang/Object;)Z} on 1.21.1, 1.21.3 and 1.21.4, where
+	 * {@code ListTag extends CollectionTag} and declares no {@code add(Object)}; on 1.21.8
+	 * {@code ListTag extends java.util.AbstractList} and inherits a working one, which is why that line
+	 * never needed the member at all. The do-nothing body this used to receive returned false and appended
+	 * nothing, and the damage was visible in the save rather than in the log: the player record's
+	 * {@code Pos} and {@code Rotation} came out as <em>empty</em> lists ("Pos is type 9 elem 0 count 0, not
+	 * list&lt;double&gt;[3]"), so the player had no position and every launch put it at 0/0/0. The runtime
+	 * does declare {@code size()} and {@code addTag(int, Tag)}, so the call is forwarded to those.</p>
+	 */
+	private static MethodNode delegatingBody(String owner, String name, String desc) {
+		if(!"net/minecraft/nbt/ListTag".equals(owner) || !"add".equals(name)
+				|| !"(Ljava/lang/Object;)Z".equals(desc)) {
+			return null;
+		}
+		// return addTag(size(), (Tag) arg);
+		MethodNode method = new MethodNode(Opcodes.ACC_PUBLIC | Opcodes.ACC_SYNTHETIC, name, desc, null, null);
+		method.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+		method.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+		method.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, owner, "size", "()I", false));
+		method.instructions.add(new VarInsnNode(Opcodes.ALOAD, 1));
+		method.instructions.add(new TypeInsnNode(Opcodes.CHECKCAST, "net/minecraft/nbt/Tag"));
+		method.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, owner, "addTag",
+				"(ILnet/minecraft/nbt/Tag;)Z", false));
+		method.instructions.add(new InsnNode(Opcodes.IRETURN));
 		return method;
 	}
 
