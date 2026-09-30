@@ -446,3 +446,14 @@ patched 是 `m_157487_`(SRG 名);而日志显示该内部接口被 "Left … alo
 载荷里按 m_157487_ 实现的 lambda 与已改名为 accept 的调用点不一致。
 下一轮择一:①不保留该接口(让载荷副本进来并把 m_157487_ 改名为 accept,查重机制已就绪);
 ②保留接口同时把引用侧与 lambda 句柄一并改名。验收顺序固定:Setting user → Sound engine → createStars → 进世界。
+
+### 1.21 通了四检并进入世界!(invokedynamic 名字改写是关键)
+
+在 `renameSrgMembers` 的 invokedynamic 分支补上**对 indy 自身 name 的改名**(indy 的 name 就是函数式接口的方法名,
+接口是描述符返回类型;此前只改了 bsmArgs 的 Handle)。结果:Setting user True、**Sound engine started True**、
+`createStars` 的 AbstractMethodError 消失、进世界日志出现 **`joined the game`**。
+剩余缺陷(更靠后):进世界创建渲染区块时
+`NoSuchFieldError: SectionRenderDispatcher$RenderSection does not have member field 'net.optifine.render.ChunkLayerMap …'`
+于 `RenderSection.<init>(:517)` ← `ViewArea.createSections` ← `LevelRenderer.allChanged/setLevel` ← `handleLogin`。
+即载荷的 `RenderSection.<init>` 要写一个已安装类里没有的字段(载荷的 ChunkLayerMap vs 运行期的 Map)。
+下一轮:把载荷的字段一并带给已安装类,或改为保留整类;并顺手修 capture-frame 的窗口标题匹配。
