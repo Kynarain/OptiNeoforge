@@ -384,3 +384,14 @@ jar 含 `optifineoforge/runtime-interfaces.txt`,1.20.2 列出 `BlockState → IB
 lambda 接收者按官方名实现 → AbstractMethodError。
 **定向修法(下一轮)**:只对"被补丁过的游戏类"(`net/minecraft/**`、`com/mojang/**`,排除 `net/optifine/**` 与 keep 计划中的类)
 把声明与调用点**一起**改名,使类内部自洽且与运行期接口名一致;用 `-Doptifineoforge.dump` 验证载入期真身后复跑建世界。
+
+### 声明改名尝试失败并已回退(1.21)
+
+尝试让载入期改名"连声明一起改"(仅非 net/optifine 类, 判据改为"载荷同时声明 SRG 名与官方名才保留"), 结果:
+第一次改到自注入的 stub(MinecraftServer.m_195518_ 等) → 死在 BuiltInRegistries.<clinit>; 加 stub 排除后
+第二次仍失败: `IllegalArgumentException: Not bootstrapped`(Bootstrap.checkBootstrapCalled)。该尝试让 1.21 从
+"能到标题界面"退化为"无法启动", 属明确退步, 故本轮未提交的 loader 改动**已整体回退**。
+保留本轮已提交且有量测收益的部分: SrgNameTable 运行期回退(无法解析 3160→568、表 8463→9442 行、含 m_7654_ 与
+m_157476_)与 add-line.ps1 的 obf-official 修正。注意 rig 的 jars-1.21 registered jar 仍是退步构建的产物,
+下一轮需从回退后的源码重建。下一轮改更窄: 只改"运行期以官方名声明且描述符一致"的**方法**(不碰字段),
+或只改"载荷类实现/覆盖运行期接口方法"的那些方法, 并用 -Doptifineoforge.dump 验证。
