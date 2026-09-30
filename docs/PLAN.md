@@ -281,3 +281,21 @@ SpawnX/Y/Z,使玩家固定落在 (0,0,0) —— 在正常世界里那是地下,�
 `logs\capture-frame-1.21.8.png`(110,712 B)显示雪原/树/水面/手持方块,地形正常渲染。
 说明该工作流可用且可推广;同时 1.21.8 的模板 level.dat **同样带 `Player` 标签**,即 rig 的钉档缺陷
 此前影响的是**每一条线**,不只是 1.21.4。
+
+### 进世界取证链 + 复现 1.20.2 缺陷
+
+新增 `capture-frame.ps1`(单线:启动→等 joined the game→重试找窗口→可选 F3→PrintWindow 抓帧→只收尾本线客户端;
+含 `-FreshWorld` 建新世界、`-JavaHome`、以及**补上 `natives-for.ps1` 调用**:1.20.1–1.20.4 → LWJGL 3.3.2,
+其余 3.3.3,缺它 1.20.x 客户端起不到世界)与 `capture-all-lines.ps1`(逐线跑 + 台账 `logs\inworld-sweep.txt`,
+按行合并、`-Only` 支持逗号列表)。1.21.4/1.21.8 已验证拿到完整地貌帧。
+
+**1.20.2 在真实建世界路径上复现失败**(jar 与权威表一致、natives 3.3.2、Java 17):
+
+```
+java.lang.NoClassDefFoundError: net/minecraft/world/level/block/state/BlockState
+  at net.optifine.reflect.ReflectorMethod.getMethod(ReflectorMethod.java:238)
+  at net.minecraft.client.renderer.GameRenderer.frameInit(GameRenderer.java:1819)
+```
+
+即 120x 的 loader **不消费 runtime-interfaces 计划**,OptiFine 反射所需的 `BlockState` 成员在运行期不存在;
+四检能过只是因为它只到标题界面。下一轮修 `src/main` 的 `PatchedClassTransformer` 补上这条链路。
