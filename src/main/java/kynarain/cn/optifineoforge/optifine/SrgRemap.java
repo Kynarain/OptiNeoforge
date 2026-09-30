@@ -272,7 +272,7 @@ public final class SrgRemap {
 	 * <p>The walk is needed because a reference may name a subclass for a member declared higher up,
 	 * and the table is built from declaring classes.</p>
 	 */
-	private static String resolve(SrgMemberMap map, SrgMemberMap.RuntimeIndex runtime, String owner, String name,
+	static String resolve(SrgMemberMap map, SrgMemberMap.RuntimeIndex runtime, String owner, String name,
 			String descriptor, boolean method) {
 		for(String candidate : runtime.hierarchy(owner)) {
 			String official = method ? map.method(candidate, name) : map.field(candidate, name);

@@ -52,12 +52,29 @@ public final class SrgNameTable {
 	private static final Pattern SRG_NAME = Pattern.compile("[fm]_\\d+_");
 
 	public static void main(String[] args) throws IOException {
-		if(args.length != 4) {
+		if(args.length < 4) {
 			System.err.println("usage: SrgNameTable <mcp joined.tsrg> <neoform merged> <payload jar>"
-					+ " <out file>");
+					+ " <out file> [runtime jar ...]");
 			System.exit(2);
 		}
-		SrgMemberMap map = SrgMemberMap.build(Path.of(args[0]), Path.of(args[1]));		System.out.println("table: " + map.ownerCount() + " owners, " + map.fieldCount() + " field names, "
+		SrgMemberMap map = SrgMemberMap.build(Path.of(args[0]), Path.of(args[1]));
+		// The runtime jars are optional, and they are what answers the names the join cannot: a reference whose owner
+		// is a subclass, or whose SRG name is shared by covariant overrides, only resolves when the runtime is asked
+		// whether the renamed member is really declared there - which is what SrgRemap.resolve does, and what the
+		// rewriter has always done. Measured on 1.21 (2026-10-01): without this the table still left 3,160 references
+		// unresolved, the payload kept calling RenderSystem$AutoStorageIndexBuffer.m_157476_ through a lambda
+		// receiver that implements the official name, and the client died in LevelRenderer.createStars with
+		// AbstractMethodError - a crash that arrives earlier than the one this table was being fixed for.
+		SrgMemberMap.RuntimeIndex runtime = new SrgMemberMap.RuntimeIndex();
+		for(int index = 4; index < args.length; index++) {
+			runtime.add(Path.of(args[index]));
+			System.out.println("runtime indexed: " + args[index]);
+		}
+		try {
+			runtime.addJdk();
+		} catch(IOException e) {
+			System.err.println("jdk index unavailable: " + e);
+		}		System.out.println("table: " + map.ownerCount() + " owners, " + map.fieldCount() + " field names, "
 				+ map.methodCount() + " method names");
 
 		// Sorted so two runs of the same inputs produce the same file, which is what lets it be compared.
@@ -100,7 +117,7 @@ public final class SrgNameTable {
 				}
 				for(FieldNode field : node.fields) {
 					if(SRG_NAME.matcher(field.name).matches()) {
-						String official = map.field(node.name, field.name);
+						String official = SrgRemap.resolve(map, runtime, node.name, field.name, field.desc, false);
 						if(official == null) {
 							unresolved++;
 						} else {
@@ -111,7 +128,7 @@ public final class SrgNameTable {
 				}
 				for(MethodNode method : node.methods) {
 					if(SRG_NAME.matcher(method.name).matches()) {
-						String official = map.method(node.name, method.name);
+						String official = SrgRemap.resolve(map, runtime, node.name, method.name, method.desc, true);
 						if(official == null) {
 							unresolved++;
 						} else {
@@ -130,25 +147,32 @@ public final class SrgNameTable {
 							insn = insn.getNext()) {
 						String owner = null;
 						String name = null;
+						String descriptor = null;
 						boolean isMethod = false;
 						if(insn instanceof org.objectweb.asm.tree.MethodInsnNode call) {
 							owner = call.owner;
 							name = call.name;
+							descriptor = call.desc;
 							isMethod = true;
 						} else if(insn instanceof org.objectweb.asm.tree.FieldInsnNode field) {
 							owner = field.owner;
 							name = field.name;
+							descriptor = field.desc;
 						}
 						if(owner == null || !SRG_NAME.matcher(name).matches()) {
 							continue;
 						}
-						String direct = isMethod ? map.method(owner, name) : map.field(owner, name);
-						String official = direct != null ? direct
-								: resolveThroughSupers(map, superOf, owner, name, isMethod);
+						// The rewriter's own resolution first: it walks the runtime's hierarchy and, crucially, only
+						// accepts a name the runtime really declares with this descriptor.
+						String official = SrgRemap.resolve(map, runtime, owner, name, descriptor, isMethod);
+						boolean directHit = isMethod ? map.method(owner, name) != null : map.field(owner, name) != null;
+						if(official == null) {
+							official = resolveThroughSupers(map, superOf, owner, name, isMethod);
+						}
 						if(official == null) {
 							unresolved++;
 						} else if(!byOwner.getOrDefault(owner, Map.of()).containsKey(name)) {
-							if(direct == null) {
+							if(!directHit) {
 								throughSuper++;
 							}
 							byOwner.computeIfAbsent(owner, key -> new TreeMap<>()).put(name, official);
