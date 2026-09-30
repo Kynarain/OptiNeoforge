@@ -65,6 +65,7 @@ public final class SrgNameTable {
 		// unresolved, the payload kept calling RenderSystem$AutoStorageIndexBuffer.m_157476_ through a lambda
 		// receiver that implements the official name, and the client died in LevelRenderer.createStars with
 		// AbstractMethodError - a crash that arrives earlier than the one this table was being fixed for.
+		final boolean hasRuntime = args.length > 4;
 		SrgMemberMap.RuntimeIndex runtime = new SrgMemberMap.RuntimeIndex();
 		for(int index = 4; index < args.length; index++) {
 			runtime.add(Path.of(args[index]));
@@ -117,7 +118,7 @@ public final class SrgNameTable {
 				}
 				for(FieldNode field : node.fields) {
 					if(SRG_NAME.matcher(field.name).matches()) {
-						String official = SrgRemap.resolve(map, runtime, node.name, field.name, field.desc, false);
+						String official = resolveName(map, runtime, hasRuntime, node.name, field.name, field.desc, false);
 						if(official == null) {
 							unresolved++;
 						} else {
@@ -128,7 +129,7 @@ public final class SrgNameTable {
 				}
 				for(MethodNode method : node.methods) {
 					if(SRG_NAME.matcher(method.name).matches()) {
-						String official = SrgRemap.resolve(map, runtime, node.name, method.name, method.desc, true);
+						String official = resolveName(map, runtime, hasRuntime, node.name, method.name, method.desc, true);
 						if(official == null) {
 							unresolved++;
 						} else {
@@ -164,7 +165,7 @@ public final class SrgNameTable {
 						}
 						// The rewriter's own resolution first: it walks the runtime's hierarchy and, crucially, only
 						// accepts a name the runtime really declares with this descriptor.
-						String official = SrgRemap.resolve(map, runtime, owner, name, descriptor, isMethod);
+						String official = resolveName(map, runtime, hasRuntime, owner, name, descriptor, isMethod);
 						boolean directHit = isMethod ? map.method(owner, name) != null : map.field(owner, name) != null;
 						if(official == null) {
 							official = resolveThroughSupers(map, superOf, owner, name, isMethod);
@@ -204,6 +205,20 @@ public final class SrgNameTable {
 	 * normal in Minecraft's own code. The entry is written under the <em>referring</em> owner by the caller, because
 	 * that is the owner the loader will look the name up under while transforming.</p>
 	 */
+	/**
+	 * The direct lookup when no runtime jar was indexed, the hierarchy-and-presence walk when one was.
+	 *
+	 * <p>The direct lookup has to stay: the walk only accepts a name the runtime really declares, so with no runtime
+	 * indexed it answers nothing - measured 2026-10-01, when the tool wrote 0 names and an empty table was embedded,
+	 * because the runtime jar is optional.</p>
+	 */
+	private static String resolveName(SrgMemberMap map, SrgMemberMap.RuntimeIndex runtime, boolean hasRuntime,
+			String owner, String name, String descriptor, boolean method) {
+		if(!hasRuntime) {
+			return method ? map.method(owner, name) : map.field(owner, name);
+		}
+		return SrgRemap.resolve(map, runtime, owner, name, descriptor, method);
+	}
 	private static String resolveThroughSupers(SrgMemberMap map, Map<String, String> superOf, String owner,
 			String name, boolean method) {
 		String current = superOf.get(owner);

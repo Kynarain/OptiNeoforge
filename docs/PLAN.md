@@ -4597,3 +4597,14 @@ Sound engine False、1 份新崩溃(crash-2026-10-01_06.41.40-client.txt)、stde
 下一轮顺序:① 先恢复基线(表退回不传运行期 jar 的版本,重建确认四检回到 STARTED,并给 add-line.ps1 加 `-NoRuntimeTable`
 开关);② 让运行期回退只作用于方法、或要求"同类同描述符候选唯一";③ 基线稳住后再回到 1.21 建世界(m_7654_/m_157476_)。
 另:本轮 pwsh-624 被作业运行器以 4294967295 终止,无结论。
+
+### 基线恢复实况 + 新错误:ClassFormatError Duplicate method name
+
+回退未验证的 loader 改动;给 add-line.ps1 加 `-RuntimeTable` 开关(默认关);修掉我自己引入的
+"SrgNameTable 只走 SrgRemap.resolve" 问题(没有运行期索引时现在回退到直接查表,否则表会是 0 行)。
+重建(默认开关)后内嵌表为 **8,463 行含 m_7654_**(因先前已改用正确的 obf-official 表,故不是旧版 8,391 行)。
+用这份表跑四检,客户端死于 `java.lang.ClassFormatError: Duplicate method name "get" with signature
+"(Lnet/minecraft/core/component/DataComponentType;)Ljava/lang/Object;"` —— **改名制造了同名同描述符的方法**。
+对照:8,391 行(陈旧表)能过标题界面但建世界崩(m_7654_ 缺失);9,442 行(+运行期回退)更早失败(Not bootstrapped)。
+下一轮:① 定位冲突产生者(离线 SrgRemap 复用了旧产物 vs 载入期改名;用强制重新 prepare + javap/-Doptifineoforge.dump 检查);
+② 给改名加"不制造冲突"判据(改名 X→Y 前检查该类是否已存在 Y(带描述符),存在则不改并计数)。
