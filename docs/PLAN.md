@@ -4481,3 +4481,10 @@ SpawnX/Y/Z,使玩家固定落在 (0,0,0) —— 在正常世界里那是地下,�
 在 1.21.4 + 新世界 `RigFresh` 上验证通过:帧 213,069 B,内容为海洋/陆地/树/远景雾的完整地貌。
 已知限制:F3 调试屏仍未生效(工具不依赖它);`PrintWindow` 看不到 FXAA 合成画面,故 FXAA 判定仍走
 `run-fxaa-capture.ps1` 的 F2 路径 + `fxaa-check.ps1`。
+
+### capture-frame.ps1 跨线验证(1.21.8)
+
+新建 `RigFresh`(仅复制 level.dat + 钉玩家 (26887,150,2618))后:`joined the game` → 窗口命中 →
+`logs\capture-frame-1.21.8.png`(110,712 B)显示雪原/树/水面/手持方块,地形正常渲染。
+说明该工作流可用且可推广;同时 1.21.8 的模板 level.dat **同样带 `Player` 标签**,即 rig 的钉档缺陷
+此前影响的是**每一条线**,不只是 1.21.4。
