@@ -338,3 +338,14 @@ jar 含 `optifineoforge/runtime-interfaces.txt`,1.20.2 列出 `BlockState → IB
 → 载入期重命名表漏掉载荷 `ChunkMap` 实际引用的 `m_7654_`,载荷里的调用未被改写,运行期找不到方法。
 修法:SrgNameTable 输出改为并集(补上 joined.tsrg 中属于载荷 owner 的全部 m_/f_ 名字,或发现缺失即补齐并报数),
 重建 1.21 后复查表内含 `m_7654_` 并重新建世界取证。另:1.20.4 本轮同样未进世界(NO-JOIN,无新崩溃报告),需单独查。
+
+### 进世界台账(11 条 ModLauncher 线)与 SRG 表修复状态
+
+台账(`logs\inworld-sweep.txt`):1.20.1 ✅ 209,433 B;1.20.2 ✅ 40,475 B;1.20.4 ❌ NO-JOIN;1.20.6 ✅ 1,186,484 B;
+1.21 ❌(已定位 `NoSuchMethodError ServerLevel.m_7654_`,建世界崩溃);1.21.1 ❌;1.21.3 ❌;1.21.4 ✅ 226,680 B;
+1.21.6 ✅ 181,074 B;1.21.7 ❌;1.21.8(此前已验证 ✅ 176,475 B)。1.20.4 与 1.21 的 stderr 以
+`NoClassDefFoundError: BlockState` 开头(记录噪声),而 1.21.1/1.21.3/1.21.7 的 stderr 没有这类错误 → 失败集非单一原因。
+`SrgNameTable` 已改为**沿父类链上溯解析**并把条目写在调用点 owner 下;直接运行验证成功(产物含
+`net/minecraft/server/level/ServerLevel  m_7654_  getServer`),但走 `add-line.ps1` 流水线重建后内嵌表仍 8,391 行、
+`m_7654_` 为 0,且工具输出无"resolved through a supertype"。下一步:逐字复现流水线的 SrgNameTable 调用
+(它用的工具 jar 与载荷路径),对齐后再重建复验。
