@@ -315,3 +315,15 @@ java.lang.NoClassDefFoundError: net/minecraft/world/level/block/state/BlockState
 
 即 120x 的 loader **不消费 runtime-interfaces 计划**,OptiFine 反射所需的 `BlockState` 成员在运行期不存在;
 四检能过只是因为它只到标题界面。下一轮修 `src/main` 的 `PatchedClassTransformer` 补上这条链路。
+
+### 校正:1.20.2 的"建世界崩溃"在当前构建上未复现
+
+120x 的 loader 确有 runtime-interfaces 机制(日志可见 `Injected 1 runtime interface(s) on ... BlockState`,
+jar 含 `optifineoforge/runtime-interfaces.txt`,1.20.2 列出 `BlockState → IBlockStateExtension`)。
+用权威表的 jar + LWJGL 3.3.2 + Java 17 + `--quickPlaySingleplayer` 建世界:
+`STARTED / Setting user True / Sound engine started True / 崩溃 0 / stderr 14625`(等于记录值),
+进世界取证亦成功(`logs\inworld\frame-1.20.2.png`,地形在渲染)。
+日志里的 `NoClassDefFoundError: BlockState`(OptiFine `ReflectorMethod.getMethod ← GameRenderer.frameInit`)
+是**被反射器捕获后继续执行**的,属于该线 stderr 记录的组成部分,不打断建世界 → 不再当缺陷。
+另:`capture-frame.ps1` 修掉两个自身 bug(`Start-Process` 参数不加引号导致 launch 立即退出且无日志;
+新世界 donor 未排除目标名导致复制源被删)。
