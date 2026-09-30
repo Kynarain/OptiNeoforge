@@ -1139,7 +1139,41 @@ public final class PatchedClassTransformer implements ITransformer<ClassNode> {
 		}
 		int renamed = 0;
 		int kept = 0;
-		// References only, never declarations, and that is a measured correction rather than caution. With
+		// Declarations of *methods* on patched game classes, and only when the official name is free. The two
+		// exclusions and the duplicate check are each measured:
+		//  * fields stay everywhere: renaming them stopped 1.21 starting at all ("Not bootstrapped" out of
+		//    Bootstrap.checkBootstrapCalled - the bootstrap flag is a field);
+		//  * OptiFine's own classes stay: renaming their declarations rewrote OptiFine's call graph (299 [OptiFine]
+		//    lines at the title screen went to 0, dying in its Reflector.<clinit>);
+		//  * a name already taken by the class must not be renamed onto: without this check the run died with
+		//    "ClassFormatError: Duplicate method name \"get\" with signature
+		//    (Lnet/minecraft/core/component/DataComponentType;)Ljava/lang/Object; in class file
+		//    net/minecraft/world/level/block/entity/BlockEntity$DataComponentInput" - the copy had been given the
+		//    payload's two methods and the rename then produced a second member with the same name and descriptor.
+		// What the rename is for: a patched game class has to agree with the runtime's interface and superclass
+		// names, or a lambda receiver implementing the official name cannot answer a call made under the SRG name -
+		// measured as AbstractMethodError at RenderSystem$AutoStorageIndexBuffer.m_157476_.
+		int declared = 0;
+		int renamedTaken = 0;
+		if(!node.name.startsWith("net/optifine/")) {
+			for(MethodNode method : node.methods) {
+				String official = officialName(node.name, method.name);
+				if(official == null || official.equals(method.name) || isStubName(node.name, method.name)) {
+					continue;
+				}
+				if(declaredBothNames(node.name, method.name, official)) {
+					kept++;
+					continue;
+				}
+				if(hasMethod(node, official, method.desc)) {
+					// The class already carries that name and shape; renaming would leave two identical members.
+					renamedTaken++;
+					continue;
+				}
+				method.name = official;
+				declared++;
+			}
+		}		// References only, never declarations, and that is a measured correction rather than caution. With
 		// declarations renamed as well, 1.21 went from 299 [OptiFine] lines at the title screen to 0 and died
 		// inside OptiFine's own Reflector.<clinit>: OptiFine's classes name their own members in the same
 		// m_/f_ shape this table uses, so rewriting a declaration rewrites OptiFine's own name for it. What
@@ -1153,7 +1187,7 @@ public final class PatchedClassTransformer implements ITransformer<ClassNode> {
 				if(insn instanceof MethodInsnNode call) {
 					String official = officialName(call.owner, call.name);
 					if(official != null) {
-						if(declaredByInstalledPayload(call.owner, call.name)) {
+						if(declaredBothNames(call.owner, call.name, official)) {
 							kept++;
 						} else {
 							call.name = official;
@@ -1163,7 +1197,7 @@ public final class PatchedClassTransformer implements ITransformer<ClassNode> {
 				} else if(insn instanceof FieldInsnNode fieldInsn) {
 					String official = officialName(fieldInsn.owner, fieldInsn.name);
 					if(official != null) {
-						if(declaredByInstalledPayload(fieldInsn.owner, fieldInsn.name)) {
+						if(declaredBothNames(fieldInsn.owner, fieldInsn.name, official)) {
 							kept++;
 						} else {
 							fieldInsn.name = official;
@@ -1179,7 +1213,7 @@ public final class PatchedClassTransformer implements ITransformer<ClassNode> {
 								&& SRG_NAME.matcher(handle.getName()).matches()) {
 							String official = officialName(handle.getOwner(), handle.getName());
 							if(official != null) {
-								if(declaredByInstalledPayload(handle.getOwner(), handle.getName())) {
+								if(declaredBothNames(handle.getOwner(), handle.getName(), official)) {
 									kept++;
 								} else {
 									dynamic.bsmArgs[index] = new Handle(handle.getTag(), handle.getOwner(),
@@ -1261,6 +1295,21 @@ public final class PatchedClassTransformer implements ITransformer<ClassNode> {
 	 * and the line that would need it is the one whose log shows a "Left ... alone: the payload's copy of it
 	 * extends ..." message.</p>
 	 */
+	/** True when the payload copy of owner declares both names: the collision this pass must not touch. */
+	private static boolean declaredBothNames(String owner, String srgName, String official) {
+		Set<String> names = declaredNames(owner);
+		return names.contains(srgName) && names.contains(official);
+	}
+
+	/** Whether the stub plan gives owner a member called name: those names must not be renamed. */
+	private static boolean isStubName(String owner, String name) {
+		for(String[] member : STUBS_BY_OWNER.getOrDefault(owner, List.of())) {
+			if(member[0].equals(name)) {
+				return true;
+			}
+		}
+		return false;
+	}
 	private static boolean declaredByInstalledPayload(String owner, String name) {
 		return declaredNames(owner).contains(name);
 	}
