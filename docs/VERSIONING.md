@@ -4,7 +4,7 @@
 
 ```
 <MAJOR>.<MINOR>.<PATCH>+mc<Minecraft 版本>
-例如  OptiNeoforge-1.0.0+mc26.1.2.jar
+例如  OptifiNeoforge-1.0.0+mc26.1.2.jar
 ```
 
 ## 现在处于 0.x

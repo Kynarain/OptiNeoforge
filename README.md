@@ -1,4 +1,4 @@
-# OptiNeoforge
+# OptifiNeoforge
 
 在 **NeoForge** 上加载 **OptiFine** 的客户端模组,做法与 OptiFabric 在 Fabric Loader 上的做法相同:把 OptiFine 的 jar 和本模组一起放进 `mods/`,启动时由本模组运行 OptiFine 自带的补丁流程,并把打过补丁的 Minecraft 类接进 NeoForge 的类转换流程。
 
@@ -12,7 +12,7 @@
 
 | Minecraft | NeoForge | 产物 | OptiFine 构建 | Java | 状态(实测) |
 |---|---|---|---|---|---|
-| 26.1.2 | `26.1.2.109` | `OptiNeoforge-1.0.0+mc26.1.2.jar` | `preview_OptiFine_26.1.2_HD_U_K1_pre2.jar` | 25 | 已验证 · 已发布(`processClass` **795 次**、stderr 107 字节 = 对照跑、无崩溃报告;挂载点是 OptiFine 自带的。**2026-09-20 六个光影包实测全部加载并编译通过**,见 `docs/DEVELOPMENT.md`;旧记录里的 3478 行就是开光影包的那一次,352 行是不开的那一次) |
+| 26.1.2 | `26.1.2.109` | `OptifiNeoforge-1.0.0+mc26.1.2.jar` | `preview_OptiFine_26.1.2_HD_U_K1_pre2.jar` | 25 | 已验证 · 已发布(`processClass` **795 次**、stderr 107 字节 = 对照跑、无崩溃报告;挂载点是 OptiFine 自带的。**2026-09-20 六个光影包实测全部加载并编译通过**,见 `docs/DEVELOPMENT.md`;旧记录里的 3478 行就是开光影包的那一次,352 行是不开的那一次) |
 
 - mod id `optifineoforge`,仅客户端。
 - 26.1 起游戏**未混淆**,官方名即运行名,因此这一线没有映射表要处理。
@@ -33,7 +33,7 @@ OptiFine;把这条线做成"装进 `mods/` 就能用"的加载器仍是待办。
 .\gradlew build
 ```
 
-产物为 `build/libs/OptiNeoforge-<版本>+mc26.1.2.jar`。
+产物为 `build/libs/OptifiNeoforge-<版本>+mc26.1.2.jar`。
 
 ## 工作原理(按实测修正)
 

@@ -4,7 +4,7 @@
 > **项目的运行日志在 [`1.20.x` 分支的 `docs/MATRIX.md`](../../blob/1.20.x/docs/MATRIX.md)**,每轮实测都追加在那里 ——
 > 包括下面这些在本文件写下之后才发生的事:15 / 15 条线全部实机验证(2026-09-18),以及 1.0.0 的第一次真实发布
 > (`v1.0.0+mc26.1.2`、`v1.0.0+mc1.21…1.21.8`、`v1.0.0+mc1.20.2/1.20.4/1.20.6`,见
-> [Releases](https://github.com/Kynarain/OptiNeoforge/releases))。
+> [Releases](https://github.com/Kynarain/OptifiNeoforge/releases))。
 > 下面第 5 行起的"阶段性总结"保留原样,是为了留下当时的判断,不是当前状态。
 
 本文只记录**实测**的差距与顺序,不重复 `docs/PLAN.md`(计划)与 `docs/DEVELOPMENT.md`(实测记录)。
@@ -63,7 +63,7 @@ origin/1.21.x : 10 files
 origin/26.x   : 39 files
 ```
 
-`26.x` 上那 39 个文件包含**全部实现**:loader 侧的 `OptiNeoforgeTransformationService` 与各项修补
+`26.x` 上那 39 个文件包含**全部实现**:loader 侧的 `OptifiNeoforgeTransformationService` 与各项修补
 (`TagHelperFix`、`PackRootsFix`、`ReloadProbeFix`、`ModelProbeFix`、`NativeImageProbeFix`、
 `MemberRestoreTransformer`、`RenderTargetFix`、`ReloadableResourceManagerFix`、`ConventionTags`)、离线工具
 (`MemberRestorePlan`、`ForgeApiShims`、`OptifineJar`、`OptifineJarFixer`、`OptifinePipeline`、
@@ -111,7 +111,7 @@ gave a smaller answer than expected:
   `ForgeApiShims`. A Java 17 class file loads on the 21 and 25 runtimes just as
   well, so no line needs it changed.
 - All nine loader transformers depend on ModLauncher
-  (`OptiNeoforgeTransformationService`, `MemberRestoreTransformer`,
+  (`OptifiNeoforgeTransformationService`, `MemberRestoreTransformer`,
   `TagHelperFix`, `PackRootsFix`, `ReloadProbeFix`, `ModelProbeFix`,
   `NativeImageProbeFix`, `RenderTargetFix`, `ReloadableResourceManagerFix`).
   That confirms from the code side that 26.x needs the loader layer rewritten
@@ -302,7 +302,7 @@ After the Java 17 and Forge-shell rules from the previous round, the 1.20.1 run 
 all the way through mod loading with the mod present:
 
     OptiFineTransformationService: Targets: 412
-    OptiNeoforge: Member restore plan: 550 members across 87 classes
+    OptifiNeoforge: Member restore plan: 550 members across 87 classes
     NeoForge mod loading, version 47.1.106, for MC 1.20.1
     NeoForge v47.1.106 Initialized
 
