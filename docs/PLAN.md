@@ -311,3 +311,14 @@ jar 含 `optifineoforge/runtime-interfaces.txt`,1.20.2 列出 `BlockState → IB
 是**被反射器捕获后继续执行**的,属于该线 stderr 记录的组成部分,不打断建世界 → 不再当缺陷。
 另:`capture-frame.ps1` 修掉两个自身 bug(`Start-Process` 参数不加引号导致 launch 立即退出且无日志;
 新世界 donor 未排除目标名导致复制源被删)。
+
+### 真缺陷:1.21 建世界崩溃 —— 载入期 SRG 表漏名(已定位到数字)
+
+自建新世界时 1.21 直接崩溃:`NoSuchMethodError: ServerLevel.m_7654_() (=getServer)`,栈为
+`ChunkMap.<init> → ServerChunkCache.<init> → ServerLevel.<init> → MinecraftServer.createLevels → IntegratedServer.initServer`。
+实测:jar 内 `optifineoforge/srg-to-official.txt` **8,391 行、含 `m_7654_` 的行 0**;而
+`downloads\mcp_config-1.21\config\joined.tsrg` 里 **存在** `o ()Lnet/minecraft/server/MinecraftServer; m_7654_ 8870`。
+生成者是 `add-line.ps1:160` 调用的 `SrgNameTable <joinedTsrg> <obfOfficial> <srgPayload> <outTable>`。
+→ 载入期重命名表漏掉载荷 `ChunkMap` 实际引用的 `m_7654_`,载荷里的调用未被改写,运行期找不到方法。
+修法:SrgNameTable 输出改为并集(补上 joined.tsrg 中属于载荷 owner 的全部 m_/f_ 名字,或发现缺失即补齐并报数),
+重建 1.21 后复查表内含 `m_7654_` 并重新建世界取证。另:1.20.4 本轮同样未进世界(NO-JOIN,无新崩溃报告),需单独查。
