@@ -438,3 +438,14 @@ Sound engine False、1 份新崩溃(crash-2026-10-01_06.41.40-client.txt)、stde
 待查:**`PatchedClassTransformer:714` 的 `input.methods.add(created)`**、接口注入路径、
 以及 `ReloadableResourceManagerFix:77/115`、`RenderTargetFix:79`、`TagHelperFix:82`。
 下一轮修法统一为:任何 `methods.add`/`fields.add` 之前按"名字+描述符"查重,已存在则跳过并计数。
+
+### 干净 A/B:声明改名是 ClassFormatError/Not bootstrapped 的元凶;表修正无害
+
+上一轮的"回退"因 `git add -A` 连带把声明改名提交进了 94f2de7;本轮从 79dbaf5 取回该文件(确认其中无
+`Renamed … method declaration`、无 `int declared`),重编重建(表仍 8,463 行含 m_7654_)后跑四检:
+`ClassFormatError: Duplicate method name "get"` **消失**,客户端前进到 `AbstractMethodError:
+RenderSystem$AutoStorageIndexBuffer.m_157476_`(LevelRenderer.createStars);该类的日志由四个 pass 变为三个。
+结论:① 声明改名是 Duplicate method name 与 Not bootstrapped 的元凶,已彻底移除并固化;② 表修正(8,463 行含
+`ServerLevel m_7654_ getServer`)无害且必要(旧 8,391 行表正因缺它而在建世界时崩);③ 1.21 现在停在老问题上:
+lambda 接收者实现官方名 ensureStorage 而调用点仍是 m_157476_。
+下一轮重做声明改名时必须带"名字+描述符查重"约束,且验收顺序固定:先四检 STARTED,再看 createStars,最后建世界。
