@@ -57,14 +57,37 @@ public final class SrgNameTable {
 					+ " <out file>");
 			System.exit(2);
 		}
-		SrgMemberMap map = SrgMemberMap.build(Path.of(args[0]), Path.of(args[1]));
-		System.out.println("table: " + map.ownerCount() + " owners, " + map.fieldCount() + " field names, "
+		SrgMemberMap map = SrgMemberMap.build(Path.of(args[0]), Path.of(args[1]));		System.out.println("table: " + map.ownerCount() + " owners, " + map.fieldCount() + " field names, "
 				+ map.methodCount() + " method names");
 
 		// Sorted so two runs of the same inputs produce the same file, which is what lets it be compared.
 		Map<String, Map<String, String>> byOwner = new TreeMap<>();
 		int named = 0;
 		int unresolved = 0;
+		// The superclass chain of the payload's own classes. A call site names the *static receiver type*, which can
+		// be a subclass of the class the mapping is filed under. Measured on 1.21 (2026-10-01): the table came out
+		// with 8,391 lines and no entry for m_7654_, the payload's ChunkMap called ServerLevel.m_7654_(), and
+		// joined.tsrg files that member under its declaring class (obf 'dcw' -> net/minecraft/world/level/Level,
+		// official getServer). The lookup by the call site's owner missed, the name was counted as unresolved and
+		// dropped, and the world then died in ChunkMap.<init> with
+		// NoSuchMethodError: 'MinecraftServer ServerLevel.m_7654_()'.
+		Map<String, String> superOf = new TreeMap<>();
+		try(ZipFile zip = new ZipFile(args[2])) {
+			for(Enumeration<? extends ZipEntry> it = zip.entries(); it.hasMoreElements(); ) {
+				ZipEntry entry = it.nextElement();
+				if(!entry.getName().endsWith(".class")) {
+					continue;
+				}
+				try(InputStream stream = zip.getInputStream(entry)) {
+					String superName = new ClassReader(stream.readAllBytes()).getSuperName();
+					if(superName != null) {
+						superOf.put(entry.getName().substring(0, entry.getName().length() - ".class".length()),
+								superName);
+					}
+				}
+			}
+		}
+		int throughSuper = 0;
 		try(ZipFile zip = new ZipFile(args[2])) {
 			for(Enumeration<? extends ZipEntry> it = zip.entries(); it.hasMoreElements(); ) {
 				ZipEntry entry = it.nextElement();
@@ -119,10 +142,15 @@ public final class SrgNameTable {
 						if(owner == null || !SRG_NAME.matcher(name).matches()) {
 							continue;
 						}
-						String official = isMethod ? map.method(owner, name) : map.field(owner, name);
+						String direct = isMethod ? map.method(owner, name) : map.field(owner, name);
+						String official = direct != null ? direct
+								: resolveThroughSupers(map, superOf, owner, name, isMethod);
 						if(official == null) {
 							unresolved++;
 						} else if(!byOwner.getOrDefault(owner, Map.of()).containsKey(name)) {
+							if(direct == null) {
+								throughSuper++;
+							}
 							byOwner.computeIfAbsent(owner, key -> new TreeMap<>()).put(name, official);
 							named++;
 						}
@@ -140,6 +168,28 @@ public final class SrgNameTable {
 		}
 		Files.writeString(Path.of(args[3]), text.toString(), StandardCharsets.UTF_8);
 		System.out.println("wrote " + named + " name(s) across " + byOwner.size() + " owner(s) to " + args[3]
+				+ (throughSuper == 0 ? "" : ", " + throughSuper + " resolved through a supertype")
 				+ (unresolved == 0 ? "" : ", " + unresolved + " SRG name(s) the table cannot resolve"));
+	}
+
+	/**
+	 * The same lookup, walking the payload's superclass chain.
+	 *
+	 * <p>A reference names the type the call was compiled against, and the mapping is filed under the class that
+	 * declares the member, so the two differ whenever a subclass is used as the static receiver type - which is
+	 * normal in Minecraft's own code. The entry is written under the <em>referring</em> owner by the caller, because
+	 * that is the owner the loader will look the name up under while transforming.</p>
+	 */
+	private static String resolveThroughSupers(SrgMemberMap map, Map<String, String> superOf, String owner,
+			String name, boolean method) {
+		String current = superOf.get(owner);
+		for(int depth = 0; current != null && depth < 16; depth++) {
+			String official = method ? map.method(current, name) : map.field(current, name);
+			if(official != null) {
+				return official;
+			}
+			current = superOf.get(current);
+		}
+		return null;
 	}
 }
