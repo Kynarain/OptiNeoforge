@@ -349,3 +349,14 @@ jar 含 `optifineoforge/runtime-interfaces.txt`,1.20.2 列出 `BlockState → IB
 `net/minecraft/server/level/ServerLevel  m_7654_  getServer`),但走 `add-line.ps1` 流水线重建后内嵌表仍 8,391 行、
 `m_7654_` 为 0,且工具输出无"resolved through a supertype"。下一步:逐字复现流水线的 SrgNameTable 调用
 (它用的工具 jar 与载荷路径),对齐后再重建复验。
+
+### 1.21 SRG 表:修掉"喂错表",但仍不充分
+
+`add-line.ps1:155` 曾无条件用 `work\<mc>\obf-official.tsrg` 覆盖调用者的 `-ObfOfficial`;而该副本与
+`obf-official-<mc>.tsrg` 虽同为 119,595 行/3,996,776 B,**有 151 行不同**。交叉实验:work 副本 → 1,074 个类配不上、
+表 8,391 行且无 `m_7654_`;rig 根副本 → 0 个类配不上、表 8,463 行且含 `m_7654_`。已改为优先调用者参数、
+其次 `obf-official-<mc>.tsrg`,重建后内嵌表确认为 8,463 行并含 `ServerLevel m_7654_ getServer`。
+**但 1.21 仍未进世界,且崩溃前移到初始化期**(`crash-2026-10-01_06.10.37-client.txt`):
+`AbstractMethodError` 于 `RenderSystem$AutoStorageIndexBuffer.m_157476_`(lambda 接收者)→ 说明仍有 SRG 名未被改写,
+工具自报**还有 3,160 个引用无法解析**。下一轮:给 SrgNameTable 加**运行期回退**(按同类/父类上描述符相同的成员反查官方名,
+复用 SrgMemberMap 的 RuntimeIndex),把无法解析数压到近 0,再重建复验。
