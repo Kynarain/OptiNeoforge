@@ -1197,7 +1197,7 @@ public final class PatchedClassTransformer implements ITransformer<ClassNode> {
 				} else if(insn instanceof FieldInsnNode fieldInsn) {
 					String official = officialName(fieldInsn.owner, fieldInsn.name);
 					if(official != null) {
-						if(declaredBothNames(fieldInsn.owner, fieldInsn.name, official)) {
+						if(declaredByInstalledPayload(fieldInsn.owner, fieldInsn.name)) {
 							kept++;
 						} else {
 							fieldInsn.name = official;

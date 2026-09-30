@@ -4664,3 +4664,16 @@ patched 是 `m_157487_`(SRG 名);而日志显示该内部接口被 "Left … alo
 于 `RenderSection.<init>(:517)` ← `ViewArea.createSections` ← `LevelRenderer.allChanged/setLevel` ← `handleLogin`。
 即载荷的 `RenderSection.<init>` 要写一个已安装类里没有的字段(载荷的 ChunkLayerMap vs 运行期的 Map)。
 下一轮:把载荷的字段一并带给已安装类,或改为保留整类;并顺手修 capture-frame 的窗口标题匹配。
+
+### 1.21 全线打通:四检通过 + 进入世界 + 抓帧成功
+
+最后缺陷:进世界时 `NoSuchFieldError: SectionRenderDispatcher$RenderSection does not have member field
+'net.optifine.render.ChunkLayerMap …'`(于 `RenderSection.<init>` ← handleLogin)。jar 内 patched 副本的字段声明是 SRG 名
+`f_291754_`,而 donors 是 `buffers`;根因是我把**字段引用**的保留判据从 `declaredByInstalledPayload` 放宽成
+`declaredBothNames`,于是引用被改成 `buffers` 而声明仍 `f_291754_`(字段声明从不改名)。
+修法:字段引用恢复旧判据,方法引用继续用 `declaredBothNames`。
+结果:Setting user True(07:23:56)、Sound engine started True(07:24:02)、`Dev joined the game`(07:24:09)、
+无新崩溃报告、抓帧成功 `logs\inworld\frame-1.21.png`(178,723 B,海岸线/地形/树木/手持物品)。
+走通路径供其余线复用:①obf-official 表取值修正(表 8,463 行含 m_7654_);②仅方法的声明改名 + 改名前的"名+描述符"查重;
+③invokedynamic 自身 name 的改名;④字段引用不改名。
+下一轮:推广到 1.21.1/1.21.3/1.21.7(同走 SRG 机制、此前 NO-JOIN),再回到其余线与 FML10,然后进光影+FXAA。
