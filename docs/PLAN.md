@@ -4472,3 +4472,12 @@ SpawnX/Y/Z,使玩家固定落在 (0,0,0) —— 在正常世界里那是地下,�
 森林、水面、地形起伏、远景雾完整呈现(对照此前 57,940 B 的地下石头帧)。
 结论:1.21.4 的"区块整块不渲染" = 空实现 stub 致玩家 Pos/Rotation 为空 + 模板 level.dat 的 Player 标签
 把玩家按在地下 + 旧存档原点为空区块;既非渲染器缺陷,也非 worldgen 缺陷。
+
+### 新增 rig 工具 `capture-frame.ps1`:单线单帧进世界取证
+
+`run-fxaa-capture.ps1` 需要自己的进程/窗口簿记对齐,曾两次报 `window title: none found`;而同一套查询
+手工再跑能正好命中(竞态而非能力缺失)。新工具按已证明可靠的步骤做:启动(可 quickPlay 存档)→ 只看新写入的
+`latest.log` 等 `joined the game` → **带重试**找本线游戏窗口 → 可选投 F3 → `PrintWindow` 抓帧 → 只收尾本线客户端。
+在 1.21.4 + 新世界 `RigFresh` 上验证通过:帧 213,069 B,内容为海洋/陆地/树/远景雾的完整地貌。
+已知限制:F3 调试屏仍未生效(工具不依赖它);`PrintWindow` 看不到 FXAA 合成画面,故 FXAA 判定仍走
+`run-fxaa-capture.ps1` 的 F2 路径 + `fxaa-check.ps1`。
