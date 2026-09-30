@@ -4450,3 +4450,14 @@ PrintWindow 抓到的帧是深色方块面(与"玩家在 y=0 地下"一致)。
 玩家仍停在 (0,0,0)(帧字节数与上一张完全相同),此推断不成立、原因未查清;
 `run-fxaa-capture.ps1` 自身的窗口/进程识别失败(`window title: none found`、`no client matched ...`),
 而分步手动取证是成功的 —— 问题在脚本匹配逻辑,下一轮先修它,再拿新世界的 `C:` 与地貌截图。
+
+### 卡点定位:rig 的 pin-save-state 不认 level.dat 的 Player 标签(造成假的"渲染问题")
+
+`pin-save-state.ps1` 只在存在 `playerdata/*.dat` 时才钉玩家位置,并直接打印
+"no playerdata - player position not pinned (the client then spawns a fresh player at SpawnX/Y/Z)"。
+但存档 `level.dat` 里**可能带 `Player` 复合标签**(从模板复制而来),其中的 `Pos [0,0,0]` 会**压过**
+SpawnX/Y/Z,使玩家固定落在 (0,0,0) —— 在正常世界里那是地下,画面只有深色石头。
+1.21.4 那个"渲染问题"正是这个:修复后 `Player` 标签里的 `Pos`/`Rotation` 已是规整列表,但值来自
+坏构建时期写下的 `(0,0,0)`,又被新世界模板继承。
+因此**在修好 rig 之前,任何"进世界看画面"的结论都不可信**。修法:无 playerdata 时若有 `Player` 标签
+则警告并把 -PlayerX/Y/Z/-Yaw/-Pitch 写进去、增加清标签开关、建新世界默认不继承该标签、Dump 标明来源。
