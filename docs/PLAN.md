@@ -449,3 +449,16 @@ RenderSystem$AutoStorageIndexBuffer.m_157476_`(LevelRenderer.createStars);该类
 `ServerLevel m_7654_ getServer`)无害且必要(旧 8,391 行表正因缺它而在建世界时崩);③ 1.21 现在停在老问题上:
 lambda 接收者实现官方名 ensureStorage 而调用点仍是 m_157476_。
 下一轮重做声明改名时必须带"名字+描述符查重"约束,且验收顺序固定:先四检 STARTED,再看 createStars,最后建世界。
+
+### 带查重的声明改名:一半成功,缺口缩小到一个内部接口
+
+`renameSrgMembers` 重新加入**仅方法**的声明改名,并补上缺的约束:**改建名前查 `hasMethod(node, official, desc)`,
+已有同名同描述符则不改并计数**;适用范围仍为非 net/optifine、跳过 stub;引用侧改用 `declaredBothNames`。
+结果:`ClassFormatError: Duplicate method name "get"` 消失;四检 `Setting user: True` 回归;崩溃栈里出现官方名
+(`ensureStorage`/`bind`)。仍崩于 `LevelRenderer.createStars` → `AbstractMethodError`,报错点名:
+`…does not define or inherit … 'abstract void accept(it.unimi.dsi.fastutil.ints.IntConsumer, int)' of interface
+…RenderSystem$AutoStorageIndexBuffer$IndexGenerator`。jar 内两份副本:donors 是 `accept`(官方名),
+patched 是 `m_157487_`(SRG 名);而日志显示该内部接口被 "Left … alone(保留运行期样子)" →
+载荷里按 m_157487_ 实现的 lambda 与已改名为 accept 的调用点不一致。
+下一轮择一:①不保留该接口(让载荷副本进来并把 m_157487_ 改名为 accept,查重机制已就绪);
+②保留接口同时把引用侧与 lambda 句柄一并改名。验收顺序固定:Setting user → Sound engine → createStars → 进世界。
