@@ -515,3 +515,12 @@ patched 是 `m_157487_`(SRG 名);而日志显示该内部接口被 "Left … alo
 `IllegalStateException: Cannot get config value before config is loaded` 掩盖。崩溃报告未保留原异常。
 下一步:①在 `logs\debug.log` 里找 07:33:0x 的原始异常(1.21.1 与 1.21.3 各一份);②若没有,用无实体世界复现缩小范围;
 ③1.21.7 仍待查(无崩溃报告、stderr 0 B)。
+
+### 1.21.3 打通;1.21.1 的失败实为 rig 问题
+
+对照 keep 计划:`keep-runtime-1.21.txt` 与 1.21.4 都有 `net/minecraft/client/server/IntegratedServer *`(当初为
+"配置未加载"而加),而 1.21.1/1.21.3 没有。补上后重建:1.21.3 四检全过、`joined the game`、抓到帧
+`logs\inworld\frame-1.21.3.png`(58,292 B),且实例 `config` 目录出现了 `neoforge-server.toml`(服务端配置终于加载)。
+1.21.1 四检全过,但进世界那步是 **rig 自身报错**:`capture-frame.ps1` 调 `natives-for.ps1` 删旧 DLL 失败
+(另一客户端占用 glfw.dll)被当成致命错误,客户端根本没启动,却被记成"没有帧"。已把该步骤改为 try/catch 容错。
+下一步:重跑 1.21.1 取证;再查 1.21.7(无崩溃报告、stderr 0 B)。
