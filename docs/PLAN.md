@@ -4461,3 +4461,14 @@ SpawnX/Y/Z,使玩家固定落在 (0,0,0) —— 在正常世界里那是地下,�
 坏构建时期写下的 `(0,0,0)`,又被新世界模板继承。
 因此**在修好 rig 之前,任何"进世界看画面"的结论都不可信**。修法:无 playerdata 时若有 `Player` 标签
 则警告并把 -PlayerX/Y/Z/-Yaw/-Pitch 写进去、增加清标签开关、建新世界默认不继承该标签、Dump 标明来源。
+
+### rig 钉档缺陷已修 + 1.21.4 新世界完整渲染(证据)
+
+`pin-save-state.ps1`:① `Set-Fixed` 补 `double` 分支(原本缺它,`Pos` 是 `list<double>[3]`,
+所以**位置钉档从未成功过**);② 无 playerdata 时回退写 `level.dat` 的 `Player` 标签的 `Pos`/`Rotation`;
+③ `-Dump` 明确标注该标签存在且**压过 SpawnX/Y/Z**;④ 提示语改为准确说法。
+验证:副本上 `level.dat Player.Pos[1]: 0 -> 150`,re-dump 得 `Pos: list<6> [0,150,0]`。
+把新世界 `RigFresh` 的该标签钉到 (0,150,0) 后抓帧(`logs\final-1.21.4-fresh.png`,274 KB):
+森林、水面、地形起伏、远景雾完整呈现(对照此前 57,940 B 的地下石头帧)。
+结论:1.21.4 的"区块整块不渲染" = 空实现 stub 致玩家 Pos/Rotation 为空 + 模板 level.dat 的 Player 标签
+把玩家按在地下 + 旧存档原点为空区块;既非渲染器缺陷,也非 worldgen 缺陷。
