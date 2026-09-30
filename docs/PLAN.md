@@ -344,3 +344,15 @@ jar 含 `optifineoforge/runtime-interfaces.txt`,1.20.2 列出 `BlockState → IB
 `AbstractMethodError` 于 `RenderSystem$AutoStorageIndexBuffer.m_157476_`(lambda 接收者)→ 说明仍有 SRG 名未被改写,
 工具自报**还有 3,160 个引用无法解析**。下一轮:给 SrgNameTable 加**运行期回退**(按同类/父类上描述符相同的成员反查官方名,
 复用 SrgMemberMap 的 RuntimeIndex),把无法解析数压到近 0,再重建复验。
+
+### SrgNameTable 运行期回退已实现(收益可量测),1.21 仍崩 → 缺口在改写覆盖面
+
+`SrgRemap.resolve` 开放给同包,`SrgNameTable` 接受额外运行期 jar,用 `SrgMemberMap.RuntimeIndex`(含 JDK 索引)
+按"运行期同类/父类/接口上描述符相同且确实声明"解析;`add-line.ps1` 传入 `work\<mc>\runtime-<mc>.jar`。
+量测(1.21):无法解析 **3,160 → 568**,973 条经父类解析,表 **8,463 → 9,442 行**,内嵌表含
+`ServerLevel m_7654_ getServer` 与 `RenderSystem$AutoStorageIndexBuffer m_157476_ ensureStorage`。
+但 1.21 仍在同一处崩:`AbstractMethodError` 于
+`RenderSystem$AutoStorageIndexBuffer.m_157476_`(lambda 接收者实现的是官方名,调用点仍是 SRG 名)——
+**表里有名字、调用点没被改写**,最可能是 `invokedynamic` 的引导方法句柄/`Type` 常量不在现有改写范围内。
+下一轮:扩展改写覆盖面到 `InvokeDynamicInsnNode` 引导参数与 `LdcInsnNode` 的 Handle/Type,重建复验后再覆盖
+1.21.1/1.21.3/1.21.7/1.20.4。
