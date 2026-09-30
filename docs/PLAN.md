@@ -4608,3 +4608,14 @@ Sound engine False、1 份新崩溃(crash-2026-10-01_06.41.40-client.txt)、stde
 对照:8,391 行(陈旧表)能过标题界面但建世界崩(m_7654_ 缺失);9,442 行(+运行期回退)更早失败(Not bootstrapped)。
 下一轮:① 定位冲突产生者(离线 SrgRemap 复用了旧产物 vs 载入期改名;用强制重新 prepare + javap/-Doptifineoforge.dump 检查);
 ② 给改名加"不制造冲突"判据(改名 X→Y 前检查该类是否已存在 Y(带描述符),存在则不改并计数)。
+
+### ClassFormatError Duplicate method "get" 定位到类与机制
+
+报错类为 `net/minecraft/world/level/block/entity/BlockEntity$DataComponentInput`(接口,jar 内只有
+`get(DataComponentType)` 与 `getOrDefault(DataComponentType,Object)`,**无重复**);调用者是 OptiFine 自己的
+`srg/net/optifine/reflect/FieldLocatorTypes.<init>`(getDeclaredFields),且发生在 `CrashReport.preload`,
+故 new crash reports 为 0。而**成员恢复计划**对同一个类要求恢复
+`get (Ljava/util/function/Supplier;)Ljava/lang/Object;` 与 `getOrDefault (…Supplier…)`(donor 的 Supplier 形状);
+报错里的重复签名是载荷自己的 `DataComponentType` 形状 → **恢复机制在同名成员已存在时仍往里加**。
+下一轮:用 `-Doptifineoforge.dump` 导出载入期真身,确认该类被定义时有几个 get 及是哪一步加的;
+然后给恢复机制加"写入前按名字+描述符查重,已存在则跳过并计数"(与"改名不能制造冲突"同族约束)。
