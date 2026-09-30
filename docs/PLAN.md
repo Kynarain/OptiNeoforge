@@ -4688,3 +4688,13 @@ patched 是 `m_157487_`(SRG 名);而日志显示该内部接口被 "Left … alo
 1.21.7 无崩溃报告、stderr 0 B(客户端静默失败)。
 下一轮:①1.21.1/1.21.3 用 `-Doptifineoforge.dump` 查 `Level.guardEntityTick` 是否被成员恢复替换或静态初始化未跟上;
 ②1.21.7 先查为何无日志;③三条通过后回到其余线与 FML10,最后进光影+FXAA。
+
+### 1.21.1/1.21.3 的"配置未加载"崩在运行期自己的类里
+
+1.21.1 的 registered jar 里既无 `optifineoforge/patched/…/Level.class` 也无 donor 副本 → `Level` 未被替换,
+用的是 NeoForge 21.1.250 自己的类。故崩溃栈里的 `Level.guardEntityTick(:581)` 是 NeoForge 自身代码读取尚未加载的
+`ModConfigSpec$ConfigValue`(`ConfigValue.getRaw` → `get`)。与可跑通的 1.21.4 对比:`[OptiFine]` 行数同为 232,
+未见我们 loader 异常。判读:这更像**启动/加载顺序**问题(世界 tick 早于 NeoForge 载入配置),且与版本相关。
+下一轮先做最快判别:去掉 `--quickPlaySingleplayer`,在 1.21.1 上手工"标题界面→单人游戏→进世界";
+若不再崩则是 quickPlay 与配置时机的交互(rig 可用"先到标题界面再投键进世界"规避),否则再对照配置加载日志。
+1.21.7 仍待查(无崩溃报告、stderr 0 B)。
