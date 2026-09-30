@@ -1208,6 +1208,27 @@ public final class PatchedClassTransformer implements ITransformer<ClassNode> {
 					// A lambda's target travels as a handle in the bootstrap arguments, so a name there
 					// needs the same treatment as a call instruction - and a lambda body is exactly where
 					// 1.21's failure came from.
+					//
+					// The invokedynamic's own name is the *functional interface's* method name (that is what
+					// LambdaMetafactory builds an implementation of), and that interface is the descriptor's return
+					// type. Leaving it alone produced, measured on 1.21 (2026-10-01):
+					//   AbstractMethodError: Receiver class com.mojang.blaze3d.systems.RenderSystem$$Lambda/… does
+					//   not define or inherit an implementation of the resolved method 'abstract void
+					//   accept(it.unimi.dsi.fastutil.ints.IntConsumer, int)' of interface
+					//   com.mojang.blaze3d.systems.RenderSystem$AutoStorageIndexBuffer$IndexGenerator
+					// - the call site had been renamed to accept while the lambda was still built for m_157487_.
+					if(SRG_NAME.matcher(dynamic.name).matches()) {
+						String interfaceOwner = org.objectweb.asm.Type.getReturnType(dynamic.desc).getInternalName();
+						String official = officialName(interfaceOwner, dynamic.name);
+						if(official != null) {
+							if(declaredBothNames(interfaceOwner, dynamic.name, official)) {
+								kept++;
+							} else {
+								dynamic.name = official;
+								renamed++;
+							}
+						}
+					}
 					for(int index = 0; index < dynamic.bsmArgs.length; index++) {
 						if(dynamic.bsmArgs[index] instanceof Handle handle
 								&& SRG_NAME.matcher(handle.getName()).matches()) {
