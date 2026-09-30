@@ -24,7 +24,7 @@
 | 项目 | 值 | 依据 |
 |---|---|---|
 | mod id | `optifineoforge` | 本项目 |
-| 产物 | `OptiNeoforge-<版本>+mc<MC 版本>.jar` | 本项目 |
+| 产物 | `OptifiNeoforge-<版本>+mc<MC 版本>.jar` | 本项目 |
 | 载入方式 | ModLauncher(NeoForge 自带) | OptiFine 的入口是 `cpw.mods.modlauncher.api.ITransformationService` |
 | 骨架版本号 | `0.1.0` | 见 `docs/VERSIONING.md` |
 | 状态 | 骨架 | 没有可用产物,也没有实测记录 |
@@ -171,7 +171,7 @@ OptiFine 在 1.20 系列里只发布了 1.20.1、1.20.2、1.20.4、1.20.6 的构
 - **`mods.toml` → `neoforge.mods.toml` 的确切切换点:已结清**(见上"五处分界"第 3 条)。1.20.1 – 1.20.4 只读 `META-INF/mods.toml`,1.20.6 两个名字都读 —— 也就是说 20.2.x / 20.4.x **并不**接受 `neoforge.mods.toml`,原先"预期只读旧名"这一半是对的,而"是否已经两种都认"这一问的答案是否。
 - **运行期命名空间的确切切换点:已量到两个端点(2026-09-19)。** 用 `MissingTargets` 拿同一个运行时扫两份载荷:1.20.4 是 43 162 条游戏成员引用里 **3 178 条找不到**(7.4% → SRG 名),1.20.6 是 43 918 条里 **23 条找不到**(0.05% → 官方名)。所以切换点在 **1.20.4 与 1.20.6 之间**,1.20.6 属于官方名那一侧(原先"大约从 1.20.5/1.21 前后"的预期方向对、落点偏晚)。1.20.1 与 1.20.2 仍**未实测**,只能按 1.20.4 类推。**别与"五处分界"第 4 条混起来**:那条查的是 FML 的 **API 包名**(编译期的事),这条是 Minecraft 类的 **运行期名**(补丁负载按哪套命名空间存放),两者互不相干。
 - **元数据的字段要求**:各版本 `mods.toml` / `neoforge.mods.toml` 的必填字段(`loaderVersion` 的取值范围、`modLoader` 取值等)需要对着对应 NeoForge 版本的文档核对。**已核对一部分**:读各版 NeoForge 自己产物里的元数据,`loaderVersion` 分别是 1.20.1 的 `[24,]`、20.2.88 与 20.4.251 的 `[1,]`、20.6.141 的 `[3,]`,`modLoader` 都是 `javafml`,登记的 mod id 见上表。本分支模板写 `loaderVersion = "[1,)"`,对四者都成立 —— 它声明的是"本 mod 接受哪些 FML",不是"本 mod 要求哪个 FML"。
-- **OptiFine 的 ModLauncher 服务是否还会被自动发现:1.20.4 与 1.20.6 已实测为"会"。** 两个版本的启动日志里都有 `OptiFineTransformationService.onLoad` / `initialize`,且 1.20.6 上服务列表是 `[mixin, OptiFine, mixin-synthetic-package, fml, OptiNeoforge]` —— 我们自己的服务排在 OptiFine 之后,与 1.21.x 线观测到的顺序一致。无需改走 NeoForge 自己的转换 API。
+- **OptiFine 的 ModLauncher 服务是否还会被自动发现:1.20.4 与 1.20.6 已实测为"会"。** 两个版本的启动日志里都有 `OptiFineTransformationService.onLoad` / `initialize`,且 1.20.6 上服务列表是 `[mixin, OptiFine, mixin-synthetic-package, fml, OptifiNeoforge]` —— 我们自己的服务排在 OptiFine 之后,与 1.21.x 线观测到的顺序一致。无需改走 NeoForge 自己的转换 API。
 - **OptiFine 侧的补丁负载**:`optifine.Patcher` 在本仓库的离线管线里对 1.20.4 与 1.20.6 两版客户端都按老流程工作(产出 `srg/**` 下的补丁类,1.20.4 427 个 / 1.20.6 426 个游戏类),命名空间那一问见上面第一行的实测。
 - **1.20.2 的唯一 preview**:`I7_pre1` 是否带上完整补丁负载、能否作为移植对象,未验证;这是本线最薄的一环。
 - **1.20.1 的 `47.1.x` 与 20.x 的差异边界:部分结清。** 已实测相同:两者都用 `cpw.mods:modlauncher:10.0.9`,元数据文件名都是 `META-INF/mods.toml`。已实测不同:FML 的 API 包名、事件总线坐标(`net.minecraftforge:eventbus` 对 `net.neoforged:bus`)、登记的 mod id(`forge` 对 `neoforge`)。这三处本分支都已按目标处理(源码根 + 显式类路径 + 元数据占位符)。类转换 API 一侧是否还有别的差异,仍未核实。
