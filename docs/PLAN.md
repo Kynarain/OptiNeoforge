@@ -717,3 +717,17 @@ Worker-Main-1/2 均在 ForkJoinPool 正常等待。即客户端在正常主循�
 复合标签**(很可能不是 26.1.2 自己的存档)。
 下一轮:用 26.1.2 自己创建/自带的完整世界再用 quickPlay 打开(必要时用真实点击驱动菜单并如实标注取证路径);
 另查该线"找不到窗口"的 rig 侧原因。26.1.2 之外 14 条线均已取到进世界帧。
+
+### 26.1.2 的世界是新布局;本轮判别实验结论无效
+
+实测:`saves\RigSession` 与 `CaptureWorld` 的 level.dat 都是 **561 B**,内容为
+`difficulty_settings`/`difficulty`/`neoDayTimeFraction`/`Version`/`DataVersion 4790`,**无顶层 GameRules、无 Player**;
+世界目录为新布局 `data/ datapacks/ dimensions/ players/ level.dat session.lock`(对照 1.20.x 的 region/playerdata/DIM1)。
+故 rig 的 `pin-save-state.ps1` 在该线上什么都没钉(输出 "no GameRules compound … not pinned" / "Rotation/Pos … not pinned")。
+客户端确有 quickPlay 能力(日志处理 `GameConfig$QuickPlaySinglePlayerData`、`QuickPlayData`、`QuickPlayLog`、
+`LevelStorageSource`、`LevelStorageException`),但仍停在标题界面且日志无失败提示。
+**本轮"整目录复制 RigSession→FullWorld 仍不进"的判断无效**:直接调用 `capture-frame.ps1` 时其输出不写
+`logs\inworld-26.1.2.log`(那是 capture-all-lines 的 `*> $log` 才写的),我读到的是上一次 -FreshWorld 运行的陈旧内容
+(仍写着 waiting for 'CaptureWorld'),故该结论无证据,不予采用。
+下一轮:重跑 `-LevelName FullWorld` 并直读其输出;仍不进则与 1.21.11(能进,布局相同)做同路径对照;必要时用真实点击
+驱动菜单进世界并如实标注取证路径。
