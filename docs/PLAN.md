@@ -592,3 +592,12 @@ in …DebugScreenOverlay` 等。
 rig 观察:先跑验收再立刻抓帧时,抓帧那次的客户端不写任何日志(无效结论);单独手工跑则能写日志(此前 08:26 那次即写到
 `Reloading custom textures`)。抓帧前需给上一个客户端留出退出时间。
 下一轮:单独手工跑 capture-frame 判定 1.20.4 资源重载是否走完并进世界;再回归 1.20.1/1.20.2/1.20.6 不退步。
+
+### 移植后 1.20.4 仍卡在同一处;线程栈本轮未取到
+
+120x 移植改名机器并令 `Kept 4 SRG name(s) in …ModelBakery` 生效后,1.20.4 的日志**依旧**停在
+`[OptiFine] *** Reloading custom textures ***` → `Disable Forge light pipeline` → 三个 Font 类替换之后,
+结果仍是 NOT SEEN / NO WINDOW。结论:**移植是必要但不足够**,不能记为已修好。
+下一轮:用两个作业分头做 —— 一个跑 `capture-frame.ps1` 起客户端,另一个在卡住时 `jstack <pid>`,
+取 `Render thread` 栈判定它是在 `CustomItems.updateIcons` 的 `Config.sleep(100)` 等待,还是别的等待,
+再顺栈追到提前返回的那一步。
