@@ -1256,3 +1256,15 @@ natives 核对(把 1.20.4 记录值的做法推广到该线): stderr 里 Incompa
 
 收到转发: Overwolf 支持(Noam V, ticket 395632)称项目被删除后名称与 slug 会变成通用的 deleted project 词, 故恢复前需先改项目名与 slug。仓库现状供填表: archives_base_name=OptifiNeoforge、mod_version_base=2.0.0、maven_group=kynarain.cn(三条线一致); 仓库内没有 CF 项目 id/slug 记录, -26x 的 PUBLISHING.md 写明目前只有 GitHub Release 一条渠道, CF/Modrinth 账号与上传脚本都还没有 —— 该项目由本人在 CF 网页端维护, 我这边没有 CF 凭据, 改动只能在网页端完成。
 
+
+### 1.21.1 通过
+
+1.21.1(neoforge-21.1.250, jdk-21, mods = OptifiNeoforge-2.0.0+mc1.21.1-registered.jar + optifine-OptiFine_1.21.1_HD_U_J1.jar; 内联 launch.ps1 --quickPlaySingleplayer=RigSession, 190 秒): Setting user=1, Sound engine=1, joined=1, Preparing spawn area=1, 方法错误行=0, 新崩溃=0, latest.log=1124016 B, stderr=0 B。
+
+进世界复验累计 10/15: 四条 FML10 + 1.20.1/1.20.2/1.20.4/1.20.6/1.21/1.21.1; 待验 1.21.3/1.21.4/1.21.6/1.21.7/1.21.8。
+
+
+### 外部事项决定(用户 2026-10-01)
+
+CF 项目恢复时填 名称=OptifiNeoforge、slug=optifineoforge, 由用户在网页端改动(我无 CF 凭据); 发布文档暂不修改, 等网页端改完后再决定是否写入 docs/PUBLISHING.md 与发布元数据。
+
