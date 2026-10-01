@@ -5377,3 +5377,16 @@ FXAA 现状不变: 通过 5 条(1.20.2、1.20.4、1.21、1.21.1、1.21.4), 有�
 
 下一轮: 同样内联最小命令逐条复验 1.21.10、1.21.11、26.1.2, 然后 11 条 ModLauncher 线; 每条记录 Setting user / Sound engine / joined / 新崩溃数 / latest.log 大小。FXAA 暂停推进。
 
+
+### FML10 三条线(1.21.9 / 1.21.10 / 1.21.11)用当前 jar 均通过进世界检验
+
+内联最小命令(launch-fml10.ps1, 全加引号 + Start-Process; mods = optifine-payload-fml10.jar + optifine-own-classes.jar; -GameArgs --quickPlaySingleplayer=RigSession), 每条等 190 秒统计:
+
+1.21.9: Setting user=1, Sound engine=1, joined=1, 新崩溃=0, latest.log=182143 B。
+
+1.21.10: Setting user=1, Sound engine=1, joined=1, 新崩溃=0, latest.log=183775 B。
+
+1.21.11: Setting user=1, Sound engine=1, joined=1, 新崩溃=0, latest.log=179993 B。
+
+即三条线用当前分支头的 payload/own-classes jar 在真实游戏里正常进世界、无崩溃。下一轮: 26.1.2 同样复验; 随后 11 条 ModLauncher 线。
+
