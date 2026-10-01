@@ -1488,3 +1488,14 @@ Gradle 与 JVM: 三仓库 wrapper 均为 gradle-9.6.1(要求 Java 17+ 运行, 9.
 
 发布红线实测: 抽查 1.20.4/1.21.4/26.1.2 三个已有产物, 条目 60/67/60 而 net/optifine 条目均为 **0** => DESCRIPTION 的 No OptiFine content 有实测支撑, 也印证 PUBLISHING 的纪律(绝不上传 rig 里带 OptiFine 补丁类的 jars-<mc>\optifine-*.jar)。本轮未跑 Gradle、未启动游戏。
 
+
+### 发布说明可在发布前审阅(离线预览开关)+ 修掉文案两处误导
+
+问题: publish-github-releases.ps1 第一件事是 Get-Token, 无人能在发布前审阅将贴出的正文。新增 -PreviewNotes: 在 Get-Token 之前打印各线说明并 return, 离线可审, 不取 token、不联网、不写东西。
+
+预览立刻暴露两处误导(已修): ①抬头把三条分支都写上(the 1.21.x / 1.20.x / 26.x line this tag belongs to), 改为该线自己的分支(branch 1.20.x of this repository, 用 $branches[]); ②overclaim —— 原只有一行 save created/opened ... **with a shader pack** | pass, 而 2026-10-01 那批复验没有加载光影包(光影测试按所有者指示暂停), 已拆成两行: save created/opened in the real game, 0 new crash reports | 该线实测; shader pack loaded in that save | 逐线如实(1.20.2/1.20.4/1.20.6/1.21/1.21.1/1.21.3/1.21.4 = 10-01 成对测量时加载过; 1.21.8/9/10/11 = 09-23 加载过、10-01 未重跑; 1.20.1/26.1.2 = NOT PROVEN; 1.21.6/1.21.7 = NOT PROVEN 且写明该线光影包不加载)。
+
+预览输出对照(节选): 1.20.1 => branch 1.20.x / save pass / pack NOT PROVEN / FXAA NOT PROVEN; 1.21.9 => branch 1.21.x / save pass / pack pass(09-23, 10-01 未重跑)/ FXAA VISIBLE(09-23); 结尾 preview only: nothing was written and no network call was made。
+
+我自己的两次失误(如实): ①首版把 pack 字段插进 save 字符串内部造成 75 个语法错误; ②第二次只收敛行尾引号仍余 75 个;最后整体重写  块(15 行)后语法 0 错误、save/pack 各 15 个。教训: 引号密集+单行多字段的结构不要逐点补丁, 直接整体重写。本轮未跑 Gradle、未启动游戏。
+
