@@ -934,3 +934,12 @@ during this run - the values below come from an earlier run`);②启动修补的
 修法:$quoted 现在给每一个参数都加引号(第 215 行)。冒烟验证客户端真的启动 —— 实例 latest.log 在本次运行期间写于 13:14:28。
 更正上一轮判断:先前"换引号/去重定向都无效"是基于被截断的诊断输出得出的;真正缺的是给分号与两个减号开头的值加引号。
 仍待处理:脚本判定块仍报 RUN INVALID 与 no client matched nothing stopped(前者因我插入的 runStart 取值与脚本初始化顺序不一致;后者因取帧后客户端已退出且匹配条件不吻合)—— 下一轮让新鲜度判定直接用"本次运行期间是否写过 latest.log",并让客户端匹配用本行 jar 名。
+
+### FXAA 对仍未取得:Start-Process 启动链在读帧脚本里依旧起不了客户端
+
+本轮收窄结论(全部实测):**可用**路径 = 从已存在的 PowerShell 进程内直接 `& powershell -File launch.ps1 … -Mods "a;b" -ExtraGameArgs "--quickPlaySingleplayer=X"`(13:02:39 与 13:04:20 两次成功,latest.log 正常);
+**不可用**路径 = 同样内容交 `Start-Process powershell.exe -ArgumentList <字符串>`,今天仅一次成功(13:14:28,去掉重定向并给每个参数加引号后),其余均为 launcher pid 之后 0 字节输出且客户端不出现。
+已排除(均有实测):引号方式(数组/字符串/全加引号)、-WindowStyle Hidden、-RedirectStandardOutput/-Error(有/无)、-Mods 分号与 -- 开头 token 的引号(已修)、$args 自动变量误用(自写脚本,已改名 $launchArgs)。
+因此 FXAA 半道门槛卡在此点:FXAA 只能走 F2 路径(PrintWindow 看不到合成后画面),而唯一实现 F2 的 run-fxaa-capture.ps1 依赖 Start-Process;run-and-capture.ps1 虽可用但抓帧是 PrintWindow。
+另:自写 fxaa-manual-pair.ps1(准备→启动→F2→收图→对比)同样卡在 Start-Process,三次运行的失败形态分别是 -Levels 0,4 只绑到 4、带重定向 0 字节、改名 $args 后仍 0 字节。
+下一轮做法(已想清):改用 Start-Job 传递**参数数组**而非命令行字符串 —— Start-Job -ScriptBlock { & $using:launcher @using:args };子进程由 PowerShell 自己创建、参数按对象传递,不经"拼命令行再解析",正是本轮所有失败发生之处。跑通后回到"有包验证包能加载 + 无包(-Pack '')验证 FXAA 生效",用 fxaa-check.ps1 出判定。
