@@ -1266,3 +1266,12 @@ CF 项目恢复时填 名称=OptifiNeoforge、slug=optifineoforge, 由用户在�
 
 进世界复验累计 12/15; 待验 1.21.6/1.21.7/1.21.8。
 
+
+### 1.21.6 与 1.21.7 通过 → 14/15
+
+1.21.6(neoforge-21.6.20-beta, jdk-21, mods = registered 2.0.0+mc1.21.6 + OptiFine_1.21.6_HD_U_J6_pre3): Setting user=1, Sound engine=1, joined=1, Preparing spawn area=2, 方法错误行=0, 新崩溃=0, latest.log=185057 B, stderr=0 B。
+
+1.21.7(neoforge-21.7.25-beta, jdk-21, mods = registered 2.0.0+mc1.21.7 + OptiFine_1.21.7_HD_U_J6_pre7): Setting user=1, Sound engine=1, joined=1, Preparing spawn area=9, 方法错误行=0, 新崩溃=0, latest.log=190444 B, stderr=0 B。
+
+进世界复验累计 14/15; 只差 1.21.8(neoforge-21.8.54, optifine-OptiFine_1.21.8_HD_U_J6_pre16.jar)。
+
