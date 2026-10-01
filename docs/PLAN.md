@@ -641,3 +641,15 @@ started 09:00:39),命令行**有** `--quickPlaySingleplayer=CaptureWorld`,但**�
 1.20.4 运行后 `saves\CaptureWorld` 里只有 `level.dat`+`session.lock`(世界没被打开),而 1.20.2 的同名目录是完整结构。
 下一轮:让 rig 对该线造**完整世界**(整目录复制而非只复制 level.dat)后再抓帧,并如实标注取证路径;
 随后 FML10 四条线与光影+FXAA。
+
+### 二分实验定性:1.20.4 拒绝的是钉过的 level.dat
+
+造一个只有 level.dat 但**未钉**的世界(复制 donor 的 level.dat 到 saves\TestUnpinned),用
+`capture-frame.ps1 -LevelName TestUnpinned` 打开:得到 `world marker: joined the game`、
+窗口 'Minecraft NeoForge* 1.20.4 - Singleplayer'、地形生成(region/playerdata/DIM1 出现)、
+帧 `logs\inworld\frame-1.20.4-unpinned.png`(48,057 B)。对照:rig 钉过的 `CaptureWorld`(2250 B)被静默拒绝
+(停在标题界面);未钉的 TestUnpinned(2252 B)与 donor RigTest(2253 B)都能打开。
+**但该帧内容是 "You Died! Dev suffocated in a wall"**(未钉 → 玩家沿用 donor 位置、生成在方块内),
+因此只证明"世界能加载并渲染界面",**不证明"地形被画出"**,不能算通过。
+下一轮:对比 `pin-save-state.ps1` 写出的标签类型与 donor 原文件(SpawnX/Y/Z、Player.Rotation/Pos、规则),
+修好后用 -FreshWorld 复测,期望 joined the game + 非死亡界面的地形帧;随后 FML10 四线与光影+FXAA。
