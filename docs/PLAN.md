@@ -594,3 +594,17 @@ installs declares …`(碰撞保留判据生效),而 1.20.4 **完全没有这条
 renameSrgMembers 及其三处已测约束:仅方法/非 net.optifine/跳过 stub/改建名前按名+描述符查重;字段引用走
 declaredByInstalledPayload;indy 既改句柄也改自身 name)移植进 120x 的 src\main transformer,并在主流程按 1.21.x 的位置调用;
 然后编译 120x → rebuild-120x-line 重建 1.20.4 → 四检 → joined → 抓帧;其余 1.20.x 线已通过,不要引入退步。
+
+### 120x 分支移植载入期 SRG 改名(1.20.4 专用管线)
+
+把 1.21.x ml11 的整套改名逻辑移植进 120x 的 `src\main\…\PatchedClassTransformer`:`SRG_TABLE`/`SRG_NAME`/
+`SRG_NAMES`+`loadSrgNames`(417 行起)、`officialName`、`renameSrgMembers`、`declaredBothNames`(570)、
+`isStubName`、`declaredByInstalledPayload`、`declaredNames`(590)、`PAYLOAD_DECLARATIONS`(621),
+并在该文件全部 6 条交付路径的 `return finish(input);` 前调用(848/864/870/877/963/1089);
+依赖已核对(PREFIX 74、STUBS_BY_OWNER 88、hasMethod 412、KEEP_RUNTIME_CLASSES 1147、RESTORED_CLASSES 1107)。
+实测:编译与重建通过;1.20.4 日志首次出现 `SRG names to rewrite while transforming: 13 across 10 owner(s)`、
+`Kept 4 SRG name(s) in …ModelBakery`、`Kept 18 … MultiBufferSource$BufferSource`、`Renamed 2 method declaration(s)
+in …DebugScreenOverlay` 等。
+rig 观察:先跑验收再立刻抓帧时,抓帧那次的客户端不写任何日志(无效结论);单独手工跑则能写日志(此前 08:26 那次即写到
+`Reloading custom textures`)。抓帧前需给上一个客户端留出退出时间。
+下一轮:单独手工跑 capture-frame 判定 1.20.4 资源重载是否走完并进世界;再回归 1.20.1/1.20.2/1.20.6 不退步。

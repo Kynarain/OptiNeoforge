@@ -409,6 +409,217 @@ public final class PatchedClassTransformer implements NodeTransformer {
 		return Map.copyOf(result);
 	}
 
+	/**
+	 * The load-time SRG -> official rename. Ported from the sibling branch (src/ml11), where it is what makes
+	 * 1.21 start at all; this branch's loader never had it, and its absence is why 1.20.4's resource reload
+	 * never finishes (the payload keeps its SRG names, so the names the runtime expects are never there).
+	 */
+	private static final String SRG_TABLE = "/optifineoforge/srg-to-official.txt";
+
+	/** The shape of an SRG member name, the same one the offline tools look for. */
+	private static final java.util.regex.Pattern SRG_NAME = java.util.regex.Pattern.compile("[fm]_\\d+_");
+
+	/** {@code owner} to its {@code srg} to {@code official} member names. */
+	private static final Map<String, Map<String, String>> SRG_NAMES = loadSrgNames();
+
+	private static Map<String, Map<String, String>> loadSrgNames() {
+		Map<String, Map<String, String>> result = new LinkedHashMap<>();
+		try(InputStream stream = PatchedClassTransformer.class.getResourceAsStream(SRG_TABLE)) {
+			if(stream == null) {
+				return Map.of();
+			}
+			for(String line : new String(stream.readAllBytes(), StandardCharsets.UTF_8).split("\\R")) {
+				String text = line.trim();
+				if(text.isEmpty() || text.startsWith("#")) {
+					continue;
+				}
+				String[] parts = text.split("\t");
+				if(parts.length != 3) {
+					continue;
+				}
+				result.computeIfAbsent(parts[0], key -> new LinkedHashMap<>()).put(parts[1], parts[2]);
+			}
+		} catch(IOException e) {
+			LOGGER.warn("could not read " + SRG_TABLE + ": " + e);
+		}
+		int names = result.values().stream().mapToInt(Map::size).sum();
+		if(names > 0) {
+			LOGGER.info("SRG names to rewrite while transforming: " + names + " across " + result.size()
+					+ " owner(s)");
+		}
+		return Map.copyOf(result);
+	}
+
+	/** The official name for an SRG-shaped member of {@code owner}, or null when the table has none. */
+	private static String officialName(String owner, String name) {
+		if(!SRG_NAME.matcher(name).matches()) {
+			return null;
+		}
+		Map<String, String> names = SRG_NAMES.get(owner);
+		return names == null ? null : names.get(name);
+	}
+
+	/**
+	 * Rewrites the SRG-shaped member names a class references, where the table knows them.
+	 *
+	 * <p>The three constraints below are each measured on the sibling branch and are copied with the code:
+	 * declarations of fields are never renamed (renaming them stopped 1.21 starting at all), declarations of
+	 * methods are renamed only when the official name is free in that class (without the check the run died
+	 * with {@code ClassFormatError: Duplicate method name "get"}), OptiFine's own classes are left alone, and
+	 * a reference into a class this jar installs keeps the name that class declares.</p>
+	 */
+	private static void renameSrgMembers(ClassNode node) {
+		if(SRG_NAMES.isEmpty() || node == null
+				|| "false".equals(System.getProperty("optifineoforge.renameSrg"))) {
+			return;
+		}
+		int renamed = 0;
+		int kept = 0;
+		int declared = 0;
+		int renamedTaken = 0;
+		if(!node.name.startsWith("net/optifine/")) {
+			for(MethodNode method : node.methods) {
+				String official = officialName(node.name, method.name);
+				if(official == null || official.equals(method.name) || isStubName(node.name, method.name)) {
+					continue;
+				}
+				if(declaredBothNames(node.name, method.name, official)) {
+					kept++;
+					continue;
+				}
+				if(hasMethod(node, official, method.desc)) {
+					renamedTaken++;
+					continue;
+				}
+				method.name = official;
+				declared++;
+			}
+		}
+		for(MethodNode method : node.methods) {
+			if(method.instructions == null) {
+				continue;
+			}
+			for(AbstractInsnNode insn = method.instructions.getFirst(); insn != null; insn = insn.getNext()) {
+				if(insn instanceof MethodInsnNode call) {
+					String official = officialName(call.owner, call.name);
+					if(official != null) {
+						if(declaredBothNames(call.owner, call.name, official)) {
+							kept++;
+						} else {
+							call.name = official;
+							renamed++;
+						}
+					}
+				} else if(insn instanceof FieldInsnNode fieldInsn) {
+					String official = officialName(fieldInsn.owner, fieldInsn.name);
+					if(official != null) {
+						if(declaredByInstalledPayload(fieldInsn.owner, fieldInsn.name)) {
+							kept++;
+						} else {
+							fieldInsn.name = official;
+							renamed++;
+						}
+					}
+				} else if(insn instanceof InvokeDynamicInsnNode dynamic) {
+					if(SRG_NAME.matcher(dynamic.name).matches()) {
+						String interfaceOwner = Type.getReturnType(dynamic.desc).getInternalName();
+						String official = officialName(interfaceOwner, dynamic.name);
+						if(official != null) {
+							if(declaredBothNames(interfaceOwner, dynamic.name, official)) {
+								kept++;
+							} else {
+								dynamic.name = official;
+								renamed++;
+							}
+						}
+					}
+					for(int index = 0; index < dynamic.bsmArgs.length; index++) {
+						if(dynamic.bsmArgs[index] instanceof org.objectweb.asm.Handle handle
+								&& SRG_NAME.matcher(handle.getName()).matches()) {
+							String official = officialName(handle.getOwner(), handle.getName());
+							if(official != null) {
+								if(declaredBothNames(handle.getOwner(), handle.getName(), official)) {
+									kept++;
+								} else {
+									dynamic.bsmArgs[index] = new org.objectweb.asm.Handle(handle.getTag(),
+											handle.getOwner(), official, handle.getDesc(), handle.isInterface());
+									renamed++;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		if(declared > 0 || renamedTaken > 0) {
+			LOGGER.info("Renamed " + declared + " method declaration(s) in " + node.name.replace('/', '.')
+					+ " where the runtime names them officially, and left " + renamedTaken
+					+ " alone because that name and shape was already there");
+		}
+		if(renamed > 0) {
+			LOGGER.info("Rewrote " + renamed + " SRG name(s) in " + node.name.replace('/', '.')
+					+ ": OptiFine's patch data emits them");
+		}
+		if(kept > 0) {
+			LOGGER.info("Kept " + kept + " SRG name(s) in " + node.name.replace('/', '.')
+					+ ": the copy this jar installs declares those members under them");
+		}
+	}
+
+	/** True when the payload copy of owner declares both names: the collision this pass must not touch. */
+	private static boolean declaredBothNames(String owner, String srgName, String official) {
+		Set<String> names = declaredNames(owner);
+		return names.contains(srgName) && names.contains(official);
+	}
+
+	/** Whether the stub plan gives owner a member called name: those names must not be renamed. */
+	private static boolean isStubName(String owner, String name) {
+		for(String[] member : STUBS_BY_OWNER.getOrDefault(owner, List.of())) {
+			if(member[0].equals(name)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static boolean declaredByInstalledPayload(String owner, String name) {
+		return declaredNames(owner).contains(name);
+	}
+
+	/** The member names the payload copy of {@code owner} declares, or empty when this jar installs none. */
+	private static Set<String> declaredNames(String owner) {
+		return PAYLOAD_DECLARATIONS.computeIfAbsent(owner, key -> {
+			ClassNode payload = new ClassNode();
+			try(InputStream stream = PatchedClassTransformer.class.getResourceAsStream(PREFIX + key + ".class")) {
+				if(stream == null) {
+					return Set.of();
+				}
+				new ClassReader(stream.readAllBytes()).accept(payload,
+						ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+			} catch(IOException e) {
+				LOGGER.warn("could not read the payload copy of " + key + ": " + e);
+				return Set.of();
+			}
+			if(KEEP_RUNTIME_CLASSES.contains(key)) {
+				return Set.of();
+			}
+			if((payload.access & Opcodes.ACC_INTERFACE) != 0 && RESTORED_CLASSES.contains(key)) {
+				return Set.of();
+			}
+			Set<String> names = new HashSet<>();
+			for(MethodNode method : payload.methods) {
+				names.add(method.name);
+			}
+			for(FieldNode field : payload.fields) {
+				names.add(field.name);
+			}
+			return Set.copyOf(names);
+		});
+	}
+
+	/** {@code owner} internal name to the member names its installed payload copy declares. */
+	private static final Map<String, Set<String>> PAYLOAD_DECLARATIONS =
+			new java.util.concurrent.ConcurrentHashMap<>();
 	private static boolean hasMethod(ClassNode node, String name, String desc) {
 		for(MethodNode method : node.methods) {
 			if(method.name.equals(name) && method.desc.equals(desc)) {
@@ -634,7 +845,8 @@ public final class PatchedClassTransformer implements NodeTransformer {
 		traceCrash(input);
 		traceScreen(input);
 		if(SKIP_PAYLOAD) {
-			return finish(input);
+			renameSrgMembers(input);
+		return finish(input);
 		}
 		if(KEEP_RUNTIME_CLASSES.contains(input.name)) {
 			// The whole class stays the runtime's, which is the only form of the keep plan that can express
@@ -649,18 +861,21 @@ public final class PatchedClassTransformer implements NodeTransformer {
 			LOGGER.info("Kept the runtime's whole " + input.name.replace('/', '.')
 					+ " instead of OptiFine's patched copy"
 					+ (carried > 0 ? ", plus " + carried + " member(s) only the payload declares" : ""));
-			return finish(input);
+			renameSrgMembers(input);
+		return finish(input);
 		}
 		ClassNode patched;
 		try(InputStream stream = PatchedClassTransformer.class.getResourceAsStream(PREFIX + input.name + ".class")) {
 			if(stream == null) {
-				return finish(input);
+				renameSrgMembers(input);
+		return finish(input);
 			}
 			patched = new ClassNode();
 			new ClassReader(stream.readAllBytes()).accept(patched, 0);
 		} catch(IOException e) {
 			LOGGER.warn("could not read the patched " + input.name + ": " + e);
-			return finish(input);
+			renameSrgMembers(input);
+		return finish(input);
 		}
 
 		// A payload class is only a patch of this one if it really is the same class, and the superclass
@@ -745,7 +960,8 @@ public final class PatchedClassTransformer implements NodeTransformer {
 			LOGGER.info("Left " + patched.name.replace('/', '.') + " alone: the runtime adds members to that "
 					+ "interface, and installing OptiFine's copy would replace the static initialiser that "
 					+ "fills them");
-			return finish(input);
+			renameSrgMembers(input);
+		return finish(input);
 		}
 
 		// Content in place rather than returning OptiFine's node: the transformers after this one in
@@ -870,6 +1086,7 @@ public final class PatchedClassTransformer implements NodeTransformer {
 		traceScreen(input);
 		LOGGER.info("Replaced " + input.name.replace('/', '.') + " with OptiFine's patched version ("
 				+ fields.size() + " fields, " + methods.size() + " methods)");
+		renameSrgMembers(input);
 		return finish(input);
 	}
 
