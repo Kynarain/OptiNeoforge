@@ -1215,3 +1215,12 @@ FML10 四条汇总(全部当前分支头 jar): 1.21.9 joined=1/182143B、1.21.10
 
 进世界复验累计 5/15 条: 四条 FML10(1.21.9/1.21.10/1.21.11/26.1.2)+ 1.20.1。待验 10 条: 1.20.2/1.20.4/1.20.6/1.21/1.21.1/1.21.3/1.21.4/1.21.6/1.21.7/1.21.8。
 
+
+### 1.20.2 通过 —— 目标里点名的 canSustainPlant 崩溃未复现
+
+1.20.2(neoforge-20.2.88, JavaHome jdk-17, mods = OptifiNeoforge-2.0.0+mc1.20.2-registered.jar + optifine-OptiFine_1.20.2_HD_U_I7_pre1.jar; 内联 launch.ps1 --quickPlaySingleplayer=RigSession, 等 190 秒): Setting user=1, Sound engine=1, joined=1, Preparing spawn area=4(世界生成确实跑了), 方法错误行=0(日志无 canSustainPlant / NoSuchMethodError / NoClassDefFoundError / AbstractMethodError), 新崩溃=0, latest.log=1345018 B(18:59:32)。
+
+即目标中记的 1.20.2 建世界崩溃(BlockState.canSustainPlant)在当前离线 jar 上不复现, 与该线'1.20.x loader 未消费 runtime-interfaces 计划'的修复结论一致。
+
+进世界复验累计 6/15: 四条 FML10 + 1.20.1 + 1.20.2; 待验 1.20.4/1.20.6/1.21/1.21.1/1.21.3/1.21.4/1.21.6/1.21.7/1.21.8。
+
