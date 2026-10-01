@@ -1468,3 +1468,12 @@ build-fml10-payload.ps1 改动: ①按线条件化的粒子修复(实测三条 1
 
 动作: 26x 的 DESCRIPTION.md 表格补上 OptiFine 一栏 HD U K1 pre2(预览版)并写明来源是 2026-10-01 从 work/26.1.2/optifine-classpath.jar 内部类字符串读出(非文件名); 中文节同步; 1.21.x 的表格不改(实测与原表一致)。本轮未跑 Gradle、未启动游戏。
 
+
+### 重建前飞行前检查(离线): 全绿, 并提前堵住 JAVA_HOME/Java 27 的坑
+
+前置检查(只读): 三仓库在 1.20.x/1.21.x/26.x, 脏改动 0/0/0(=> jar 即分支头, 符合 PUBLISHING.md 第 3 条); gradlew.bat 与 wrapper.jar 都在; mod_version_base 均 2.0.0; JDK 17/21/25 都在; build-release-jars.ps1 行表 15 行齐全(1.20.6 另有 -Ptarget_java_version=21); release-stage 空; I: 余 539.5 GB。
+
+发现的坑: JAVA_HOME 未设置而 PATH 上 java 是 Java 27; build.gradle 里的 toolchain 只选'编译用 JDK', 不决定'跑 Gradle 的 JVM' => 按原样跑 Gradle 会在 27 上启动, 而这些 Gradle/NeoForge 版本早于 27。
+
+修法(离线): build-release-jars.ps1 新增按线 JDK 表(120x->jdk-17、121x->jdk-21、26x->adoptium-25), 调用 gradlew.bat 前设置并打印 ; 找不到 JDK 时打印 SKIPPED 而非硬跑; 1.20.6 仍为 Gradle on 17 + 编译 toolchain 21。验证(不构建, 只解析): 15 条线解析出的 JAVA_HOME 全部存在(3/3), 脚本语法 0 错误。本轮未跑 Gradle、未启动游戏。
+
