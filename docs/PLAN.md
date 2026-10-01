@@ -1228,3 +1228,15 @@ natives 核对(把 1.20.4 记录值的做法推广到该线): stderr 里 Incompa
 
 进世界复验累计 8/15: 四条 FML10 + 1.20.1 + 1.20.2 + 1.20.4 + 1.20.6; 待验 1.21/1.21.1/1.21.3/1.21.4/1.21.6/1.21.7/1.21.8。
 
+
+### 1.21 通过 —— 目标第二项(资源重载/声音引擎)被直接验证
+
+1.21(neoforge-21.0.167, jdk-21, mods = OptifiNeoforge-2.0.0+mc1.21-registered.jar + optifine-OptiFine_1.21_HD_U_J1_pre9.jar; 内联 launch.ps1 --quickPlaySingleplayer=RigSession, 190 秒): Setting user=1, Sound engine started=1, joined=1, Preparing spawn area=1, 资源重载相关行=3, CustomItems/ModelBakery 行=6, 方法错误行=0, 新崩溃=0, latest.log=1142511 B, stderr=14141 B。即目标第二项('资源重载永不结束、到标题界面却永不启动声音引擎')在当前离线 jar 上不复现。
+
+进世界复验累计 9/15: 四条 FML10 + 1.20.1 + 1.20.2 + 1.20.4 + 1.20.6 + 1.21; 待验 1.21.1/1.21.3/1.21.4/1.21.6/1.21.7/1.21.8。
+
+
+### 外部事项: Overwolf/CurseForge 支持要求恢复前先改项目名与 slug
+
+收到转发: Overwolf 支持(Noam V, ticket 395632)称项目被删除后名称与 slug 会变成通用的 deleted project 词, 故恢复前需先改项目名与 slug。仓库现状供填表: archives_base_name=OptifiNeoforge、mod_version_base=2.0.0、maven_group=kynarain.cn(三条线一致); 仓库内没有 CF 项目 id/slug 记录, -26x 的 PUBLISHING.md 写明目前只有 GitHub Release 一条渠道, CF/Modrinth 账号与上传脚本都还没有 —— 该项目由本人在 CF 网页端维护, 我这边没有 CF 凭据, 改动只能在网页端完成。
+
