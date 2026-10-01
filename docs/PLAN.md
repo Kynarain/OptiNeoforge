@@ -5533,3 +5533,12 @@ build-fml10-payload.ps1 改动: ①按线条件化的粒子修复(实测三条 1
 
 仍如实记下: 构建输出仍有 'keep additions NOT applied: no staged keep plan …(the build would need PayloadDrift …)' 属处理器阶段路径, 新步骤是在成品 jar 上写入同样内容作为补偿; 要让处理器自己吃到需接进 PayloadDrift staged 计划。该 payload 尚未在真实游戏复验(下一轮: 26.1.2 进世界 + 粒子日志/行为)。
 
+
+### 26.1.2 用新 payload 复验: 进世界成功; keep 计划确认生效; 发现两条粒子修复路径撞车
+
+复验(新 payload 3324444 B, 含粒子修复 + keep 计划): Setting user=1, Sound engine=1, joined=1, Preparing spawn area=3, keep 行=2, 新崩溃=0, latest.log=182512 B。keep 计划确认生效: IntegratedServer 与 PacketProcessor 都显示 is kept as the runtime own class (keep plan), not replaced。
+
+真问题: 同一个修复有两个归属, 后一个会误报。处理器(1.21.x 的 src/fml10 repairParticleProviderLookup)寻找的是**未修**三连(getProviders 返回 Int2ObjectMap + Registry.getId + Int2ObjectMap.get), 找不到就打 WARN (has no makeParticle shaped like the one this repair knows; ... which throws NoSuchMethodError on the first particle); 而构建期修复已把三处改成正确形状, 处理器于是找不到目标并打出该 WARN。判定: 该 WARN 属**误报**(调用点已正确且构建期 javap 断言 Int2ObjectMap.get=0), 但说明归属重复; 处理器路径更完备(按 /optifineoforge/runtime-location.txt 读运行时类名, 处理 1.21.9/10 的 ResourceLocation 与 1.21.11 的 Identifier 改名, 有实测记录), 构建期那步是上一轮补手工步骤所加。
+
+下一轮: ①撤掉 build-fml10-payload.ps1 的粒子修复步骤(保留 keep 计划步骤); ②重建 payload 复跑 26.1.2, 确认日志出现处理器 INFO(reads the particle provider through the runtime Map keyed by resource location)且不再出现该 WARN; ③若处理器路径在 26.1.2 生效, 则以装载时修复关闭 26.1.2 离线 payload 缺粒子修复 一项, 并如实记录成品 jar 不再需要该补丁。
+
