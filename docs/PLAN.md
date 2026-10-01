@@ -943,3 +943,16 @@ during this run - the values below come from an earlier run`);②启动修补的
 因此 FXAA 半道门槛卡在此点:FXAA 只能走 F2 路径(PrintWindow 看不到合成后画面),而唯一实现 F2 的 run-fxaa-capture.ps1 依赖 Start-Process;run-and-capture.ps1 虽可用但抓帧是 PrintWindow。
 另:自写 fxaa-manual-pair.ps1(准备→启动→F2→收图→对比)同样卡在 Start-Process,三次运行的失败形态分别是 -Levels 0,4 只绑到 4、带重定向 0 字节、改名 $args 后仍 0 字节。
 下一轮做法(已想清):改用 Start-Job 传递**参数数组**而非命令行字符串 —— Start-Job -ScriptBlock { & $using:launcher @using:args };子进程由 PowerShell 自己创建、参数按对象传递,不经"拼命令行再解析",正是本轮所有失败发生之处。跑通后回到"有包验证包能加载 + 无包(-Pack '')验证 FXAA 生效",用 fxaa-check.ps1 出判定。
+
+### FXAA 管线打通;1.20.2 首对实测 INCONCLUSIVE(场景差 10.9%)
+
+两个最小实验都成功(客户端起来、latest.log 正常):Start-Process + 全加引号字符串单跑成功(13:56:37);
+前面加 prepare 步骤后同样成功(13:59:52)。故此前脚本里的失败不是启动链本身,而是脚本经 & powershell -File 调用时的某个细节;
+本轮改为在 shell 里直接执行已验证的六步流程,把 FXAA 对真正测出来:
+①prepare(test-save-shaders.ps1 -PrepareOnly -AaLevel 0 -ShaderAaLevel 0|4,写出 optionsshaders.txt antialiasingLevel 与 ofAaLevel:0);
+②Start-Process 启动 launch.ps1(全加引号);③等 210 秒;④post-key.ps1 -Key 113 连发 3 次(F2);⑤取 <gameDir>\screenshots 新增 PNG(F2 是合成后画面,PrintWindow 看不到);⑥fxaa-check.ps1 -Off <aa0> -On <aa4>。
+1.20.2 首对实测(854x480,各 ~62–65 万字节):off 平均边缘能量 13.9220/硬边 36809;on 13.7702/36488;
+边缘能量变化 1.1%(方向与 FXAA 预期一致)、硬边变化 0.9%、场景差 10.9%。
+VERDICT: INCONCLUSIVE —— 两帧有 10.9% 像素不同,超过 0.10 场景差阈值,故这点差异测的是场景变化而非 FXAA;如实记录,不当作通过。
+最可能原因:客户端退出会把玩家朝向写回存档,而 run-fxaa-capture.ps1 为此专门做"光标压窗口中心"这一步,本轮手工流程没做,210 秒等待期间鼠标移动足以让相机漂移。
+下一轮:两次运行都先居中光标(必要时改更静态、边缘更密取景),把场景差压到阈值以下再出 VISIBLE/NOT VISIBLE;随后按同流程对 15 条线做有包(验证包加载)与无包 -Pack ''(验证 FXAA 生效)两段。
