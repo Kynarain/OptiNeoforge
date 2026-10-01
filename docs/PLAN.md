@@ -5069,3 +5069,18 @@ harness 各字段全空;旧判定把空白渲染成 FAILED/sound NO/shaders no �
 **INVALID** 并把 sound/world 写成 `-`。
 下一轮:直接手工跑 test-save-shaders.ps1 查客户端未写日志的原因;再按 fxaa-check.ps1 做 FXAA off/on 两帧对比
 (-ShaderAaLevel 0 vs 2/4,-AaLevel 恒为 0);随后逐线推进 15 条线的光影 + FXAA 门槛。
+
+### 1.20.2 光影:世界与光影包都起来了;但 harness 自身两处测量缺陷必须先修
+
+直接跑 `launch.ps1 -Fresh`(与 harness 同参数)完全正常:latest.log 09:36:02 → 11:45:31,
+launch-neoforge-20.2.88.out.log 1,132,199 B,err.log 14,625 B(与记录值一致)。
+harness 判定块(输出落盘后读到):world loaded 有标记;shader pack loaded 一行
+`[Shaders] Loaded shaderpack: MakeUp-UltraFast-9.5e.zip`;`antialiasingLevel=2` 与 `ofAaLevel=0` 均已写入;
+new crash 0;stderr 14625;FXAA evidence 为 "no FXAA line in the log"。
+**两处 harness 缺陷**:
+①`test-save-shaders.ps1:228` 的 `& powershell @launcherArgs *> $outLog` 使 `logs\save-shaders-1.20.2-pack-aa0.out.log`
+每次 0 字节,于是 VERDICT/Setting user/Sound engine 三列全空 —— 未测量却形似结论(实例日志其实正常);
+②harness 读整份 `latest.log`,会捞到上一轮的陈旧行 —— `shader pack loaded` 那行时间戳 11:45:18 正是上一轮直接 launch 的运行,
+故**不能据此断言本次加载了光影包**,必须加"只读本次运行之后内容"的新鲜度过滤。
+下一轮:先修这两处(改读 `logs\launch-<VersionId>.out.log` 或把 launcher 输出落盘;未读到明确报 INVALID;
+全日志加新鲜度过滤),重测 1.20.2 并追查 FXAA evidence 为空的原因,再逐线推进 15 条线的光影 + FXAA。
