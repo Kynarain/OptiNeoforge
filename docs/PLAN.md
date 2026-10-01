@@ -1366,3 +1366,14 @@ build-fml10-payload.ps1 改动: ①按线条件化的粒子修复(实测三条 1
 
 审计 3: 已被流水线接管的: 粒子修复(处理器装载时修, 单一归属)、keep 计划(staging 单一路径)、stub 列表、运行时类名。仍为输入数据(非手工改成品): keep-additions-<mc>.txt、stub-additions-<mc>.txt、member-restores.txt、reparent.txt; 若继续收紧可把它们做成随仓库受控的输入(现在在 rig 目录下), 留待用户决定。
 
+
+### 发布准备(离线, 轻量): 建立发布清单 + 修正三份 VERSIONING.md 的过时描述
+
+用户仍在玩 CS2, 故本轮不跑 Gradle 构建、不启动游戏(重构建会抢 CPU/GPU), 只做只读与小文件编辑。
+
+新增 docs/RELEASE-CHECKLIST.md(三仓库各一份, 内容相同): §1 要发布的 15 个产物(基线 2.0.0, 产物名 OptifiNeoforge-2.0.0+mc<MC>.jar; 渠道目前只有 GitHub Release, CF 恢复由本人在网页端做); §2 门槛与状态(只有 done/paused/pending, 带证据指针) —— 2.1 四检=done(15/15), 2.2 真机建存档+进世界=done(15/15, 1.20.4 stderr=14481B、natives 警告均 0), 2.3 光影+FXAA=**paused**(用户 2026-10-01 指示, 未 done 前不发布), 2.4 游戏复测机器占用=paused(玩 CS2), 2.5 仓库自己的流水线出包=pending(本轮未重建); §3 发布顺序; §4 升版规则摘要 + 明确'升版会移动分支头、作废基于旧头的验收证据, 要么不升版直接发 2.0.0, 要么先升版再重跑验收, 不要先验收后升版直接发'。
+
+修正三份 docs/VERSIONING.md 的自相矛盾: 原文写'现在处于 0.x / 产物停在 0.1.0', 而 gradle.properties 里 mod_version_base=2.0.0(version.ps1 show 亦报 2.0.0)。已改为 dated 的当前版本说明(2.0.0, 含发布不一定要升版的理由), 原文保留为'历史:加载器跑通之前的状态'。
+
+本轮没有产出: 没有跑任何构建(2.5 仍 pending, 也没有发布用 jar 哈希); 没有启动游戏(2.2 证据仍是 10-01 那批); 没有升版(gradle.properties 未改, 分支头未移动, 既有验收证据仍对应现在的头)。
+
