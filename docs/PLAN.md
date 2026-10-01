@@ -5133,3 +5133,11 @@ during this run - the values below come from an earlier run`);②启动修补的
 自身失误:插入的诊断行被当成变量 indentWrite 处理(应写成 美元符号 花括号 indent 花括号 Write-Host),故仍未拿到子进程真实命令行(下一轮第一步)。
 已确定:脚本确实起了子 PowerShell(launcher started pid 42460),但客户端 java 进程始终没有出现。
 下一轮:修好打印拿真实命令行并手动执行取 launch.ps1 的错误;重跑 1.20.2 FXAA 对并用 fxaa-check.ps1 出判定;再逐线推进 15 条线。
+
+### FXAA 启动坏掉的根因找到并修好(2026-10-01)
+
+根因不在 Start-Process,而在**命令行引号**:run-fxaa-capture.ps1 只给"含空白或引号"的参数加引号,于是 -Mods 的值(两 jar 用 分号 连接)与 -ExtraGameArgs 的值(以 两个减号 开头)以裸形式进入子进程命令行;分号被当语句分隔符、以 两个减号 开头的 token 被当参数名,子 PowerShell 随即失败、进程立刻退出、两个流都是 0 字节。
+二分证据(经 cmd /c,5 秒预算,分离捕获):裸命令 exit 0 / 1010 B;加 -Fresh exit 0 / 1010 B;加未加引号的 -ExtraGameArgs exit -1 / 0 B;全量 exit -1 / 0 B。
+修法:$quoted 现在给每一个参数都加引号(第 215 行)。冒烟验证客户端真的启动 —— 实例 latest.log 在本次运行期间写于 13:14:28。
+更正上一轮判断:先前"换引号/去重定向都无效"是基于被截断的诊断输出得出的;真正缺的是给分号与两个减号开头的值加引号。
+仍待处理:脚本判定块仍报 RUN INVALID 与 no client matched nothing stopped(前者因我插入的 runStart 取值与脚本初始化顺序不一致;后者因取帧后客户端已退出且匹配条件不吻合)—— 下一轮让新鲜度判定直接用"本次运行期间是否写过 latest.log",并让客户端匹配用本行 jar 名。
