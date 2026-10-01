@@ -1362,3 +1362,14 @@ build-fml10-payload.ps1 改动: ①按线条件化的粒子修复(实测三条 1
 
 结论: 粒子修复现在只有一个归属(处理器装载时修, 有 INFO 为证); 目标小项 26.1.2 离线 payload 缺粒子修复 以装载时修复方式关闭 —— 成品 jar 不再需要也不再带该补丁; keep 计划仍由构建写入并生效。
 
+
+### keep 计划改为由 staging 单一路径产生(离线完成, 未启动游戏)
+
+缺口(读源码定位): build-fml10-payload.ps1 旧写法只在 staged 计划已存在时追加 keep-additions(Target)、否则打印 keep additions NOT applied; 而 staged 计划只在 PayloadDrift 产出 work/<line>/plan/keep-runtime.proposed.txt 时建立 —— 重建时提案常不存在, 条目被静默丢弃, 交付 jar 保留旧计划或缺计划(这就是处理器警告与上一轮构建后期注入补偿的成因)。
+
+修法(单一归属): ①keep-additions 在没有提案时自己建立 staged 计划(日志 keep plan: created from keep-additions-26.1.2.txt (no PayloadDrift proposal in this run)), 随后追加 3 行; ②撤掉上一轮构建后期注入成品 jar 的步骤(20 行), 使 optifineoforge/keep-runtime.txt 只有 staging 一个归属(与粒子修复同一原则: 一个修复一个归属)。
+
+离线验证(重建 + 查 jar, 无游戏): plans 3(此前 2); keep additions: 3 line(s); payload 输出正常; jar 3324499 B; optifineoforge/keep-runtime.txt 存在, 内容为 PacketProcessor / IntegratedServer / ModelBlockRenderer; keep additions NOT applied 警告不再出现。
+
+如实说明: 本轮只验证构建产物层面(计划被正确 staged 并打进 jar); 运行时是否照此保留类只在上一轮游戏运行里验证过(日志两条 is kept as the runtime own class), 本次重建后的 payload 的运行时确认留待游戏复测恢复后做。本轮未启动任何游戏客户端(用户在用 CS2)。
+
