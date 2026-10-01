@@ -152,7 +152,8 @@ public final class OptifinePayloadClassProcessor extends SimpleClassProcessor {
 		// single stubbed line, for the kept PacketProcessor. The ModLauncher loader has always applied its stubs
 		// to installed classes as well (PatchedClassTransformer calls stubMissing() unconditionally), so this
 		// restores that behaviour. stubMissing() adds only absent members, so it is inert elsewhere.
-		stubMissing(node);		repairFrozenReloadListeners(node);
+		stubMissing(node);
+		repairFrozenReloadListeners(node);
 		repairSpriteCollection(node);
 		repairParticleProviderLookup(node);
 		installed++;
