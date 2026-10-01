@@ -1510,3 +1510,12 @@ Gradle 与 JVM: 三仓库 wrapper 均为 gradle-9.6.1(要求 Java 17+ 运行, 9.
 
 收尾: release-stage-dryrun 已删除; 真实 release-stage 仍 0 个文件; 隔离目录保持原样; 全程未向 GitHub 写入任何内容。本轮未跑 Gradle、未启动游戏。
 
+
+### 产物逐条目内容基线(离线): 为以当前分支头重建的对比做准备
+
+为现有 12 个已构建产物生成逐条目内容指纹, 写入 logs/jar-content-baseline-2026-10-01.txt(99884 B): 每行 entry<TAB>sha256, 每个产物另给一个 content-digest(所有 entry<TAB>sha256 排序后整体再哈希)。条目数: 1.20.x 与 26.1.2 各 60, 1.21.x 各 67。
+
+为什么值得做: 目标第 2 条要求 jars rebuilt from the current branch heads, 而这 12 个产物构建于我本轮新增文件(把 payload 输入纳入版本控制)之前、分支头已前移; 此前只能推断'新增内容不进 jar 故内容不变'。有基线后重建可逐条目对比: content-digest 相同则**有证据地**说内容未变; 不同则逐条目差异直接指出哪个条目变了。(jar 总字节/整体哈希不能用于此判断, 重新压缩与时间戳必然不同。)
+
+覆盖: 12/15 有基线; 1.21.9/1.21.10/1.21.11 尚无产物(基线中记 # MISSING), 重建后一并生成。本轮未跑 Gradle、未启动游戏。
+
