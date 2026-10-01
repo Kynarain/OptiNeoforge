@@ -851,3 +851,16 @@ keep/stub/reparent)→ 改用 1.21.x `src/fml10` 的 76.2 KB 处理器;③注入
 待办:①整理补丁排版(现与 repairFrozenReloadListeners 同行,能编译、语义无误)并重验;②更新 payload 构建日志中
 "stub list: N member(s) for kept classes" 的过时措辞;③共享改动 —— 1.21.9/1.21.10/1.21.11 需用新处理器重建 payload
 并复测,确认无退步。之后进入光影 + FXAA 阶段。
+
+### 补丁整理 + FML10 回归通过;15/15 线通过进世界门槛
+
+收尾:①`stubMissing(node);` 与其后的 `repairFrozenReloadListeners(node);` 已分行(语义不变);②构建脚本措辞更新为
+`stub list: N member(s) applied to kept and installed classes`;③26.1.2 用整理后的补丁重验:Preparing spawn area 16% →
+`Dev joined the game`(11:12:01),帧 `logs\inworld\frame-26.1.2.png` 363,804 B,无新崩溃。
+共享改动回归(三条 FML10 线用新处理器重建 payload,keep additions 各 3 行已应用,均 joined/ok):
+1.21.9 281,673 B(旧 277,253)、1.21.10 203,396 B(旧 202,277)、1.21.11 329,527 B(旧 329,354)—— **无退步**。
+当前 15/15 线同时通过四检与进世界门槛:1.20.1 206,995 / 1.20.2 76,997 / 1.20.4 237,013 / 1.20.6 187,243 /
+1.21 185,387 / 1.21.1 57,894 / 1.21.3 58,292 / 1.21.4 228,536 / 1.21.6 187,973 / 1.21.7 188,282 / 1.21.8 179,941 /
+1.21.9 281,673 / 1.21.10 203,396 / 1.21.11 329,527 / 26.1.2 363,804。
+下一轮:光影 + FXAA 半道门槛(15 条线;`optionsof.txt ofAaLevel` 必须保持 0,与 `optionsshaders.txt antialiasingLevel` 区分;
+已记录 1.21.7 的 OptiFine FXAA post-chain JSON 解析失败与 26.1.2 的 fxaa 资源 not found,须如实记录)。
