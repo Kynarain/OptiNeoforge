@@ -508,3 +508,15 @@ patched 是 `m_157487_`(SRG 名);而日志显示该内部接口被 "Left … alo
 1.21.1 四检全过,但进世界那步是 **rig 自身报错**:`capture-frame.ps1` 调 `natives-for.ps1` 删旧 DLL 失败
 (另一客户端占用 glfw.dll)被当成致命错误,客户端根本没启动,却被记成"没有帧"。已把该步骤改为 try/catch 容错。
 下一步:重跑 1.21.1 取证;再查 1.21.7(无崩溃报告、stderr 0 B)。
+
+### 1.21.1 与 1.21.7 打通进世界;11 条 ModLauncher 线只剩 1.20.4
+
+1.21.1:补 `IntegratedServer` keep 后重跑(natives 容错修复后),Setting user/Sound engine 通过、config 出现
+`neoforge-server.toml`、抓到帧 `logs\inworld\frame-1.21.1.png`(57,899 B)、无新崩溃。
+1.21.7:失败为 `NoSuchMethodError: BlockEntity.gatherCapabilities()` 于区块生成
+(`MonsterRoomFeature.place` → `WorldGenRegion.getBlockEntity`);把 1.21.4 的 `stub-additions` 复制为
+`stub-additions-1.21.7.txt` 后,日志出现 `Stubbed …gatherCapabilities()V`、`joined the game`、抓到帧(183,861 B)。
+**更正**:`stub-additions-1.21.6.txt` 中"1.21.7 及以后不需要该 trio"的旧结论与今日实测相反。
+当前 1.21/1.21.1/1.21.3/1.21.4/1.21.6/1.21.7/1.21.8 全部通过进世界门槛;ModLauncher 11 条只剩 1.20.4。
+另:1.21.7 日志出现 OptiFine 自带 `post_effect/fxaa_of_2x.json`/`fxaa_of_4x.json` 解析失败(新版结构不匹配)——
+非我方改写所致,但会在 FXAA 门槛阶段被如实记录。
