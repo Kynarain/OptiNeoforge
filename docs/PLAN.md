@@ -1461,3 +1461,14 @@ build-fml10-payload.ps1 改动: ①按线条件化的粒子修复(实测三条 1
 
 修法(离线): build-release-jars.ps1 新增按线 JDK 表(120x->jdk-17、121x->jdk-21、26x->adoptium-25), 调用 gradlew.bat 前设置并打印 ; 找不到 JDK 时打印 SKIPPED 而非硬跑; 1.20.6 仍为 Gradle on 17 + 编译 toolchain 21。验证(不构建, 只解析): 15 条线解析出的 JAVA_HOME 全部存在(3/3), 脚本语法 0 错误。本轮未跑 Gradle、未启动游戏。
 
+
+### 重建前检查之二(离线): Gradle 版本自洽、已有产物 12/15、以及'不含 OptiFine'红线的实测
+
+Gradle 与 JVM: 三仓库 wrapper 均为 gradle-9.6.1(要求 Java 17+ 运行, 9.6.1 支持到 25)=> 上一轮按线钉的 Gradle JVM(17/21/25)与之兼容 ✓。toolchain: 120x target_java_version=17(1.20.6 覆盖为 21)、121x=21、26x build.gradle 写死 25;本机可用 JDK 11/17/21/22/27 + .gradle\jdks 里的 25 => toolchain 能探测到 17/21/25 ✓。
+
+已有产物(build/libs/OptifiNeoforge-2.0.0+mc<mc>.jar): 120x 四个齐(01:23/01:23/08:44/01:25); 121x 七个齐(1.21/1.21.1/1.21.3/1.21.4/1.21.6/1.21.7/1.21.8, 01:21-07:53), **缺 1.21.9/1.21.10/1.21.11**; 26x 26.1.2(01:22)= 共 12/15。
+
+如实指出的细节: 这些产物是在我本轮之前的头上构建的, 而此后我为把 payload 输入纳入版本控制而在三仓库新增文件并提交(头前移);新增内容不进入 jar => 内容应不变, 但按 jars rebuilt from the current branch heads 的字面要求, 重建应覆盖全部 15 条并在重建后核对名字与哈希。
+
+发布红线实测: 抽查 1.20.4/1.21.4/26.1.2 三个已有产物, 条目 60/67/60 而 net/optifine 条目均为 **0** => DESCRIPTION 的 No OptiFine content 有实测支撑, 也印证 PUBLISHING 的纪律(绝不上传 rig 里带 OptiFine 补丁类的 jars-<mc>\optifine-*.jar)。本轮未跑 Gradle、未启动游戏。
+
