@@ -1093,3 +1093,12 @@ pin -Dump 读出: 1.20.4(首帧 8.99 细节丰富)的 level.dat 自带 Player �
 
 下一轮: 修 pin 使 Player.Pos/Player.Rotation 为空列表时按正确类型分配写入(list<double>[3] / list<float>[2])而非跳过, 重跑 1.21.1 复查密度; 取景可用前其 FXAA 判定仍记为未测得。
 
+
+### pin 修复完成: 空列表按类型分配, 1.21.1 取景恢复(边缘能量 4.6 -> 13.51)
+
+pin-save-state.ps1 改动: ①新增 pendingRawFixes 通道用于长度变化的原始字节编辑; ②level.dat 的 Player.Rotation 为空列表(type 9 elem 0 count 0)时不再跳过, 而是替换为 list<float>[2](5 -> 5+8 字节, 含 yaw/pitch 大端 float); ③Player.Pos 同理替换为 list<double>[3](5 -> 5+24 字节); ④字符串修复与原始修复合并为一次倒序应用(两趟会让第二趟偏移失效)。过程中我自己两次写坏补丁(拼接被当成变量、替换范围漏掉原块尾部 }), 均已修正, 语法 0 错误。
+
+实测(1.21.1, 删掉 playerdata 让 level.dat 分支生效): pin 报告 Player.Rotation empty list -> [179.9272, 16.19919] (allocated)、Player.Pos empty list -> [26882.6999999881, 107.244530686957, 2646.15211045648] (allocated), raw 4334 -> 4366 字节; dump 复查确认 Rotation: list<5> [179.9272, 16.19919]、Pos: list<6> [...]; 随后一帧边缘能量 13.5147(修复前 4.60), 与 1.20.2 的 14.01、1.21 的 14.04 同量级。
+
+下一轮: 用修好的取景跑 1.21.1 的 aa4 并出 fxaa-check 判定(此前该线一律记为未测得)。
+
