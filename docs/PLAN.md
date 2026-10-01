@@ -920,3 +920,18 @@ exit 变为 0;②同进程下 launcher 的 stdout 仍拿不到(`out.log bytes: 0
 `shader pack requested MakeUp-UltraFast-9.5e.zip`、FXAA 2 与 ofAaLevel 0 已记录、0 崩溃、stderr 14,625;
 结合上一轮 12:05:06 同配置有效运行(光影包加载 + entity mappings/custom texture 解析),该线有包路径至此可信。
 下一轮:用修好的 harness 在 `-Pack ''` 下做 FXAA off/on 帧对比并跑 `fxaa-check.ps1`,再逐线推进 15 条线。
+
+### FXAA 阶段:run-fxaa-capture.ps1 的启动同样是坏的
+
+工具约束:一次运行一个 `-FxaaLevel`(0/2/4),两次同配置为一对,由 `fxaa-check.ps1` 比较;
+**必须 `-ShotMethod F2`**(PrintWindow 看不到 FXAA 合成后的画面,开着 FXAA 时每次都给 16328 字节),
+`optionsof.txt ofAaLevel` 必须为 0,瞄准角是参数(1.20.2 俯角 45° 时只有 15,071 条硬边、FXAA 边缘能量签名仅 1.0%,
+低于 2.0% 阈值),且无光影包时 FXAA 在 1.21.9 上近全黑(平均亮度 21.6 对 165.6),故一对应在有包条件下测。
+实测:1.20.2 的 FXAA-off 那次 `window title: none found`、`level opened: session.lock 10/01/2026 12:05:11`、
+`[Shaders] lines [12:05:06]`、`no client matched 'neoforge-20.2.88'; nothing stopped` —— **根本没启动客户端**,
+证据全来自上一次运行。根因:它用 `Start-Process … -ArgumentList $quoted` 而 `$quoted` 是数组(rig 已记录:
+Start-Process 不给数组元素加引号,含空格路径被拆开),`capture-frame.ps1` 为此有 `Quote-Args`。
+本轮改动:①**已加**新鲜度判定(实例 latest.log 若未在本次运行后写过则打印 `RUN INVALID: the client wrote no log
+during this run - the values below come from an earlier run`);②启动修补的替换锚点**未命中**(空白/续行不一致)故未生效,
+重跑仍无客户端,已如实记录、不当作结果。
+下一轮:用基于正则的替换(不依赖精确空白)修好启动并让命中失败时立即报错;重跑该对并 `fxaa-check`;再逐线推进 15 条线。
