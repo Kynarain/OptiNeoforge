@@ -4963,3 +4963,18 @@ LoadingErrorScreen:`fml.loadingerrorscreen.warningheader` 与 `fml.modloadingiss
 (META-INF/neoforge.mods.toml)与根条目(日志提示 File /srg 不合规),用重建后的合法 payload 替换
 (prepare-fml10-line.ps1 可加 -RuntimeJar 指向 %USERPROFILE%\.gradle\caches\neoformruntime\intermediate_results\
 compiledWithNeoForge_*.jar),之后再做进世界与光影/FXAA。
+
+### 26.1.2:错误界面根因确证(mods 多余旧件),新缺陷为 PacketProcessor 队列类型不一致
+
+对照:1.21.11/1.21.9 的 `game\<profile>\mods\` 只有 `optifine-own-classes.jar` + `optifine-payload-fml10.jar`
+(无 `not a valid mod file` 告警);26.1.2 另有 `optifine-26.1.2-neoforge.jar`(09/20 旧件)并有该告警。
+删除该旧件后:`not a valid mod file` 归零,客户端不再停在 FML LoadingErrorScreen,第一次走到
+Setting user(10:31:33) → Sound engine started(10:31:37) → Preparing spawn area: 16%(10:31:39)。
+随后崩于:
+`java.lang.ClassCastException: net.neoforged.neoforge.network.handling.QueuedPacket$CustomPayload cannot be cast to
+net.minecraft.network.PacketProcessor$…` at `PacketProcessor.processQueuedPackets(:77)` ← `Minecraft.runTick(:1291)`,
+即 `PacketProcessor` 队列元素类型不一致,与 `stub-additions-1.21.10/11` 中记录的 NeoForge `clientPreProcessPacket`
+与"payload 副本声明了不同的队列元素类型"同源。
+另记:26.1.2 日志中 `[OptiFine] Resource not found: minecraft:shaders/post/fxaa_of_2x.json` / `fxaa_of_4x.json`
+(FXAA 门槛需如实记录)。
+下一轮:修 PacketProcessor 队列类型不一致(参照 1.21.10/11 的 stub 做法或统一队列元素类型),再复测进世界 + 抓帧。
