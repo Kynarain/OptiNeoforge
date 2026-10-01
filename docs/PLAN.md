@@ -1512,3 +1512,16 @@ Gradle 与 JVM: 三仓库 wrapper 均为 gradle-9.6.1(要求 Java 17+ 运行, 9.
 
 发布红线实测 15/15: 重建后逐个查 zip 条目, net/optifine/* 全部为 0。下一步: 用这批 jar 重跑四检+进世界; rig 启动用的是各线 jars-<mc> 的 -registered.jar(由 rig 从仓库产物注册/组装, 非发布产物本身), 故需先让 rig 用新产物重新组装各线启动 jar 再逐线跑。
 
+
+### 用新产物刷新各线启动 jar(ModLauncher 线), 为四检+进世界复跑做准备
+
+链路: ModLauncher 11 线的启动 jar 是 jars-<mc>/OptifiNeoforge-2.0.0+mc<mc>-registered.jar, 由 build-jars.ps1 组装(add-line.ps1 传一长串参数: OptifineJar/LoaderJar/OutDir/MemberRestorePlan=plan/member-restores.txt/DonorDir=plan/donors/PatchedJar=work/<mc>/optifine-patched-stubbed.jar/StubDir=work/<mc>/stubs/ReparentPlan=plan/reparent.txt/StubsFile=plan/stubs-full.txt/InterfaceFile/AccessFile=plan/runtime-access.txt/ForgeStubs=no, 外加存在时的 -KeepRuntimeFile keep-runtime-<mc>.txt、-SrgTableFile); 原始 OptiFine jar 已不在 rig(仅 1.21 留 optifine-original.jar)但 work/<mc> 中间产物都在。FML10 4 线用 payload+own-classes, 无 registered jar。
+
+为何不重跑 add-line: 它只在输出不存在时做那步(无 Force/Refresh), 重跑会跳过组装; 手工复现 build-jars 参数(尤其 OptifineJar 的 remap 产物路径与 InterfaceFile)有猜错风险, 猜错会得到看着像对的启动 jar 反而污染验收; rebuild-120x-line 只覆盖 1.20.x。
+
+做法(确定性外科合并): 依据内容比对, 仅 5 条线的发布产物内容变了(1.20.1/1.20.2/1.20.6/1.21.6/1.21.8); 对这 5 条, 拿已正确组装过的 registered jar, 只把来自发布产物的条目(用上轮基线识别)替换为新产物字节, 其余条目逐字节不动, 并各留 .before-rebuild-2026-10-01 备份。结果与核对: 替换 60/60/60/67/67 个条目, 与新产物共享条目 60/60/60/67/67 且**内容不一致 0**。另 6 条 ModLauncher 线未改动(1.20.4/1.21/1.21.1/1.21.3/1.21.4/1.21.7), 因发布产物重建前后逐条目一致(依据内容而非时间戳)。
+
+我的一个错误(如实): 读基线时用单引号里的 	 当制表符(PowerShell 单引号中不是转义), 正则实为找字面量, 匹配 0 => 第一次合并什么都没替换却打印'更新 0 个'; 改双引号里的真制表符后候补条目立刻变 60/67。同类引号/转义错误再记一次。
+
+下一步: 用这批启动 jar 重跑 15 条线四检+建存档进世界(目标第 2、3 条)并逐条登记; FML10 四条 payload 今天由本仓库构建可直接用。另记偏差: retest-all.ps1 里 26.1.2 写的是 optifine-26.1.2-neoforge.jar, 而近期成功运行用的是 optifine-payload-fml10.jar+own-classes, 复跑按实测可用者。
+
