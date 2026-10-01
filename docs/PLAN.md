@@ -1406,3 +1406,16 @@ build-fml10-payload.ps1 改动: ①按线条件化的粒子修复(实测三条 1
 
 仍存在的缺口(留待用户决定): 流水线脚本本身(build-fml10-payload.ps1、launch*.ps1、test-save-shaders.ps1 等)仍只在 rig 里, rig 不是 git 仓库 —— 输入受版本控制了但工具还没; 是否把 rig 纳入版本控制或把脚本移进仓库属结构性决定。
 
+
+### 发布流水线审计(离线): 两处写死版本 + 15 个名字错且过期的暂存产物
+
+发现 1: publish-github-releases.ps1 的 Version 写死 1.0.0、build-release-jars.ps1 写死 1.0.1, 而三个仓库 mod_version_base 都是 2.0.0 —— 发布脚本会按 1.0.0 生成标签与资产名, 于是每条线都找不到暂存 jar 而 SKIPPED(一次静默什么都不做的发布); 两半流水线在版本上互不匹配。另 publish 脚本的 Notes 里写死测量日期 2026-09-23, 会把新测量盖成旧日期。
+
+修法: 两个脚本的 Version 默认值改为空、空则按该线自己的 gradle.properties 的 mod_version_base 解析(与 VERSIONING.md 的版本唯一来源一致), -Version 仍可一次性覆盖; 新增 $MeasuredOn(默认 2026-10-01)替换 Notes 里写死的日期; $status 表按 2026-10-01 更新(15 条线 save 全 pass, 含此前 not tested 的 1.21 与 26.1.2; fxaa 逐条标日期, 1.21.1 的 -2.6% 与 1.21.3 的 -0.9% 取代旧的 -55.8%/-55.4% 并注明取代理由, 1.21.8/9/10/11 保留 09-23 值并注明本轮未重测, 1.20.1/1.21.6/1.21.7/26.1.2 写 NOT PROVEN + 原因 —— 遵守 PUBLISHING.md 的'没证到就写 NOT PROVEN 并给原因'); Notes 的未决项同步更新。
+
+验证(只读演练 -WhatIfOnly, 未写任何东西): 三条线的标签正确解析为 v2.0.0+mc1.20.1 / v2.0.0+mc1.21.4 / v2.0.0+mc26.1.2, 各打印 SKIPPED(暂无暂存 jar), 结尾 published releases: 0 (what-if only: nothing was written)。
+
+发现 2(危险): release-stage 里 15 个 jar 名为 OptiNeoforge-2.0.0+mc*.jar(少第二个 i, 项目名是 OptifiNeoforge), 时间戳 2026-09-27 18:1x —— 既名字错、又早于 2026-10-01 的全部修复(FML10 payload 重建、粒子修复改处理器装载时、keep 计划改 staging 单一归属), 与 15/15 复验不对应, 发出去即未经本轮验证。处理: 隔离(不删)到 release-stage-STALE-2026-09-27-typo-OptiNeoforge/ 并附 README; 现在 release-stage 为空, 发布运行会逐条 SKIPPED 而非拿到旧产物。
+
+下一步(需机器空闲): 跑 build-release-jars.ps1 用仓库自己的 Gradle 重建 15 个产物(CPU 占用, 等用户不玩游戏时); 用重建的 jar 重跑四检+进世界; 之后才谈发布, FXAA 那半道门槛仍暂停。
+
