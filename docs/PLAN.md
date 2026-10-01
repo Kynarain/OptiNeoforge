@@ -536,3 +536,13 @@ patched 是 `m_157487_`(SRG 名);而日志显示该内部接口被 "Left … alo
 当前 1.21/1.21.1/1.21.3/1.21.4/1.21.6/1.21.7/1.21.8 全部通过进世界门槛;ModLauncher 11 条只剩 1.20.4。
 另:1.21.7 日志出现 OptiFine 自带 `post_effect/fxaa_of_2x.json`/`fxaa_of_4x.json` 解析失败(新版结构不匹配)——
 非我方改写所致,但会在 FXAA 门槛阶段被如实记录。
+
+### 1.20.4:用错管线导致构建失败;旧 jar 四检通过且 stderr 恰为 14481
+
+用 `add-line.ps1`(1.21.x 检出)重建 1.20.4 时构建失败:`Gui.drawBackdrop` 成员校验 payload 2 / runtime 4
+(`net/minecraft/client/gui/Gui drawBackdrop (Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Font;III)V 4 payload 2 runtime 4`)。
+1.20.x 分支的正确管线是 `rebuild-120x-line.ps1`(面向 OptifiNeoforge-120x,接受 `-DropMembersFile`,而 `drop-members` 是
+`build-jars.ps1` 的参数)。既有 jar 的实况:四检 Setting user(08:08:15)/Sound engine started(08:08:20)通过,
+**stderr = 14481 B,恰等于 retest-all.ps1 记录的目标值**(印证此前 17841 系 rig natives 选择问题);
+但进世界 NO-JOIN、无窗口,且该次运行未更新 latest.log(客户端没正常起来)。
+下一轮:①用 rebuild-120x-line.ps1 正确重建;②查客户端未启动原因;③再跑 FML10 四线进世界,然后进光影+FXAA。
