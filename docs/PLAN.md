@@ -787,3 +787,18 @@ net.minecraft.network.PacketProcessor$…` at `PacketProcessor.processQueuedPack
 另记:26.1.2 日志中 `[OptiFine] Resource not found: minecraft:shaders/post/fxaa_of_2x.json` / `fxaa_of_4x.json`
 (FXAA 门槛需如实记录)。
 下一轮:修 PacketProcessor 队列类型不一致(参照 1.21.10/11 的 stub 做法或统一队列元素类型),再复测进世界 + 抓帧。
+
+### 26.1.2 PacketProcessor 修复:输入已备好,重建缺 runtime-26.1.2.jar
+
+对照:1.21.9/10/11 各有一对增补文件,26.1.2 两件都缺;`build-fml10-payload.ps1` 注释(114-120 行)逐字引用了我们撞到的
+`ClassCastException ... PacketProcessor.processQueuedPackets(PacketProcessor.java:77)`。
+已写入:`keep-additions-26.1.2.txt`(PacketProcessor * / IntegratedServer * / ModelBlockRenderer$1 *)、
+`stub-additions-26.1.2.txt`(clientPreProcessPacket stub,含语义风险说明)。
+重建链实测:①fml10 处理器必须从 26x 检出编译 —— 1.21.x 检出 `-Pmc=26.1.2 -Pneoforge=26.1.2.109 -Pmountpoint=fml10
+compileJava` 失败(Could not resolve net.neoforged:neoforge:26.1.2.109),26x 检出成功(产出
+OptifinePayloadClassProcessor.class / OptifinePayloadLocator.class);②`build-fml10-payload.ps1` 需要
+`work\26.1.2\runtime-26.1.2.jar`,该文件不存在;Gradle neoformruntime 的 24 个 `*compiledWithNeoForge*.jar` 均非 26.1.2
+(缺 `net/minecraft/client/renderer/state/gui/GlyphRenderState.class`,时间也早于 26.1.2 安装)。
+下一轮:按 prepare-fml10-line 步骤 1 用 `libraries\net\neoforged\minecraft-client-patched\26.1.2.109\
+minecraft-client-patched-26.1.2.109.jar` 叠加 `neoforge-26.1.2.109-universal.jar` 造出 runtime-26.1.2.jar,
+再 `build-fml10-payload.ps1 -Line 26.1.2 -Repo I:\mods\OptifiNeoforge-26x`,复测 26.1.2,再进光影+FXAA。
