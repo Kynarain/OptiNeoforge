@@ -1111,3 +1111,16 @@ FXAA 通过累计四条: 1.20.2 -2.5%、1.20.4 -5.7%、1.21 -2.2%、1.21.1 -2.6%
 
 下一轮起的统一流程(用 pin 修复保证新线一开始就有可用取景): ①删掉该线存档 playerdata; ②pin 把 level.dat 的 Player.Pos/Rotation 设为已知可用值(26882.6999999881/107.244530686957/2646.15211045648, yaw 179.9272, pitch 16.19919)并 SpawnX/Y/Z 0/60/0、-NoWeather -FreezeWorld; ③跑 aa0; ④先检查该帧边缘能量 ≥8 再跑 aa4 并 fxaa-check。待测线: 1.21.3/1.21.4/1.21.6/1.21.7/1.21.8/1.20.1 与四条 FML10 线。
 
+
+### 1.21.3: aa0 取景可用(13.44), 但 aa4 两次都拍到暂停菜单, 判 INCONCLUSIVE
+
+统一流程已用于 1.21.3(neoforge-21.3.97, optifine J2): 删 playerdata, pin 把 level.dat 的 Player.Pos/Rotation 分配为已知可用值(两处 allocated), Spawn 0/60/0, -NoWeather -FreezeWorld。
+
+aa0: 632050 B 边缘能量 13.4397(硬边 35772) —— 取景可用。
+
+aa4 第一次: 251169 B, 与 aa0 场景差 92.2% -> INCONCLUSIVE; 直接看帧发现它是 Game Menu 暂停界面(Back to Game/Advancements/…/Save and Quit to Title)覆盖在模糊世界上 —— 客户端失去焦点后暂停, F2 拍到菜单(rig 笔记记过需要 options.txt 的 pauseOnLostFocus:false)。
+
+aa4 第二次: 先把实例 options.txt 写成 pauseOnLostFocus:false(prepare 后复查仍为 false)重跑, 帧仍 250699 B、场景差 92.2% -> INCONCLUSIVE, 即该设置**没能**阻止菜单。
+
+下一轮: 处理失焦暂停本身 —— 按 F2 前先把客户端窗口重新置前(SetForegroundWindow), 并先用一帧的边缘密度判断当前是否菜单界面, 若是则置前后重取; 1.21.3 的 aa0 保留, 只需重取 aa4。
+
