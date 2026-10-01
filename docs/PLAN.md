@@ -4950,3 +4950,16 @@ Setting user(10:20:38)与 Sound engine started(10:20:42),joined 0 行 -> 仍未�
 关键对照:1.21.11 世界为旧布局(region/playerdata/DIM1,level.dat 2838 B,DataVersion 4671)可进;26.1.2 为新布局
 (data/datapacks/dimensions/players,561 B,DataVersion 4790)不被 quickPlay 打开。
 下一轮:用真实点击驱动菜单进入世界并如实标注取证路径;或查 26.x quickPlay 的新语义。其余 14 条线已通过进世界部分。
+
+### 26.1.2 的真正拦路是 FML 的损坏 mod 文件错误界面
+
+截取真实窗口截图(`logs\w2612-title.png`,854x480,capture-window.ps1 -Screen)并直接查看,内容为 FML 的
+LoadingErrorScreen:`fml.loadingerrorscreen.warningheader` 与 `fml.modloadingissue.brokenfile.unknown`,
+按钮为 Open Mods Folder / Open log file / Proceed to main menu / Quit Game。这与实例日志中的
+`Skipping jar. File /srg is not a valid mod file` / `File /srg is not a valid mod file` 对应。
+**更正**:此前把 26.1.2 的失败归为 quickPlay 不生效或完整世界也进不去 —— 那是症状;客户端根本没到标题界面,
+它停在错误界面,所以任何 quickPlay 都不会有反应,任何世界也进不去。
+下一步:检查 jars-26.1.2 的 optifine-payload-fml10.jar(09/20 旧件)与 optifine-own-classes.jar 的 mod 元数据
+(META-INF/neoforge.mods.toml)与根条目(日志提示 File /srg 不合规),用重建后的合法 payload 替换
+(prepare-fml10-line.ps1 可加 -RuntimeJar 指向 %USERPROFILE%\.gradle\caches\neoformruntime\intermediate_results\
+compiledWithNeoForge_*.jar),之后再做进世界与光影/FXAA。
