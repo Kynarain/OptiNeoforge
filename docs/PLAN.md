@@ -4751,3 +4751,13 @@ jar `OptifiNeoforge-2.0.0+mc1.20.4-registered.jar`(1,745,403 B)、内嵌 `drop-m
 1.20.x 选 LWJGL 3.3.2)。
 下一轮:手工跑 `capture-frame.ps1 -VersionId neoforge-20.4.251 -Mc 1.20.4`,查零日志原因(命令行引号/参数拆分、
 -FreshWorld 存档拷贝、natives try/catch 的影响)。
+
+### 1.20.4 卡在资源重载;jar 未嵌入那 2 行 SRG 表
+
+手工按 capture-all-lines 的原样参数跑 capture-frame(1.20.4/jdk17/natives 3.3.2):客户端确实启动(实例 latest.log
+更新到 08:26:12),故此前"零日志"是竞态而非启动参数问题。此后走到 `Sound engine started`(08:26:10)即停在
+`[OptiFine] *** Reloading custom textures ***` → `Disable Forge light pipeline` → `Replaced Font$DisplayMode/
+StringRenderOutput/BitmapProvider$Glyph$1`(08:26:12 之后再无任何日志),窗口未出现、无 joined the game ——
+即**资源重载阶段卡死**,与目标点名的"CustomItems.wait 不被 ModelBakery 构造函数释放"同族。
+直接线索:rig 根 `srg-to-official-1.20.4.txt` 的两行(ModelPart.getChild、ModelBakery.loadBlockModel)未嵌入 jar,
+载入期看不到碰撞项。下一轮:查 build-jars 取表路径并真正嵌入,再按四检→joined→抓帧复测;随后 FML10 四线与光影+FXAA。
