@@ -1235,3 +1235,12 @@ FML10 四条汇总(全部当前分支头 jar): 1.21.9 joined=1/182143B、1.21.10
 
 进世界复验累计 7/15: 四条 FML10 + 1.20.1 + 1.20.2 + 1.20.4; 待验 1.20.6/1.21/1.21.1/1.21.3/1.21.4/1.21.6/1.21.7/1.21.8。
 
+
+### 1.20.6 通过; 且 stderr 里 0 条 natives 不匹配警告
+
+1.20.6(neoforge-20.6.141, JavaHome jdk-21, mods = OptifiNeoforge-2.0.0+mc1.20.6-registered.jar + optifine-OptiFine_1.20.6_HD_U_J1_pre18.jar; 内联 launch.ps1 --quickPlaySingleplayer=RigSession, 等 190 秒): Setting user=1, Sound engine=1, joined=1, Preparing spawn area=2, 方法错误行=0, 新崩溃=0, latest.log=136971 B, stderr=17856 B。
+
+natives 核对(把 1.20.4 记录值的做法推广到该线): stderr 里 Incompatible Java and native library versions detected 警告 0 条(1.20.4 也 0 条, 总 14481 B)。即 1.20.6 的 17856 B 不是 natives 不匹配, 而是该线正常 stderr 内容(162 行, 主要为 FML/ModLauncher 启动栈各重复 6 次)。
+
+进世界复验累计 8/15: 四条 FML10 + 1.20.1 + 1.20.2 + 1.20.4 + 1.20.6; 待验 1.21/1.21.1/1.21.3/1.21.4/1.21.6/1.21.7/1.21.8。
+
