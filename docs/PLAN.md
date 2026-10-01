@@ -1377,3 +1377,16 @@ build-fml10-payload.ps1 改动: ①按线条件化的粒子修复(实测三条 1
 
 本轮没有产出: 没有跑任何构建(2.5 仍 pending, 也没有发布用 jar 哈希); 没有启动游戏(2.2 证据仍是 10-01 那批); 没有升版(gradle.properties 未改, 分支头未移动, 既有验收证据仍对应现在的头)。
 
+
+### 构建输入纳入仓库版本控制(离线; 未跑 Gradle、未启动游戏)
+
+缺口: 15 个 payload 输入文件(stub-additions-<mc>.txt × 11、keep-additions-<mc>.txt × 4)此前只在 rig, 三个仓库一个都没有 ⇒ 全新 clone 无法复现 payload(比'手工步骤被重建丢掉'更彻底: 这些文件从未被版本控制)。
+
+动作: ①按归属线复制进 release/payload-inputs/(1.21.x 仓库 13 个: stub 1.21/1.21.1/1.21.3/1.21.4/1.21.6/1.21.7/1.21.8/1.21.9/1.21.10/1.21.11 + keep 1.21.9/1.21.10/1.21.11; 26x 仓库 2 个: 26.1.2 的 stub+keep; rig 的 15 个保留兜底); ②build-fml10-payload.ps1 新增 Resolve-PayloadInput, 依次查 -Repo/release/payload-inputs、I:\mods\optifineoforge-test/release/payload-inputs、三个兄弟仓库、最后 I:\mods\optifineoforge-test 根目录, 并打印实际用的文件。
+
+验证(构建到临时输出, 该线正式 jar 未被动过): input 两行显示命中 26x 仓库的 release/payload-inputs 副本; 临时产物 3324499 B; srg classes 1325、fml10 classes 2、plans 3; 该线正式 jar 时间戳未变(20:08:28 / 3324499 B)。
+
+本轮我自己的两处错误(如实更正): ①解析器第一版只把 -Repo 与 rig 列入候选, 而 26.1.2 的 payload 用 -Repo=1.21.x 仓库构建、其输入在 26x 仓库, 于是静默落回 rig 副本、对该线未生效, 加兄弟仓库候选后才命中; ②我打印过一句 rig 里仍有 0 个输入文件, 那是 Get-ChildItem -Include 在无 -Recurse 时的命令错误, rig 实际有 15 个。
+
+仍存在的缺口(留待用户决定): 流水线脚本本身(build-fml10-payload.ps1、launch*.ps1、test-save-shaders.ps1 等)仍只在 rig 里, rig 不是 git 仓库 —— 输入受版本控制了但工具还没; 是否把 rig 纳入版本控制或把脚本移进仓库属结构性决定。
+

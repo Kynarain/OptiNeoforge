@@ -1,0 +1,13 @@
+﻿# Copied from keep-additions-1.21.11.txt on 2026-10-01 after 26.1.2 was measured to die with
+#   java.lang.ClassCastException: class net.neoforged.neoforge.network.handling.QueuedPacket$CustomPayload
+#     cannot be cast to class net.minecraft.network.PacketProcessor$...
+#   at net.minecraft.network.PacketProcessor.processQueuedPackets(PacketProcessor.java:77)
+#   at net.minecraft.client.Minecraft.runTick(Minecraft.java:1291)
+# - the same defect the 1.21.9/1.21.10/1.21.11 lines carry these entries for, and this line had neither file.
+# The three entries below are line-agnostic: the payload's own PacketProcessor cannot be mixed with NeoForge's queue
+# objects, the runtime's IntegratedServer carries the lifecycle hook that loads the SERVER config (without it the
+# first entity tick that throws dies with "Cannot get config value before config is loaded" instead of reporting the
+# entity), and ModelBlockRenderer$1's switch-map field is restored without its initialiser.
+net/minecraft/network/PacketProcessor	*
+net/minecraft/client/server/IntegratedServer	*
+net/minecraft/client/renderer/block/ModelBlockRenderer$1	*

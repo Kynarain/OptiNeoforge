@@ -1,0 +1,10 @@
+﻿# Members the KEPT class must still be given (see the FML10 processor's stub pass). Copied from
+# stub-additions-1.21.11.txt on 2026-10-01, for the same measurement: NeoForge adds clientPreProcessPacket(Packet)
+# to PacketProcessor at load time and no jar carries it, so keeping the runtime's class (required - its payload copy
+# declares a different queue element type) leaves the call in ListenerAndPacket.handle with nothing to resolve to.
+# SEMANTIC RISK, stated on purpose: this is on every packet's path, and an empty body skips NeoForge's client-side
+# custom-payload dispatch. It is here to let the line be measured.
+net/minecraft/network/PacketProcessor	clientPreProcessPacket	(Lnet/minecraft/network/protocol/Packet;)V	static
+net/minecraft/world/level/block/entity/BlockEntity	gatherCapabilities	()V
+net/minecraft/world/level/block/entity/BlockEntity	getCapabilities	()Lnet/minecraftforge/common/capabilities/CapabilityDispatcher;
+net/minecraft/world/level/block/entity/BlockEntity	invalidateCaps	()V
