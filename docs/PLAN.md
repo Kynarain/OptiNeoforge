@@ -695,3 +695,13 @@ playerdata/poi/region/serverconfig/icon.png/level.dat/level.dat_old),抓到 `log
 1.20.6 187,243 / 1.21 185,387 / 1.21.1 57,894 / 1.21.3 58,292 / 1.21.4 228,536 / 1.21.6 187,973 /
 1.21.7 188,282 / 1.21.8 179,941(均 joined)。
 下一步:FML10 四条(重取已启动),随后光影+FXAA。
+
+### FML10 四条线重取:1.21.9/1.21.10/1.21.11 通过,26.1.2 未进世界
+
+用修好的钉法:1.21.9 joined/277,253 B、1.21.10 joined/202,277 B、1.21.11 joined/329,354 B(三条此前从未跑过进世界
+取证,现拿到真实帧);26.1.2 **NOT SEEN**、帧未产出。
+26.1.2 线索:实例 neoforge-26.1.2.109,日志停在 `[OptiFine] *** Reloading custom textures ***` 之后,并出现
+`optifine.OptiFineClassProcessor: handlesClass: net.neoforged.neoforge.client.gui.LoadingErr…`(进入 LoadingError 界面);
+rig 钉法输出显示该线世界模板 `no GameRules compound` 且 `no playerdata/*.dat and no level.dat Player tag`(规则与视角均未钉)。
+疑与仍未结的小项"26.1.2 离线 payload 缺少 particle 修复"同族。
+下一步:查 26.1.2 LoadingError 的具体原因,再进光影+FXAA。
