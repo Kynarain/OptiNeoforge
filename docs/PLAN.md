@@ -5511,3 +5511,14 @@ CF 项目恢复时填 名称=OptifiNeoforge、slug=optifineoforge, 由用户在�
 
 仍未做(如实): FXAA 判定(用户指示暂停)、multiplayer /register、26.1.2 离线 payload 粒子修复、1.21.9 光影配置异常的解释; 发布仍未做。
 
+
+### 26.1.2 粒子修复: 确认在重建中丢失, 已重新应用
+
+缺陷定义(repair-26.1.2-payload.ps1 与 ParticleProviderRepair): OptiFine 的 ParticleEngine 用 Int2ObjectMap.get(I)(int 键)查粒子提供者, 而 26.1.2 运行时按 Identifier 键的 Map; 正确形状为 ParticleResources.getProviders()Ljava/util/Map; + Registry.getKey(...)Identifier + java/util/Map.get(Object), 且该查找不得残留 Int2ObjectMap.get(I)。
+
+核查(javap 对照): 当前 FML10 payload 缺陷形状 1 行(修复缺失); 旧 payload 修前 1 行、修后 0 行。即此前记忆中的'已应用'指的是旧 optifine-26.1.2-neoforge.jar, 而该线现在用重建过的 payload —— 修复在重建中丢了, 与脚本头所说'手工步骤会被重建丢掉'一致。
+
+修复动作: repair-26.1.2-payload.ps1 -Payload jars-26.1.2/optifine-payload-fml10.jar(先建备份 .before-particle-fix 3324404 B)。证据: 条目 1408->1408、增 0 删 0、恰好 1 个条目不同(srg/net/minecraft/client/particle/ParticleEngine.class); javap 显示 getProviders:()Ljava/util/Map; / Registry.getKey(...)Identifier / java/util/Map.get(Object), 已无 Int2ObjectMap.get(I)。
+
+下一轮(必做, 否则下次重建又丢): 把该步骤接进 build-fml10-payload.ps1(构建后自动跑 ParticleProviderRepair, 失败即中止), 使修复成为流水线的一部分; 再用修好的 payload 复跑 26.1.2 进世界检验并留意粒子相关日志/行为。
+
