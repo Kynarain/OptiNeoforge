@@ -817,3 +817,19 @@ neoforge-26.1.2.109-universal.jar,31,764 条/39.13 MB);②完整 FML10 管线跑
 `AttachmentSync.syncBlockEntityUpdates`(`BlockEntity` 不可赋给 `AttachmentHolder`),即 `BlockEntity` 的 reparent 未生效
 (`work\26.1.2\plan\reparent.txt` 仅 1 行)。
 下一轮:①在 `src/fml10` 的 `OptifinePayloadClassProcessor` 里查它读取 keep 决策的真实文件名/格式;②查 reparent 为何未落地。
+
+### 26.1.2:装错处理器已纠正;keep 生效;新缺陷为 BlockEntity 的 stub 通道不覆盖被安装的类
+
+发现两个 fml10 处理器不同:`OptifiNeoforge-26x\src\fml10\OptifinePayloadClassProcessor.java`(15.6 KB,编译 13,797 B)
+**不读** keep/stub/reparent;而 1.21.x 的 `src\fml10\OptifinePayloadClassProcessor.java`(76.2 KB,编译 41,909 B)读
+`/optifineoforge/keep-runtime.txt`(486 行)、member-restores(822)、并处理 reparent(1032/1147)。
+上一轮用 26x 检出构建,payload 因此装了简化处理器(这解释了注入 keep-runtime.txt 却仍 installed PacketProcessor)。
+本轮用可解析的 1.21.11 线编译 1.21.x 的处理器(gradlew -Pmc=1.21.11 -Pneoforge=21.11.45 -Pmountpoint=fml10
+compileJava),再用 `build-fml10-payload.ps1 -Line 26.1.2 -Repo I:\mods\OptifiNeoforge` 重建(payload 内处理器 41,909 B)。
+效果:不再出现 `installed net.minecraft.network.PacketProcessor`(外层已保留,只装内层 ListenerAndPacket),
+`stub list: 5 member(s) across 3 class(es)`,并出现 `stubbed …clientPreProcessPacket`;客户端到 Preparing spawn area 16%。
+新缺陷:崩溃仍为 `NoSuchMethodError: BlockEntity.gatherCapabilities()` at `BlockEntity.<init>(:72)` →
+`MonsterRoomFeature.place`;`stubs.txt` 里确有三件套、处理器统计在内,但日志只有一条 `stubbed …`(PacketProcessor),
+说明该 stub 通道只覆盖"被保留(kept)"的类,而被**安装**的 BlockEntity 拿不到。
+下一轮:①把 BlockEntity 放进 keep 计划(与保留 IntegratedServer/ModelBlockRenderer$1 同一权衡);或②查 `src/fml10` 里
+stub 通道的适用条件,让它也覆盖被安装的类。
