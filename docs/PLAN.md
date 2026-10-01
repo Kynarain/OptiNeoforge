@@ -1252,3 +1252,10 @@ natives 核对(把 1.20.4 记录值的做法推广到该线): stderr 里 Incompa
 
 CF 项目恢复时填 名称=OptifiNeoforge、slug=optifineoforge, 由用户在网页端改动(我无 CF 凭据); 发布文档暂不修改, 等网页端改完后再决定是否写入 docs/PUBLISHING.md 与发布元数据。
 
+
+### 1.21.3 通过
+
+1.21.3(neoforge-21.3.97, jdk-21, mods = registered 2.0.0+mc1.21.3 + OptiFine_1.21.3_HD_U_J2; 内联 launch.ps1 --quickPlaySingleplayer=RigSession, 190 秒): Setting user=1, Sound engine=1, joined=1, Preparing spawn area=1, 方法错误行=0, 新崩溃=0, latest.log=1124511 B, stderr=0 B。
+
+进世界复验累计 11/15; 待验 1.21.4/1.21.6/1.21.7/1.21.8。
+
