@@ -4896,3 +4896,18 @@ playerdata/poi/region/serverconfig/icon.png/level.dat/level.dat_old),抓到 `log
 rig 钉法输出显示该线世界模板 `no GameRules compound` 且 `no playerdata/*.dat and no level.dat Player tag`(规则与视角均未钉)。
 疑与仍未结的小项"26.1.2 离线 payload 缺少 particle 修复"同族。
 下一步:查 26.1.2 LoadingError 的具体原因,再进光影+FXAA。
+
+### 26.1.2:稳定停在 MultiTextureData 的类处理上;payload 重建缺 srg client
+
+实测:①`jars-26.1.2\optifine-payload-fml10.jar` 是 **09/20 06:10** 的旧件(对照 1.21.11 的 10/01 01:38),
+而 rig 的 FML10 分支按 payload-fml10 → `<mc>-neoforge` 顺序取第一个存在者,故客户端拿的是旧 payload;
+②`optifine-26.1.2-neoforge.jar`(9,536 条目/9.7 MB)是预备好的 OptiFine,其 `.before-particle-fix` 备份(9.55 MB)存在,
+说明 particle 修复已应用在该 jar;
+③`repair-26.1.2-payload.ps1 -DryRun` 报 "nothing was repaired"(默认目标上找不到该模式),显式运行后给出 javap 证据;
+④`prepare-fml10-line.ps1` 重建在第一步抛 `no srg client … -RuntimeJar`(需先 add-line.ps1 -InstallOnly 并提供 srg client),
+故本轮**未能换掉旧 payload**;
+⑤重测 26.1.2:`world marker: NOT SEEN`、`NO WINDOW found`、无帧;实例日志两次运行都停在
+`handlesClass`/`processClass: net.optifine.render.MultiTextureData` 之后,再无任何行也无窗口 → 稳定复现,
+问题在处理 MultiTextureData 这一步。
+下一轮:找到并指定 srg client runtime jar 完成 payload 重建;若仍停,直接排查该步(OptiFine 类处理器与
+net/optifine/render/MultiTextureData 的重复/缺失定义)。26.1.2 之外其余 14 条线均已拿到进世界帧。
