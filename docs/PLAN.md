@@ -5648,3 +5648,14 @@ build-fml10-payload.ps1 改动: ①按线条件化的粒子修复(实测三条 1
 
 本轮未做: 未改 1.21.9/10/11 的 OptiFine 构建行(无法复核, 不猜); 未跑构建、未启动游戏。
 
+
+### FML10 线的 OptiFine 来源从 jar 内容里复核成功(离线)
+
+上一轮线头: jars-1.21.9/1.21.10/1.21.11 里没有独立 OptiFine jar(FML10 线的 OptiFine 内容在 payload 内), 故 DESCRIPTION 里这三行的 OptiFine 构建本轮无法从 rig 复核, 我既未改也未编造。本轮结了。
+
+方法(比文件名可靠): 线索是 work/<line>/optifine-classpath.jar; manifest 无版本字段, 于是读 jar 内 net/optifine/** 类字节、Latin-1 解码后匹配 HD_U_[A-Za-z0-9_]+(第一版正则只含大写把 pre2 截断, 已修正)。
+
+实测结果: 1.21.9=HD_U_J7_pre2、1.21.10=HD_U_J7_pre11、1.21.11=HD_U_J9(三者与 DESCRIPTION.md 原表**一致** ✓); 1.21.6=HD_U_J6_pre3、1.21.8=HD_U_J6_pre16(与 jars-* 里 jar 名一致 ✓); **26.1.2=HD_U_K1_pre2(新事实)**。
+
+动作: 26x 的 DESCRIPTION.md 表格补上 OptiFine 一栏 HD U K1 pre2(预览版)并写明来源是 2026-10-01 从 work/26.1.2/optifine-classpath.jar 内部类字符串读出(非文件名); 中文节同步; 1.21.x 的表格不改(实测与原表一致)。本轮未跑 Gradle、未启动游戏。
+
