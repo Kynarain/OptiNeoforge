@@ -1331,3 +1331,14 @@ CF 项目恢复时填 名称=OptifiNeoforge、slug=optifineoforge, 由用户在�
 
 下一轮(必做, 否则下次重建又丢): 把该步骤接进 build-fml10-payload.ps1(构建后自动跑 ParticleProviderRepair, 失败即中止), 使修复成为流水线的一部分; 再用修好的 payload 复跑 26.1.2 进世界检验并留意粒子相关日志/行为。
 
+
+### 粒子修复 + keep 计划接进构建流水线(两个手工步骤消除)
+
+build-fml10-payload.ps1 改动: ①按线条件化的粒子修复(实测三条 1.21.x 线 payload 的 getProviders() 返回 Int2ObjectMap, 其形状正确; 只有 26.1.2 需要 Identifier 键 Map), 用 $linesNeedingParticleRepair = @('26.1.2') 控制, 构建后自动跑 repair 脚本并用 javap 断言(getProviders:()Ljava/util/Map; 出现、Int2ObjectMap.get 为 0); ②每次构建新建备份(修复脚本的干净 diff 断言须以当次修前状态为参照); ③keep 计划也接进构建 —— 从 keep-additions-<line>.txt 生成 optifineoforge/keep-runtime.txt 写入成品 jar。
+
+过程中修掉的真问题: repair-26.1.2-payload.ps1 末尾 Select-Object -First 6 提前掐断管道致脚本即使修复正确也返回 -1(已加显式 exit 0); 构建里改为子进程调用(同进程时  反映脚本内最后执行的原生程序 javap 的退出码)。我自己的三次拼接错误(变量名被外层插值成空、赋值被接到注释行、多出一个 })均已修正, 两个脚本语法 0 错误。
+
+验证(一次构建): entries 1407->1407、增删 0、恰好 1 条目不同; particle repair: applied and verified (Int2ObjectMap.get=0, getProviders->Map=1); keep-runtime.txt: 3 entry/entries written into the payload; payload : jars-26.1.2/optifine-payload-fml10.jar。
+
+仍如实记下: 构建输出仍有 'keep additions NOT applied: no staged keep plan …(the build would need PayloadDrift …)' 属处理器阶段路径, 新步骤是在成品 jar 上写入同样内容作为补偿; 要让处理器自己吃到需接进 PayloadDrift staged 计划。该 payload 尚未在真实游戏复验(下一轮: 26.1.2 进世界 + 粒子日志/行为)。
+
