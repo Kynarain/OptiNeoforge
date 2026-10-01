@@ -5055,3 +5055,17 @@ keep/stub/reparent)→ 改用 1.21.x `src/fml10` 的 76.2 KB 处理器;③注入
 1.21.9 281,673 / 1.21.10 203,396 / 1.21.11 329,527 / 26.1.2 363,804。
 下一轮:光影 + FXAA 半道门槛(15 条线;`optionsof.txt ofAaLevel` 必须保持 0,与 `optionsshaders.txt antialiasingLevel` 区分;
 已记录 1.21.7 的 OptiFine FXAA post-chain JSON 解析失败与 26.1.2 的 fxaa 资源 not found,须如实记录)。
+
+### 进入光影 + FXAA 门槛:工具定位 + 首次运行是无效测量(已修判定)
+
+工具:`run-save-shaders-all.ps1`(行表从 retest-all.ps1 读取;参数 -Only/-Pack/-AaLevel/-ShaderAaLevel/-Seconds/
+-LevelName/-DataVersion)、`test-save-shaders.ps1`(单线执行体)、`fxaa-check.ps1`(两帧对比)。
+关键区分:-AaLevel = optionsof.txt ofAaLevel(多重采样,**必须 0**);-ShaderAaLevel = optionsshaders.txt
+antialiasingLevel(**OptiFine 的 FXAA 2x/4x**);-AaLevel 非 0 时 GLX.isUsingFBOs() 为假且 setFxaaShader 会把 FXAA 重置为 0。
+第一次运行(1.20.2 + MakeUp + FXAA2x)为**无效测量**:该行 out.log 0 字节、实例 latest.log 仍停在 09:36 早前运行,
+harness 各字段全空;旧判定把空白渲染成 FAILED/sound NO/shaders no —— 对未被测量的运行给出了像结论的行。
+(此前看到的 `[Shaders] No shaderpack loaded.` 属于 09:35 另一次运行,不能当作 1.20.2 光影加载结论。)
+已修:run-save-shaders-all.ps1 先判定 harness 是否读到客户端日志(VERDICT: STARTED\s+:\s*(True|False)),读不到则该行报
+**INVALID** 并把 sound/world 写成 `-`。
+下一轮:直接手工跑 test-save-shaders.ps1 查客户端未写日志的原因;再按 fxaa-check.ps1 做 FXAA off/on 两帧对比
+(-ShaderAaLevel 0 vs 2/4,-AaLevel 恒为 0);随后逐线推进 15 条线的光影 + FXAA 门槛。
