@@ -1373,3 +1373,12 @@ build-fml10-payload.ps1 改动: ①按线条件化的粒子修复(实测三条 1
 
 如实说明: 本轮只验证构建产物层面(计划被正确 staged 并打进 jar); 运行时是否照此保留类只在上一轮游戏运行里验证过(日志两条 is kept as the runtime own class), 本次重建后的 payload 的运行时确认留待游戏复测恢复后做。本轮未启动任何游戏客户端(用户在用 CS2)。
 
+
+### 手工步骤审计(离线): natives 疑点结清 + 我自己复验的方法缺口已排除
+
+审计 1: natives-for.ps1 **有调用者** —— test-save-shaders.ps1 第 83 行起按线调用它(1.20.1-1.20.4 用 LWJGL 3.3.2, 1.20.6 起用 3.3.3); retest-all.ps1 里'这个脚本早就有只是没人调'是旧状态。故目标里'natives-for.ps1 从未被调用'已过时; 配套实测是 1.20.4 stderr=14481 B(记录值), 而 natives 不匹配的签名是 Incompatible Java and native library versions detected。
+
+审计 2(重要): 我的 11 条 ModLauncher 复验(1.20.1…1.21.8)直接跑 launch.ps1 -Fresh, **绕过**了 test-save-shaders.ps1 里的按线选 natives。离线用已保存 stderr 查证: 15 条线的 Incompatible Java and native library 警告**均为 0** —— 1.20.1 0B、1.20.2 14625B、1.20.4 14481B、1.20.6 17856B、1.21 14141B、1.21.1/1.21.3/1.21.4/1.21.6/1.21.7/1.21.8 均 0B、1.21.9/1.21.10 990B、1.21.11 1097B、26.1.2 107B。结论: 15/15 复验没有一条在 natives 不匹配下跑, 结果不被污染; 并据此补全上一轮汇总表里'未记'的 stderr 格子。
+
+审计 3: 已被流水线接管的: 粒子修复(处理器装载时修, 单一归属)、keep 计划(staging 单一路径)、stub 列表、运行时类名。仍为输入数据(非手工改成品): keep-additions-<mc>.txt、stub-additions-<mc>.txt、member-restores.txt、reparent.txt; 若继续收紧可把它们做成随仓库受控的输入(现在在 rig 目录下), 留待用户决定。
+
