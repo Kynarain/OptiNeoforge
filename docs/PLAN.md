@@ -5390,3 +5390,12 @@ FXAA 现状不变: 通过 5 条(1.20.2、1.20.4、1.21、1.21.1、1.21.4), 有�
 
 即三条线用当前分支头的 payload/own-classes jar 在真实游戏里正常进世界、无崩溃。下一轮: 26.1.2 同样复验; 随后 11 条 ModLauncher 线。
 
+
+### 26.1.2 通过 → 四条 FML10 线全部通过进世界复验(当前 jar)
+
+26.1.2(neoforge-26.1.2.109, payload 3324404 B + own-classes, 内联 launch-fml10.ps1, 等 190 秒): Setting user=1, Sound engine=1, joined=1, 新崩溃=0, latest.log=185299 B(18:48:57)。
+
+FML10 四条汇总(全部当前分支头 jar): 1.21.9 joined=1/182143B、1.21.10 joined=1/183775B、1.21.11 joined=1/179993B、26.1.2 joined=1/185299B; 新崩溃均 0。
+
+下一轮起: 11 条 ModLauncher 线逐条内联复验(1.20.1/1.20.2/1.20.4/1.20.6/1.21/1.21.1/1.21.3/1.21.4/1.21.6/1.21.7/1.21.8), 命令形如 launch.ps1 -VersionId <prof> -Seconds 300 -Fresh -Mods '<registered.jar>;<optifine.jar>' -ExtraGameArgs '--quickPlaySingleplayer=RigSession' -JavaHome <jdk17 或 jdk21>。
+
