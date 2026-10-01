@@ -720,3 +720,16 @@ rig 钉法输出显示该线世界模板 `no GameRules compound` 且 `no playerd
 问题在处理 MultiTextureData 这一步。
 下一轮:找到并指定 srg client runtime jar 完成 payload 重建;若仍停,直接排查该步(OptiFine 类处理器与
 net/optifine/render/MultiTextureData 的重复/缺失定义)。26.1.2 之外其余 14 条线均已拿到进世界帧。
+
+### 更正:26.1.2 没有卡在 MultiTextureData,而是在标题界面正常运行
+
+`logs\jstack-26.1.2.txt`(28,283 B)显示 `Render thread` 为 `TIMED_WAITING (parking)`:
+`Unsafe.park` ← `LockSupport.parkNanos` ← `FramerateLimiter.limitDisplayFPS(FramerateLimiter.java:32)` ←
+`Minecraft.renderFrame(:1404)` ← `Minecraft.runTick(:1329)` ← `Minecraft.run(:937)` ← `Main.main(:246)`;
+Worker-Main-1/2 均在 ForkJoinPool 正常等待。即客户端在正常主循环、没挂在类处理、也没崩溃;
+实例日志停在 `processClass: net.optifine.render.MultiTextureData` 只是类处理告一段落(标题界面不再写日志)。
+本轮还试过换 payload(用带 particle 修复的 `optifine-26.1.2-neoforge.jar`),症状完全相同 → 与 payload 来源无关。
+真实状态:客户端到标题界面正常 tick,但 quickPlay 未进世界;且该线 rig 世界模板 level.dat **既无 GameRules 也无 Player
+复合标签**(很可能不是 26.1.2 自己的存档)。
+下一轮:用 26.1.2 自己创建/自带的完整世界再用 quickPlay 打开(必要时用真实点击驱动菜单并如实标注取证路径);
+另查该线"找不到窗口"的 rig 侧原因。26.1.2 之外 14 条线均已取到进世界帧。
