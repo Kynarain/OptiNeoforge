@@ -982,3 +982,12 @@ VERDICT: INCONCLUSIVE —— 两帧有 10.9% 像素不同,超过 0.10 场景差�
 
 下一轮逐线内联跑 FXAA: 1 准备 -PrepareOnly -AaLevel 0 -ShaderAaLevel 0/4; 2 Start-Process 全加引号字符串启动 launch.ps1; 3 等 200 秒并每 5 秒居中光标; 4 post-key.ps1 -Key 113 三次; 5 取 screenshots 新增第一张; 6 fxaa-check.ps1 -Off -On。1.20.2 已得 VISIBLE, 其余 14 条线照此推进。
 
+
+### 1.20.4 通过 FXAA 门槛: VERDICT: FXAA VISIBLE
+
+按短内联命令逐级别推进(aa0 与 aa4 各一次运行)。1.20.4: off 平均边缘能量 8.9989 / 硬边 16806; on 8.4852 / 13341; 边缘能量 -5.7%, 硬边 -20.6%, 场景差 9.2% 低于 0.10 阈值 -> FXAA VISIBLE。
+
+设置: antialiasingLevel=4 对 =0, ofAaLevel:0, 两次都加载 MakeUp-UltraFast-9.5e.zip, 抓帧用 F2 第 1 张新增 854x480。
+
+至此 FXAA 门槛通过两条线: 1.20.2 与 1.20.4。其余 13 条线照同一六步短命令流程继续(短命令很关键: 长循环命令会被作业运行器终止)。
+
