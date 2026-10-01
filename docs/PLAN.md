@@ -747,3 +747,15 @@ Worker-Main-1/2 均在 ForkJoinPool 正常等待。即客户端在正常主循�
 (仍写着 waiting for 'CaptureWorld'),故该结论无证据,不予采用。
 下一轮:重跑 `-LevelName FullWorld` 并直读其输出;仍不进则与 1.21.11(能进,布局相同)做同路径对照;必要时用真实点击
 驱动菜单进世界并如实标注取证路径。
+
+### 26.1.2 干净实验:完整原生世界也进不去;接线与参数均已排除
+
+`capture-frame.ps1 -LevelName FullWorld`(不加 -FreshWorld)自身输出确认等待 FullWorld;FullWorld 是 RigSession 的整目录
+复制(data, datapacks, dimensions, players, level.dat, level.dat_old),即完整原生 26.1.2 世界。结果:实例日志只有
+Setting user(10:20:38)与 Sound engine started(10:20:42),joined 0 行 -> 仍未进世界。
+排除项:FML10 分支确实传 -GameArgs "--quickPlaySingleplayer=$LevelName"(capture-frame.ps1:133);launch-fml10.ps1 的参数名
+就是 -GameArgs;客户端支持 quickPlay(处理 GameConfig$QuickPlaySinglePlayerData/QuickPlayData/QuickPlayLog/LevelStorageSource);
+本轮用的是整目录完整世界而非仅 level.dat;换用 optifine-26.1.2-neoforge.jar 症状相同;jstack 显示 Render thread 在正常主循环。
+关键对照:1.21.11 世界为旧布局(region/playerdata/DIM1,level.dat 2838 B,DataVersion 4671)可进;26.1.2 为新布局
+(data/datapacks/dimensions/players,561 B,DataVersion 4790)不被 quickPlay 打开。
+下一轮:用真实点击驱动菜单进入世界并如实标注取证路径;或查 26.x quickPlay 的新语义。其余 14 条线已通过进世界部分。
