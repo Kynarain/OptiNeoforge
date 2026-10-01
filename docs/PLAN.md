@@ -4761,3 +4761,13 @@ StringRenderOutput/BitmapProvider$Glyph$1`(08:26:12 之后再无任何日志),�
 即**资源重载阶段卡死**,与目标点名的"CustomItems.wait 不被 ModelBakery 构造函数释放"同族。
 直接线索:rig 根 `srg-to-official-1.20.4.txt` 的两行(ModelPart.getChild、ModelBakery.loadBlockModel)未嵌入 jar,
 载入期看不到碰撞项。下一轮:查 build-jars 取表路径并真正嵌入,再按四检→joined→抓帧复测;随后 FML10 四线与光影+FXAA。
+
+### 1.20.4 卡死原因不是缺表;分歧在 ModelBakery 的碰撞保留
+
+为 1.20.4 生成并嵌入了一直缺失的表(SrgNameTable → work\1.20.4\plan\srg-to-official.txt,13 行;
+rebuild 输出 `SRG table: 13 name(s)`),但进世界**仍卡死**在 `[OptiFine] *** Reloading custom textures ***`,无窗口无 joined。
+对照已修好的 1.21:其日志有 `Kept 3 SRG name(s) in net.minecraft.client.resources.model.ModelBakery: the copy this jar
+installs declares …`(碰撞保留判据生效),而 1.20.4 **完全没有这条**(只有 `Replaced …(43 fields, 43 …)` 与
+`Restored 15 members from its donor`);keep 计划两条线都没有 ModelBakery/CustomItems 条目,差异来自载荷形状与改名结果。
+下一轮:查 1.20.4 的 `Rewrote N SRG name(s)`/`Renamed N method declaration(s)` 数字,用 -Doptifineoforge.dump 与 1.21 逐成员
+对照,目标是把那对名字在 1.20.4 上同样保留,再复测四检→joined→抓帧。
