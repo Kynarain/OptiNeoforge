@@ -546,3 +546,17 @@ patched 是 `m_157487_`(SRG 名);而日志显示该内部接口被 "Left … alo
 **stderr = 14481 B,恰等于 retest-all.ps1 记录的目标值**(印证此前 17841 系 rig natives 选择问题);
 但进世界 NO-JOIN、无窗口,且该次运行未更新 latest.log(客户端没正常起来)。
 下一轮:①用 rebuild-120x-line.ps1 正确重建;②查客户端未启动原因;③再跑 FML10 四线进世界,然后进光影+FXAA。
+
+### 1.20.4 正确管线重建成功;进世界客户端启动即死、零日志
+
+`rebuild-120x-line.ps1 -Mc 1.20.4 -NeoForge 20.4.251 -ModLauncher 10 -SrgMappings … -ObfOfficial …
+-DropMembersFile drop-members-1.20.4.txt -Repository I:\mods\OptifiNeoforge-120x` 重建成功:
+`stubbed 18 members on {BakedModel=9, ModelBaker=2, BlockEntity=5, BlockState=1}`、`drop plan: 3 line(s)`、
+jar `OptifiNeoforge-2.0.0+mc1.20.4-registered.jar`(1,745,403 B)、内嵌 `drop-members.txt` 6 行;
+`srg-to-official.txt` 仍缺席(rig 根那份只有 2 行)。
+四检:Setting user 08:18:06、Sound engine started 08:18:12、**stderr = 14481 B(与记录值一致)**。
+进世界:实例日志停在验收运行时刻,说明该次 JVM **没写出任何日志**(不是抓不到帧,而是没起来);
+同目录早前 FXAA 启动日志证明该线启动方式可行。rig 参数已核对(capture-all-lines 传 jdk17;capture-frame 为
+1.20.x 选 LWJGL 3.3.2)。
+下一轮:手工跑 `capture-frame.ps1 -VersionId neoforge-20.4.251 -Mc 1.20.4`,查零日志原因(命令行引号/参数拆分、
+-FreshWorld 存档拷贝、natives try/catch 的影响)。
