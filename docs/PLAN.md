@@ -1275,3 +1275,32 @@ CF 项目恢复时填 名称=OptifiNeoforge、slug=optifineoforge, 由用户在�
 
 进世界复验累计 14/15; 只差 1.21.8(neoforge-21.8.54, optifine-OptiFine_1.21.8_HD_U_J6_pre16.jar)。
 
+
+### 15/15 条线全部通过进世界复验(当前分支头 jar)
+
+1.21.8(neoforge-21.8.54, jdk-21, mods = registered 2.0.0+mc1.21.8 + OptiFine_1.21.8_HD_U_J6_pre16): Setting user=1, Sound engine=1, joined=1, Preparing spawn area=2, 方法错误行=0, 新崩溃=0, latest.log=185420 B, stderr=0 B。
+
+汇总表(逐条内联复验; 未记=当次未采集该字段, 不编造):
+
+| 线 | profile | Setting user | Sound engine | joined | 新崩溃 | latest.log | stderr |
+|---|---|---|---|---|---|---|---|
+| 1.20.1 | 1.20.1-forge-47.4.23 | 1 | 1 | 1 | 0 | 141107 | 未记 |
+| 1.20.2 | neoforge-20.2.88 | 1 | 1 | 1 | 0 | 1345018 | 未记 |
+| 1.20.4 | neoforge-20.4.251 | 1 | 1 | 1 | 0 | 1113496 | 14481 |
+| 1.20.6 | neoforge-20.6.141 | 1 | 1 | 1 | 0 | 136971 | 17856 |
+| 1.21 | neoforge-21.0.167 | 1 | 1 | 1 | 0 | 1142511 | 14141 |
+| 1.21.1 | neoforge-21.1.250 | 1 | 1 | 1 | 0 | 1124016 | 0 |
+| 1.21.3 | neoforge-21.3.97 | 1 | 1 | 1 | 0 | 1124511 | 0 |
+| 1.21.4 | neoforge-21.4.149 | 1 | 1 | 1 | 0 | 1131653 | 0 |
+| 1.21.6 | neoforge-21.6.20-beta | 1 | 1 | 1 | 0 | 185057 | 0 |
+| 1.21.7 | neoforge-21.7.25-beta | 1 | 1 | 1 | 0 | 190444 | 0 |
+| 1.21.8 | neoforge-21.8.54 | 1 | 1 | 1 | 0 | 185420 | 0 |
+| 1.21.9 | neoforge-21.9.16-beta | 1 | 1 | 1 | 0 | 182143 | 未记 |
+| 1.21.10 | neoforge-21.10.64 | 1 | 1 | 1 | 0 | 183775 | 未记 |
+| 1.21.11 | neoforge-21.11.45 | 1 | 1 | 1 | 0 | 179993 | 未记 |
+| 26.1.2 | neoforge-26.1.2.109 | 1 | 1 | 1 | 0 | 185299 | 未记 |
+
+要点: 每条都是四检 + 真实进世界(Preparing spawn area 或 joined) + 0 新崩溃; 1.20.2 的 canSustainPlant、1.21 的资源重载/声音引擎、1.20.4 的 14481 B stderr 三项点名缺陷均未复现。
+
+仍未做(如实): FXAA 判定(用户指示暂停)、multiplayer /register、26.1.2 离线 payload 粒子修复、1.21.9 光影配置异常的解释; 发布仍未做。
+
