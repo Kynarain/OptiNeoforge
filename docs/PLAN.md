@@ -1351,3 +1351,14 @@ build-fml10-payload.ps1 改动: ①按线条件化的粒子修复(实测三条 1
 
 下一轮: ①撤掉 build-fml10-payload.ps1 的粒子修复步骤(保留 keep 计划步骤); ②重建 payload 复跑 26.1.2, 确认日志出现处理器 INFO(reads the particle provider through the runtime Map keyed by resource location)且不再出现该 WARN; ③若处理器路径在 26.1.2 生效, 则以装载时修复关闭 26.1.2 离线 payload 缺粒子修复 一项, 并如实记录成品 jar 不再需要该补丁。
 
+
+### 粒子修复改为单一归属(处理器装载时修); 26.1.2 缺粒子修复一项关闭
+
+撤掉 build-fml10-payload.ps1 的构建期粒子修复块(35 行), 换成说明: 该修复由 payload 处理器在装载时完成(repairParticleProviderLookup 找未修三连并改写为按 resource location 键的 Map, 类名读 /optifineoforge/runtime-location.txt, 覆盖 1.21.9/10 ResourceLocation 与 1.21.11 Identifier); 保留 keep 计划步骤(处理器阶段的 staged keep plan 未被喂到)。
+
+重建(撤掉后): keep-runtime.txt: 3 entry/entries written into the payload; payload : jars-26.1.2/optifine-payload-fml10.jar; srg classes 1325, fml10 classes 2, plans 2; jar 3324408 B; jar 内 ParticleEngine.class 保持缺陷形状(缺陷 1 行/修复 0 行)故意留给处理器。
+
+运行时验证(26.1.2 等 190 秒): [INFO] ParticleEngine.makeParticle reads the particle provider through the run…; Sound engine=1, joined=1, 新崩溃=0, keep 行=2, latest.log=182943 B; 处理器粒子修复 INFO=1 行, WARN(has no makeParticle shaped)=**0**(上轮误报消失)。
+
+结论: 粒子修复现在只有一个归属(处理器装载时修, 有 INFO 为证); 目标小项 26.1.2 离线 payload 缺粒子修复 以装载时修复方式关闭 —— 成品 jar 不再需要也不再带该补丁; keep 计划仍由构建写入并生效。
+
