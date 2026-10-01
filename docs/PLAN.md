@@ -4808,3 +4808,16 @@ rig 观察:先跑验收再立刻抓帧时,抓帧那次的客户端不写任何�
 下一轮:用两个作业分头做 —— 一个跑 `capture-frame.ps1` 起客户端,另一个在卡住时 `jstack <pid>`,
 取 `Render thread` 栈判定它是在 `CustomItems.updateIcons` 的 `Config.sleep(100)` 等待,还是别的等待,
 再顺栈追到提前返回的那一步。
+
+### 更正:1.20.4 没有卡死;它停在标题界面且 quickPlay 未进世界
+
+jstack(`logs\jstack-1.20.4-live.txt`,42,547 B)显示 `Render thread` 为 **RUNNABLE**:
+`glfwWaitEventsTimeout` ← `RenderSystem.limitDisplayFPS(:248)` ← `Minecraft.runTick(:1288)` ← `Minecraft.run(:818)`,
+即客户端在正常主循环,没有任何线程停在 `CustomItems.updateIcons`/`Config.sleep(100)`。
+因此"资源重载永不结束"的判断是**错的**:日志在 `Reloading custom textures`/`Disable Forge light pipeline`/
+三个 Font 类替换之后静默,是**标题界面的正常静默**。
+真实状态:客户端正常起到标题界面(Setting user 09:00:33、Backend library LWJGL 3.3.2+13、OpenAL、Sound engine
+started 09:00:39),命令行**有** `--quickPlaySingleplayer=CaptureWorld`,但**没有** joined the game(quickPlay 未生效);
+而 1.20.2 同参数能进世界。下一轮:①比对 1.20.2/1.20.4 的 quick-play 分支差异(可能与我们对 Minecraft/GameConfig
+的改写或关卡名解析有关);②兜底用真实点击驱动菜单进入 CaptureWorld 再抓帧,并如实标注取证路径。
+另:120x 的改名移植是必要的能力补齐,但**不是** 1.20.4 的修复。
