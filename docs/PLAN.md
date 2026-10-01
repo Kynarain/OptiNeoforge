@@ -637,3 +637,19 @@ started 09:00:39),命令行**有** `--quickPlaySingleplayer=CaptureWorld`,但**�
 因此只证明"世界能加载并渲染界面",**不证明"地形被画出"**,不能算通过。
 下一轮:对比 `pin-save-state.ps1` 写出的标签类型与 donor 原文件(SpawnX/Y/Z、Player.Rotation/Pos、规则),
 修好后用 -FreshWorld 复测,期望 joined the game + 非死亡界面的地形帧;随后 FML10 四线与光影+FXAA。
+
+### 修复 pin-save-state.ps1 的 NBT 损坏;1.20.4 通过进世界门槛(地形帧 237,013 B)
+
+根因:`pin-save-state.ps1` 中**改变文件长度**的写入(游戏规则 TAG_String,原 283-294 行)就地应用,
+而其后的定长写入(`Player.Rotation` 307 行、`Player.Pos` 340 行)仍使用从原始数组读出的偏移 → 偏移错位,
+写出的 level.dat 损坏(rig 自己的读取器复读报 `unknown NBT tag type 0 at offset 3726`),1.20.4 因此静默跳过该世界
+(quickPlay 停在标题界面),而 1.20.2 恰好未触发同样组合。
+隔离实验:`-GameRule doMobSpawning=false`(3 项)/`-SpawnY 140`(2)/`-NoWeather`(6)/`-FreezeWorld`(13)复读错误均为 0,
+**全组合 23 项出现 4 处损坏**。
+修复:把字符串重写收集进 `$pendingStringFixes`,推迟到最终写出前一次性应用(仍按偏移从高到低),定长写入因此始终有效;
+修后全组合与 `-FreezeWorld` 复读错误 0。
+端到端(1.20.4,带 `-FreshWorld`):`saves\CaptureWorld` 出现完整世界结构(data/datapacks/DIM-1/DIM1/entities/
+playerdata/poi/region/serverconfig/icon.png/level.dat/level.dat_old),抓到 `logs\inworld\frame-1.20.4.png`(237,013 B)
+为真实地形(丘陵/草/树/水面/手持物品/满血),非死亡界面。如实注明:`capture-frame.ps1` 自身仍打印
+`world marker: NOT SEEN`/`NO WINDOW found`(其标记/窗口检测该次不可靠),本结论以帧内容与世界结构为证据。
+下一步:用修好的钉法回归其它线(此前帧取于损坏的钉法,需重取或标注)、跑 FML10 四线进世界、再进光影+FXAA。
