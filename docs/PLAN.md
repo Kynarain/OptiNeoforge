@@ -4821,3 +4821,14 @@ started 09:00:39),命令行**有** `--quickPlaySingleplayer=CaptureWorld`,但**�
 而 1.20.2 同参数能进世界。下一轮:①比对 1.20.2/1.20.4 的 quick-play 分支差异(可能与我们对 Minecraft/GameConfig
 的改写或关卡名解析有关);②兜底用真实点击驱动菜单进入 CaptureWorld 再抓帧,并如实标注取证路径。
 另:120x 的改名移植是必要的能力补齐,但**不是** 1.20.4 的修复。
+
+### 决定性实验:1.20.4 的 quickPlay 正常,坏的是 rig 的"新世界"
+
+`launch.ps1 … -ExtraGameArgs '--quickPlaySingleplayer=RigTest'`(完整、未被钉过的世界)得到
+`Preparing spawn area: 0%→39%` 与 `Dev joined the game`(09:04:12)→ **1.20.4 能进世界**。
+(第一次尝试只等 12 秒、游戏目录仍被上一个客户端锁着,客户端没起来;等 60 秒后成功 —— 这也解释了此前数次"零日志"。)
+因此排除:缺表、ModelBakery 碰撞、资源重载卡死(已由 jstack 证明客户端在正常 tick)、客户端未起、quickPlay 失效、参数丢失。
+真正的卡点:`capture-frame.ps1 -FreshWorld` 只复制 donor 的 `level.dat` 再用 pin-save-state 改写;
+1.20.4 运行后 `saves\CaptureWorld` 里只有 `level.dat`+`session.lock`(世界没被打开),而 1.20.2 的同名目录是完整结构。
+下一轮:让 rig 对该线造**完整世界**(整目录复制而非只复制 level.dat)后再抓帧,并如实标注取证路径;
+随后 FML10 四条线与光影+FXAA。
