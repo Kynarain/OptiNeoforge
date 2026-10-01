@@ -1483,3 +1483,14 @@ Gradle 与 JVM: 三仓库 wrapper 均为 gradle-9.6.1(要求 Java 17+ 运行, 9.
 
 我自己的两次失误(如实): ①首版把 pack 字段插进 save 字符串内部造成 75 个语法错误; ②第二次只收敛行尾引号仍余 75 个;最后整体重写  块(15 行)后语法 0 错误、save/pack 各 15 个。教训: 引号密集+单行多字段的结构不要逐点补丁, 直接整体重写。本轮未跑 Gradle、未启动游戏。
 
+
+### 发布链路完整干跑(离线; 未发布任何东西)
+
+方法(绝不误发): 把已有 12 个 build/libs 产物复制进独立暂存目录 release-stage-dryrun/(真实 release-stage 保持为空, 避免'未重建产物躺在发布目录'这个已隔离过的隐患), 跑 publish-github-releases.ps1 -WhatIfOnly -Stage release-stage-dryrun, 干跑后立即删除该目录。
+
+结果逐项都对: ①版本解析逐线正确 tag=v2.0.0+mc<mc>(不再写死 1.0.0); ②tag 指向当前分支头(1.20.x fe8c09a7、1.21.x 0faa5a3a、26.x 85e26351, 即本轮提交); ③没有产物的 1.21.9/1.21.10/1.21.11 被 SKIPPED(no staged jar), 即脚本不可能为没构建出来的线发东西(fail-safe); ④结尾 published releases: 0 (what-if only: nothing was written); ⑤顺带证实 GitHub 凭据可用(能完成 tag/Release 的 GET 查询, 否则会在 Get-Token 抛错)。
+
+需用户决定: 2026-09-23 已发布过 15 个 v1.0.0+mc… 的 tag 与 Release, 按 2.0.0 口径新发布会新建 v2.0.0+mc…, 旧的 15 个仍在线上(且是 09-17/09-23 时代构建、与当前修复不对应)——发布前需明确旧 Release 是保留标注还是清理;未获明确指示前我不会删除线上任何东西。
+
+收尾: release-stage-dryrun 已删除; 真实 release-stage 仍 0 个文件; 隔离目录保持原样; 全程未向 GitHub 写入任何内容。本轮未跑 Gradle、未启动游戏。
+
