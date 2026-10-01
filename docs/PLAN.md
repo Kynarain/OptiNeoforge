@@ -802,3 +802,18 @@ OptifinePayloadClassProcessor.class / OptifinePayloadLocator.class);②`build-fm
 下一轮:按 prepare-fml10-line 步骤 1 用 `libraries\net\neoforged\minecraft-client-patched\26.1.2.109\
 minecraft-client-patched-26.1.2.109.jar` 叠加 `neoforge-26.1.2.109-universal.jar` 造出 runtime-26.1.2.jar,
 再 `build-fml10-payload.ps1 -Line 26.1.2 -Repo I:\mods\OptifiNeoforge-26x`,复测 26.1.2,再进光影+FXAA。
+
+### 26.1.2:runtime view 与管线打通,但 keep 计划未被处理器读取;崩溃前移到 attachment VerifyError
+
+本轮:①造出 `work\26.1.2\runtime-26.1.2.jar`(minecraft-client-patched-26.1.2.109.jar 叠加
+neoforge-26.1.2.109-universal.jar,31,764 条/39.13 MB);②完整 FML10 管线跑通
+(`prepare-fml10-line.ps1 -Mc 26.1.2 … -RuntimeJar … -Repository I:\mods\OptifiNeoforge-26x`;Gradle fml10 成功);
+③payload 重建成功,`stub list: 1 member(s)`(clientPreProcessPacket stub 已应用)。
+拦路:①`keep-additions-26.1.2.txt` 未被消费 —— `build-fml10-payload.ps1` 报 keep additions NOT applied,
+需要 PayloadDrift 产出的 staged keep plan,而脚本每次会重建 staging 清掉手写文件;②直接向 payload jar 注入
+`optifineoforge/keep-runtime.txt`(3 条/149 B)后,日志仍显示
+`OptiFine payload: installed net.minecraft.network.PacketProcessor (5 fields, 7 methods)` —— 该处理器不按此文件跳过安装。
+崩溃前移:ModLoadingException → NeoForge failed to load correctly → `VerifyError: Bad type on operand stack` 于
+`AttachmentSync.syncBlockEntityUpdates`(`BlockEntity` 不可赋给 `AttachmentHolder`),即 `BlockEntity` 的 reparent 未生效
+(`work\26.1.2\plan\reparent.txt` 仅 1 行)。
+下一轮:①在 `src/fml10` 的 `OptifinePayloadClassProcessor` 里查它读取 keep 决策的真实文件名/格式;②查 reparent 为何未落地。
