@@ -5178,3 +5178,14 @@ VERDICT: INCONCLUSIVE —— 两帧有 10.9% 像素不同,超过 0.10 场景差�
 
 下一轮: 把该流程逐线推广到 15 条线, 先有包验证包能加载, 再测 FXAA off/on, 并按版本调整瞄准角。
 
+
+### 查出执行策略这一层;脚本化启动仍起不了客户端
+
+写 fxaa-line.ps1(六步加居中, 单线单级别)后, 进程内用 & 脚本.ps1 调用被**执行策略**拦下(PSSecurityException UnauthorizedAccess, 系统上禁止运行脚本); 必须 powershell -NoProfile -ExecutionPolicy Bypass -File 才能跑。
+
+用 Bypass 正确调用后脚本六步都执行(准备写入 antialiasingLevel=4、启动 launcher pid 32560、居中 40 次), 但客户端始终没出现(client running 0、latest.log 停在 14:19:49、post-key 报 no window matching)。即同样的启动 shell 内联执行成功、脚本内执行失败依旧成立, 与执行策略无关。
+
+另: 行表解析加双级别循环写成一条长内联命令时被作业运行器终止(exit 4294967295, 无输出), 与长文档段落被终止同一现象; 故改为每线每级别一条较短的内联命令。
+
+下一轮逐线内联跑 FXAA: 1 准备 -PrepareOnly -AaLevel 0 -ShaderAaLevel 0/4; 2 Start-Process 全加引号字符串启动 launch.ps1; 3 等 200 秒并每 5 秒居中光标; 4 post-key.ps1 -Key 113 三次; 5 取 screenshots 新增第一张; 6 fxaa-check.ps1 -Off -On。1.20.2 已得 VISIBLE, 其余 14 条线照此推进。
+
