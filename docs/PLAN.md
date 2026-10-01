@@ -1566,3 +1566,12 @@ Gradle 与 JVM: 三仓库 wrapper 均为 gradle-9.6.1(要求 Java 17+ 运行, 9.
 
 进度 11/15: 1.20.x 四条 + 1.21.x 七条全部复跑完毕, 全部 joined=1、方法/类型错误行 0、新崩溃 0。剩余 4 条 FML10(1.21.9/1.21.10/1.21.11/26.1.2)启动方式为 payload + own-classes; 为保证当前分支头, 下一步先用本仓库重建这三条 payload(26.1.2 今天已按流水线重建), 再用 launch-fml10.ps1(adoptium 25、主类与额外类路径按此前跑通参数)逐条跑四检+进世界。
 
+
+### FML10: 三条 payload 按当前分支头重建 + 1.21.9/1.21.10 复验通过(累计 13/15)
+
+重建三条 payload(21:43:45-50, 用本仓库 build-fml10-payload.ps1 -Repo OptifiNeoforge): 日志证明输入来自仓库 release/payload-inputs 且 keep 计划已进流水线(input 两行显示命中仓库副本; stub list 1 member; keep additions 3 line(s); member-restores 344/351/367 行; srg classes 1233/1269/1324、fml10 classes 2、plans 3); 产物 3133408/3207058/3339500 B。
+
+复验(独占, 用重建后 payload + own-classes): 1.21.9 Setting user=1/Sound engine=1/joined=1/spawn area=3/keep 行=5/方法错误行=0/新崩溃=0/latest.log=182165B; 1.21.10 同(spawn area=3/keep 行=5/latest.log=183566B)。keep 行=5 说明 keep 计划在运行时被读到并生效。
+
+进度 13/15: 11 条 ModLauncher(1.20.x 四 + 1.21.x 七)+ FML10 的 1.21.9 与 1.21.10; 剩余 26.1.2 与 1.21.11。另如实记录: 第一次跑 1.21.9 时把解析+启动+等待+统计写在一条长命令里被作业运行器掐掉(exit 4294967295 无输出), 拆成极短两条后正常(与多次记录的'长命令被掐'同因)。
+
