@@ -5399,3 +5399,10 @@ FML10 四条汇总(全部当前分支头 jar): 1.21.9 joined=1/182143B、1.21.10
 
 下一轮起: 11 条 ModLauncher 线逐条内联复验(1.20.1/1.20.2/1.20.4/1.20.6/1.21/1.21.1/1.21.3/1.21.4/1.21.6/1.21.7/1.21.8), 命令形如 launch.ps1 -VersionId <prof> -Seconds 300 -Fresh -Mods '<registered.jar>;<optifine.jar>' -ExtraGameArgs '--quickPlaySingleplayer=RigSession' -JavaHome <jdk17 或 jdk21>。
 
+
+### ModLauncher 线开始逐条复验: 1.20.1 通过
+
+1.20.1(profile 1.20.1-forge-47.4.23, modlauncher, JavaHome jdk-17, mods = OptifiNeoforge-2.0.0+mc1.20.1-registered.jar + optifine-OptiFine_1.20.1_HD_U_I6.jar; 内联 launch.ps1 -ExtraGameArgs --quickPlaySingleplayer=RigSession, 等 190 秒): Setting user=1, Sound engine=1, joined=1, 新崩溃=0, latest.log=141107 B(18:53:48)。
+
+进世界复验累计 5/15 条: 四条 FML10(1.21.9/1.21.10/1.21.11/26.1.2)+ 1.20.1。待验 10 条: 1.20.2/1.20.4/1.20.6/1.21/1.21.1/1.21.3/1.21.4/1.21.6/1.21.7/1.21.8。
+
