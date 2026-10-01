@@ -1080,3 +1080,16 @@ FXAA 门槛通过累计三条: 1.20.2(-2.5%)、1.20.4(-5.7%)、1.21(-2.2%); 1.20
 
 下一轮: 把出生点换成已知能看到地形的坐标 —— 1.20.4 那条线首帧边缘能量 8.99, 其 level.dat 的 SpawnX/Y/Z 即可用坐标; 用 pin 的 -Dump 读出后再用 -SpawnX/Y/Z 加 -SpawnAngle 写进 1.21.1 并复查密度。取景可用前的 FXAA 判定一律记为未测得, 不写 NOT VISIBLE。
 
+
+### 1.21.1 取景的决定性证据: 好画面来自 level.dat 的 Player 复合标签
+
+pin -Dump 读出: 1.20.4(首帧 8.99 细节丰富)的 level.dat 自带 Player 复合标签, Player.Pos [26882.6999999881, 107.244530686957, 2646.15211045648], Player.Rotation [179.9272, 16.19919], SpawnX/Y/Z 0/60/0; dump 注释写明该 Player 复合标签优先于 SpawnX/Y/Z, 客户端会放在它的 Pos 而不是出生点。
+
+1.21.1 的 level.dat 里 Player.Rotation/Player.Pos 是空列表(故 pin 跳过), SpawnX/Y/Z 先前被改成 0/100/0(已改回 0/60/0), playerdata 里有写进去的坐标与朝向。
+
+本轮把 1.21.1 的 playerdata 精确设成 1.20.4 那组值(pin 报告 yaw 0->179.9272, pitch 30->16.19919, Pos 0/80/0 -> 26882.6999999881/107.244530686957/2646.15211045648)并关天气冻结世界, 重跑边缘能量仍 4.6046。
+
+结论: quickPlay 下客户端不采用 playerdata 的位置而把玩家放在出生点; 1.21.1 出生点 0/60/0 在水下(雾景与竖直光柱正是水下外观)。要让该线可取景, 必须像 1.20.4 那样在 level.dat 写入 Player 复合标签。
+
+下一轮: 修 pin 使 Player.Pos/Player.Rotation 为空列表时按正确类型分配写入(list<double>[3] / list<float>[2])而非跳过, 重跑 1.21.1 复查密度; 取景可用前其 FXAA 判定仍记为未测得。
+
