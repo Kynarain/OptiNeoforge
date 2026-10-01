@@ -564,3 +564,17 @@ installs declares …`(碰撞保留判据生效),而 1.20.4 **完全没有这条
 `Restored 15 members from its donor`);keep 计划两条线都没有 ModelBakery/CustomItems 条目,差异来自载荷形状与改名结果。
 下一轮:查 1.20.4 的 `Rewrote N SRG name(s)`/`Renamed N method declaration(s)` 数字,用 -Doptifineoforge.dump 与 1.21 逐成员
 对照,目标是把那对名字在 1.20.4 上同样保留,再复测四检→joined→抓帧。
+
+### 1.20.4 卡死的结构性根因:1.20.x loader 没有载入期 SRG 改名这一套
+
+证据:①1.20.4 全日志没有任何 `Kept N SRG name(s)`/`Rewrote`/`Renamed … declaration` 行(机器没跑),而 1.21 有很多
+(GlStateManager 保 97、AutoStorageIndexBuffer 保 20、ModelBakery 保 3);②120x 检出的 loader 在
+`src\main\…\PatchedClassTransformer.java`(ml10/ml11 仅各一个 ModLauncherAdapter),其中 `renameSrgMembers` 0 处、
+`srg-to-official` 仅注释 1 处、无 `SRG_TABLE`/`officialName`/`declaredByInstalledPayload`;而 1.21.x 的 ml11 中
+`SRG_TABLE` 在 1071 行、`officialName` 1108 行、`renameSrgMembers` 1130 行、`declaredByInstalledPayload` 1334 行,
+调用点 773 行。结论:1.20.4 的资源重载卡死(CustomItems.wait 不被 ModelBakery 构造函数释放)既不是表未嵌入、
+也不是 keep 名单,而是这条分支的 loader 缺少把 SRG 名改成官方名的逻辑。
+下一轮:把这套逻辑(表加载、officialName、declaredNames/declaredByInstalledPayload/declaredBothNames/isStubName、
+renameSrgMembers 及其三处已测约束:仅方法/非 net.optifine/跳过 stub/改建名前按名+描述符查重;字段引用走
+declaredByInstalledPayload;indy 既改句柄也改自身 name)移植进 120x 的 src\main transformer,并在主流程按 1.21.x 的位置调用;
+然后编译 120x → rebuild-120x-line 重建 1.20.4 → 四检 → joined → 抓帧;其余 1.20.x 线已通过,不要引入退步。
