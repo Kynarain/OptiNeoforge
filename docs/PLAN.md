@@ -5366,3 +5366,14 @@ FXAA 现状不变: 通过 5 条(1.20.2、1.20.4、1.21、1.21.1、1.21.4), 有�
 
 本轮已启动四条 FML10 线(1.21.9/1.21.10/1.21.11/26.1.2)的进世界复验(capture-all-lines.ps1 -Only), 结果写 logs/inworld-sweep.txt, 完成后逐条登记。
 
+
+### 回到'mod 能否正常运行': 1.21.9 用当前 jar 通过(joined=1, 无崩溃)
+
+按用户指示转向主线: 用当前 jar 复验四条 FML10 线的进世界。
+
+先踩一次坑(值得记录): capture-all-lines.ps1 -Only 跑出两条线都是 NO-JOIN / frame 0 B / no window found, 且实例 latest.log 未更新、launch err.log 0 字节 —— 即客户端压根没启动, 又是嵌套 PowerShell 启动静默失败的老问题(该脚本内部用 Start-Process powershell), 与 mod 无关; **不可把这种 NO-JOIN 记成 mod 的失败**。
+
+改用内联方式(全加引号字符串 + Start-Process, 与之前成功抓帧同一套)后 1.21.9: Setting user=1, Sound engine=1, joined=1, 新崩溃=0, latest.log=182143 B(18:34:07 写入)—— 即 1.21.9 用当前 payload 与 own-classes jar 在真实游戏里正常进世界、无崩溃。
+
+下一轮: 同样内联最小命令逐条复验 1.21.10、1.21.11、26.1.2, 然后 11 条 ModLauncher 线; 每条记录 Setting user / Sound engine / joined / 新崩溃数 / latest.log 大小。FXAA 暂停推进。
+
