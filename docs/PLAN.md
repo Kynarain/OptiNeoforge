@@ -1525,3 +1525,12 @@ Gradle 与 JVM: 三仓库 wrapper 均为 gradle-9.6.1(要求 Java 17+ 运行, 9.
 
 下一步: 用这批启动 jar 重跑 15 条线四检+建存档进世界(目标第 2、3 条)并逐条登记; FML10 四条 payload 今天由本仓库构建可直接用。另记偏差: retest-all.ps1 里 26.1.2 写的是 optifine-26.1.2-neoforge.jar, 而近期成功运行用的是 optifine-payload-fml10.jar+own-classes, 复跑按实测可用者。
 
+
+### 用重建后的 jar 重跑四检 + 进世界: 1.20.x 四条线全部通过
+
+本轮实际启动了客户端(每线一次, 独占), 用刷新后的启动 jar 逐线跑四检 + 进世界。结果: 1.20.1 Setting user=1/Sound engine=1/joined=1/spawn area=6/方法错误行=0/新崩溃=0/latest.log=142538B/stderr=0B; 1.20.2 同(joined=1、spawn area=6、方法错误含 canSustainPlant 均为 0、latest.log=1344662B、stderr=14625B); 1.20.4(registered jar 08:44, 内容未变故未动)joined=1、spawn area=13、方法错误行=0、新崩溃=0、latest.log=1117680B、**stderr=14481B(记录值)**; 1.20.6 joined=1、spawn area=2、方法错误行=0、新崩溃=0、latest.log=141080B、stderr=17856B。
+
+要点: 1.20.2 的 canSustainPlant 在当前分支头重建的 jar 上仍未复现(世界生成跑 6 次 spawn area、进世界、0 方法错误、0 崩溃); 1.20.4 的 stderr 仍是记录值 14481B(natives 按线选择仍正确); 1.20.2/1.20.6 的 stderr 与各自此前测量一致 => 基线稳定无新噪声; 每线独占跑(跑前停掉 rig 游戏目录内残留客户端), 故无并发条件、无需按 -AllowConcurrent 标注。
+
+下一步: 1.21/1.21.1/1.21.3/1.21.4/1.21.6/1.21.7/1.21.8 七条 ModLauncher 线 + FML10 四条(1.21.9/1.21.10/1.21.11/26.1.2, 用今天构建的 payload + own-classes)。
+
