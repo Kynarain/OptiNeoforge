@@ -5024,3 +5024,21 @@ compileJava),再用 `build-fml10-payload.ps1 -Line 26.1.2 -Repo I:\mods\OptifiNe
 说明该 stub 通道只覆盖"被保留(kept)"的类,而被**安装**的 BlockEntity 拿不到。
 下一轮:①把 BlockEntity 放进 keep 计划(与保留 IntegratedServer/ModelBlockRenderer$1 同一权衡);或②查 `src/fml10` 里
 stub 通道的适用条件,让它也覆盖被安装的类。
+
+### 26.1.2 进世界,15 条线全部通过进世界门槛
+
+修复(`src\fml10\…OptifinePayloadClassProcessor.java`):`stubMissing(node)` 原先**只在 keepWhole 分支**被调用,
+被**安装**的类因此拿不到 stub —— 26.1.2 上表现为 payload 的 BlockEntity 调用 gatherCapabilities()
+(过去继承自 Forge 的 CapabilityProvider)无处解析:
+`NoSuchMethodError: BlockEntity.gatherCapabilities()` at `BlockEntity.<init>(:72)` → `MonsterRoomFeature.place`,
+而 `stubs.txt` 里的三件套一直未被使用。ModLauncher 侧加载器本就无条件补 stub
+(`PatchedClassTransformer` 中 `stubMissing()` 无条件调用),故在 `copy(finished, node); restoreMembers(node);` 之后
+补上 `stubMissing(node);`(只补缺失成员,别处惰性)。
+实测:`Preparing spawn area: 16% → 30% → 58%`、`Dev joined the game`(11:05:43)、
+`logs\inworld\frame-26.1.2.png`(353,342 B,真实地形:丘陵/草/树/水面/手持物品/物品栏),本次无新崩溃。
+走到此处的链条:①mods 多余旧件→FML brokenfile 错误界面(删除即消失);②payload 装错处理器(26x 简化版不读
+keep/stub/reparent)→ 改用 1.21.x `src/fml10` 的 76.2 KB 处理器;③注入 keep-runtime.txt 后外层 PacketProcessor 被保留;
+④BlockEntity 三件套 stub + 本次 stub 语义更正 → 进世界。
+待办:①整理补丁排版(现与 repairFrozenReloadListeners 同行,能编译、语义无误)并重验;②更新 payload 构建日志中
+"stub list: N member(s) for kept classes" 的过时措辞;③共享改动 —— 1.21.9/1.21.10/1.21.11 需用新处理器重建 payload
+并复测,确认无退步。之后进入光影 + FXAA 阶段。

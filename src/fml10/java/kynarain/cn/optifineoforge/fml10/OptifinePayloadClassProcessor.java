@@ -145,7 +145,14 @@ public final class OptifinePayloadClassProcessor extends SimpleClassProcessor {
 		}
 		copy(finished, node);
 		int restored = restoreMembers(node);
-		repairFrozenReloadListeners(node);
+		// The stub plan is not only for kept classes. Measured on 26.1.2 (2026-10-01): the payload's BlockEntity
+		// calls gatherCapabilities(), a member it used to inherit from Forge's CapabilityProvider, and with the
+		// class INSTALLED that call had nothing to resolve to (NoSuchMethodError at BlockEntity.<init> -> ... ->
+		// MonsterRoomFeature.place), while the same three entries sat unused in stubs.txt - the log showed a
+		// single stubbed line, for the kept PacketProcessor. The ModLauncher loader has always applied its stubs
+		// to installed classes as well (PatchedClassTransformer calls stubMissing() unconditionally), so this
+		// restores that behaviour. stubMissing() adds only absent members, so it is inert elsewhere.
+		stubMissing(node);		repairFrozenReloadListeners(node);
 		repairSpriteCollection(node);
 		repairParticleProviderLookup(node);
 		installed++;
