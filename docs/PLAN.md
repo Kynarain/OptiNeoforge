@@ -5084,3 +5084,17 @@ new crash 0;stderr 14625;FXAA evidence 为 "no FXAA line in the log"。
 故**不能据此断言本次加载了光影包**,必须加"只读本次运行之后内容"的新鲜度过滤。
 下一轮:先修这两处(改读 `logs\launch-<VersionId>.out.log` 或把 launcher 输出落盘;未读到明确报 INVALID;
 全日志加新鲜度过滤),重测 1.20.2 并追查 FXAA evidence 为空的原因,再逐线推进 15 条线的光影 + FXAA。
+
+### harness 证据来源/新鲜度已修;1.20.2 拿到有效光影测量
+
+`test-save-shaders.ps1`:①证据来源改为 `logs\launch-<VersionId>.out.log`(不再依赖恒为 0 字节的 `*> $outLog`),
+两者都读不到时报 `INVALID - neither the launcher log nor a fresh instance log could be read`;
+②`latest.log` 加新鲜度过滤(仅最近 60 秒被写过才读、且只读尾部 400 行),避免引用上一轮的陈旧行(此前引用的
+`Loaded shaderpack` 行来自四分钟前的一次手动运行)。修后验证:未测到时如实报 INVALID。
+同时发现 harness **自己的启动**没起来(其 `launch-*.out.log` 0 字节),而手动同参启动正常 —— 问题在其构造的启动参数,
+下一轮定位。手动启动的有效测量(1.20.2,MakeUp + FXAA 2x):VERDICT STARTED / Setting user True / Sound engine True /
+0 崩溃 / stderr 14625(记录值);`12:05:06 [Shaders] Loaded shaderpack: MakeUp-UltraFast-9.5e.zip`(本次运行)、
+`Parsing entity mappings: /shaders/entity.properties`、Custom texture/uniform 行;`optionsshaders.txt antialiasingLevel=2`
+与 `optionsof.txt ofAaLevel:0` 均已落盘。日志无 FXAA 专有行,与 OptiFine 行为一致(启用光影包时抗锯齿由包管线负责,
+`setFxaaShader` 走无包路径),故 FXAA 判定应在 `-Pack ''` 下做 off/on 帧对比。
+下一轮:定位修 harness 启动参数;在 1.20.2 用 `-Pack ''` 做 FXAA off/on 帧对比并跑 `fxaa-check.ps1`;再逐线推进 15 线。
