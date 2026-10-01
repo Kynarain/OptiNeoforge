@@ -919,3 +919,10 @@ Start-Process 不给数组元素加引号,含空格路径被拆开),`capture-fra
 during this run - the values below come from an earlier run`);②启动修补的替换锚点**未命中**(空白/续行不一致)故未生效,
 重跑仍无客户端,已如实记录、不当作结果。
 下一轮:用基于正则的替换(不依赖精确空白)修好启动并让命中失败时立即报错;重跑该对并 `fxaa-check`;再逐线推进 15 条线。
+
+### run-fxaa-capture.ps1 启动:换引号与去重定向都无效
+
+本轮:1) quoted 从数组改为单个命令行字符串(按行定位替换,命中第 209 行,语法 OK)后客户端仍不启动;2) 探针验证 Start-Process 机制本身正常(带/不带重定向都给 26 B 输出并写标记文件),故机制、引号、重定向都不是原因;3) 去掉重定向(向 capture-frame.ps1 方式对齐)后客户端仍不启动,归档的 fxaa-run-aa0-smoke2 仍是 12:05 旧文件,并报 no client matched neoforge-20.2.88 / nothing stopped。
+自身失误:插入的诊断行被当成变量 indentWrite 处理(应写成 美元符号 花括号 indent 花括号 Write-Host),故仍未拿到子进程真实命令行(下一轮第一步)。
+已确定:脚本确实起了子 PowerShell(launcher started pid 42460),但客户端 java 进程始终没有出现。
+下一轮:修好打印拿真实命令行并手动执行取 launch.ps1 的错误;重跑 1.20.2 FXAA 对并用 fxaa-check.ps1 出判定;再逐线推进 15 条线。
