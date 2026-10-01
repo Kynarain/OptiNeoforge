@@ -5466,3 +5466,10 @@ CF 项目恢复时填 名称=OptifiNeoforge、slug=optifineoforge, 由用户在�
 
 进世界复验累计 11/15; 待验 1.21.4/1.21.6/1.21.7/1.21.8。
 
+
+### 1.21.4 通过
+
+1.21.4(neoforge-21.4.149, jdk-21, mods = registered 2.0.0+mc1.21.4 + OptiFine_1.21.4_HD_U_J3; 内联 launch.ps1 --quickPlaySingleplayer=RigSession, 190 秒): Setting user=1, Sound engine=1, joined=1, Preparing spawn area=1, 方法错误行=0, 新崩溃=0, latest.log=1131653 B, stderr=0 B。
+
+进世界复验累计 12/15; 待验 1.21.6/1.21.7/1.21.8。
+
