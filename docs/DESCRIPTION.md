@@ -39,11 +39,11 @@ On this line Minecraft renamed its client pipeline (FML 10), so the loader mount
 One jar per Minecraft version — they are **not interchangeable**. The version is in the file name:
 `OptifiNeoforge-2.0.0+mc26.1.2.jar`.
 
-| Minecraft | NeoForge | Java |
-|---|---|---|
-| 26.1.2 | `26.1.2.109` | 25 |
+| Minecraft | NeoForge | Java | OptiFine build tested with this line |
+|---|---|---|---|
+| 26.1.2 | `26.1.2.109` | 25 | HD U **K1 pre2** (preview) |
 
-The OptiFine build this line was tested with is recorded in the branch's `docs/PLAN.md` / `docs/STATE.md` rather than repeated here: the build for this Minecraft generation is itself a preview, and the project does not claim a build it has not measured. Use the OptiFine jar for your Minecraft version.
+That OptiFine entry is not taken from a file name: it is the build string found inside the loader's prepared OptiFine classpath jar for this line (`work\26.1.2\optifine-classpath.jar`), read on 2026-10-01. Use the OptiFine jar for your Minecraft version; the preview K1 build is what this line was measured against.
 
 #### Installing
 
@@ -95,7 +95,7 @@ There is no installer and nothing is written into your game files.
 
 #### 支持的版本(26.x 线)
 
-每个 Minecraft 版本一个 jar,**互不通用**,版本写在文件名里(如 `OptifiNeoforge-2.0.0+mc26.1.2.jar`)。对照表见英文节(NeoForge 与 Java)。**本项目实测所使用的 OptiFine 构建记在分支的 `docs/PLAN.md` / `docs/STATE.md` 里**,不在这里重复:这一代的 OptiFine 构建本身是预览版, 本项目不声明自己没有实测过的构建。请使用与你 Minecraft 版本对应的 OptiFine jar。
+每个 Minecraft 版本一个 jar,**互不通用**,版本写在文件名里(如 `OptifiNeoforge-2.0.0+mc26.1.2.jar`)。对照表见英文节(NeoForge 与 Java)。**本项目实测所使用的 OptiFine 构建是 `HD U K1 pre2`(预览版)** —— 这不是从文件名抄的, 而是 2026-10-01 从加载器为该线准备的 OptiFine 类路径 jar(`work\26.1.2\optifine-classpath.jar`)内部的类字符串里读出来的。请使用与你 Minecraft 版本对应的 OptiFine jar;本线实测所对的是 K1 的这个预览构建。
 
 #### 安装
 
