@@ -36,7 +36,7 @@ Written plain, because these are the things a reviewer or a user needs to be abl
 
 #### Supported versions
 
-One jar per Minecraft version — they are **not interchangeable**. The version is in the file name: `OptifiNeoforge-1.0.0+mc1.21.8.jar`.
+One jar per Minecraft version — they are **not interchangeable**. The version is in the file name: `OptifiNeoforge-2.0.0+mc1.21.8.jar`.
 
 | Minecraft | NeoForge | Java | OptiFine build you need |
 |---|---|---|---|
@@ -56,7 +56,7 @@ The 1.20.x line (1.20.1 – 1.20.6, Java 17) and the 26.x line (26.1.2, Java 25)
 #### Installing
 
 1. Install the **NeoForge** version matching your Minecraft version.
-2. Put the matching **`OptifiNeoforge-1.0.0+mc<your version>.jar`** into `mods/`.
+2. Put the matching **`OptifiNeoforge-2.0.0+mc<your version>.jar`** into `mods/`.
 3. Put the matching **OptiFine jar** (downloaded by you) into `mods/` as well.
 4. Launch with the Java version listed above.
 
@@ -66,8 +66,8 @@ There is no installer and nothing is written into your game files.
 
 * **1.21.6 and 1.21.7: the shader pack does not load.** Shaders and FXAA are unavailable on those two versions (the available OptiFine builds for them fail inside OptiFine itself when a pack is enabled).
 * **1.21 writes four `NoClassDefFoundError` lines to stderr on every launch.** OptiFine's Reflector swallows them; startup is not affected.
-* **Multiplayer has not been tested.**
-* FXAA has been verified at pixel level on 9 of the 15 supported versions (1.20.4, 1.20.6, 1.21.1, 1.21.3, 1.21.4, 1.21.8, 1.21.9, 1.21.10, 1.21.11). On the others it is not yet proven, and each release note says so.
+* **Multiplayer has not been tested.** The attempt to exercise it never landed: the chat command was never actually delivered into the client, so the keystroke/chat path is itself unproven. Nothing here says multiplayer does not work - it says it has not been measured, and no registration action was taken on any server.
+* **FXAA pixel verdicts, as of 2026-10-01** (this is a per-version measurement, not a blanket claim): **VISIBLE** on 1.20.2, 1.20.4, 1.21, 1.21.1 and 1.21.4 (same-scene frame pairs measured 2026-10-01); **VISIBLE** on 1.21.8, 1.21.9, 1.21.10 and 1.21.11 (measured 2026-09-23, not re-measured since); **below the 2.0% edge-energy threshold** on 1.20.6 and 1.21.3 (same-scene pairs, 2026-10-01) - recorded as no visible effect rather than as a pass; **not proven** on 1.20.1, 1.21.6, 1.21.7 and 26.1.2. The project owner de-prioritised FXAA on 2026-10-01 ("do not focus on FXAA, first make sure the mod runs"), so the unmeasured entries are open, not failures.
 
 #### Links
 
@@ -102,12 +102,12 @@ There is no installer and nothing is written into your game files.
 
 #### 支持的版本
 
-每个 Minecraft 版本一个 jar,**互不通用**,版本写在文件名里(如 `OptifiNeoforge-1.0.0+mc1.21.8.jar`)。对照表见英文节的表格;1.20.x 线(1.20.1 – 1.20.6,Java 17)与 26.x 线(26.1.2,Java 25)在各自分支上,各有自己的 jar。
+每个 Minecraft 版本一个 jar,**互不通用**,版本写在文件名里(如 `OptifiNeoforge-2.0.0+mc1.21.8.jar`)。对照表见英文节的表格;1.20.x 线(1.20.1 – 1.20.6,Java 17)与 26.x 线(26.1.2,Java 25)在各自分支上,各有自己的 jar。
 
 #### 安装
 
 1. 装好与你 Minecraft 版本对应的 **NeoForge**;
-2. 把对应版本的 `OptifiNeoforge-1.0.0+mc<你的版本>.jar` 放进 `mods/`;
+2. 把对应版本的 `OptifiNeoforge-2.0.0+mc<你的版本>.jar` 放进 `mods/`;
 3. 把你**自己下载的**对应版本 OptiFine jar 也放进 `mods/`;
 4. 用上表所列的 Java 版本启动。
 
@@ -117,8 +117,8 @@ There is no installer and nothing is written into your game files.
 
 * **1.21.6 / 1.21.7:光影包不加载** —— 这两版可用的 OptiFine 构建在启用光影包时会在 OptiFine 自身内部失败,因此这两版无法使用光影与 FXAA;
 * **1.21 每次启动会往 stderr 写 4 条 `NoClassDefFoundError`**(被 OptiFine 自己吞掉,不影响启动);
-* **多人游戏未测**;
-* FXAA 已在 15 个受支持版本中的 **9 个**上做过像素级验证(1.20.4、1.20.6、1.21.1、1.21.3、1.21.4、1.21.8、1.21.9、1.21.10、1.21.11),其余版本尚未证明,每个 Release 的说明里都写明了。
+* **多人游戏未测**:当时那次尝试**没有落地** —— 聊天命令根本没被送进客户端, 所以"键盘/聊天输入"这条链路本身也未被证明。这里说的是**没测过**, 不是"不能用"; 且**没有在任何服务器上执行注册动作**。
+* **FXAA 像素判定(截至 2026-10-01, 逐版本测量而非笼统结论)**: **可见** —— 1.20.2、1.20.4、1.21、1.21.1、1.21.4(2026-10-01 成对测量);**可见** —— 1.21.8、1.21.9、1.21.10、1.21.11(2026-09-23 测量, 之后未重测);**低于 2.0% 边缘能量阈值** —— 1.20.6、1.21.3(2026-10-01 成对, 记为"无可测效果"而不是通过);**未证明** —— 1.20.1、1.21.6、1.21.7、26.1.2。项目所有者于 2026-10-01 指示暂不重视 FXAA("先保证 mod 能正常运行"), 因此未测的那些是**未决**而不是失败。
 
 #### 链接
 
