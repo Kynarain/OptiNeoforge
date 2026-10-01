@@ -1,0 +1,8 @@
+# Members the KEPT class must still be given (see the FML10 processor's stub pass).
+# Measured 2026-09-23: NeoForge adds clientPreProcessPacket(Packet) to PacketProcessor at load time and no jar
+# carries it, so keeping the runtime's class (required - its payload copy declares a different queue element type)
+# left the call in ListenerAndPacket.handle with nothing to resolve to.
+# SEMANTIC RISK, stated on purpose: this is on every packet's path, and an empty body skips NeoForge's
+# client-side custom-payload dispatch. It is here to let the line be measured; the final repair is to make
+# NeoForge's own injection land on the class.
+net/minecraft/network/PacketProcessor	clientPreProcessPacket	(Lnet/minecraft/network/protocol/Packet;)V	static

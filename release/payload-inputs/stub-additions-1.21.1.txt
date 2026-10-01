@@ -1,0 +1,23 @@
+﻿# Members the stub pass cannot see on this line because the payload only inherits them from the Forge superclass
+# net.minecraftforge.common.capabilities.CapabilityProvider, while the loader reparents this class onto
+# net/neoforged/neoforge/attachment/AttachmentHolder (see add-line.ps1 step 5b). The Forge stub class declares
+# exactly three members - gatherCapabilities()V, getCapabilities()Lnet/minecraftforge/common/capabilities/
+# CapabilityDispatcher; and invalidateCaps()V - and the payload BlockEntity calls all of them, so all three are
+# listed here rather than one at a time as each surfaces. Measured on 1.21 (2026-09-22): first
+#   NoSuchMethodError: BlockEntity.gatherCapabilities() at Initializing game (crash-2026-09-22_03.38.32)
+# then, once that was stubbed, the world load stalled with the spawn area at 0% and
+#   [Worker-Main-12/ERROR] [net.minecraft.Util/]: Caught exception in thread Worker-Main-12
+#   NoSuchMethodError: net.minecraftforge.common.capabilities.CapabilityDispatcher BlockEntity.getCapabilities()
+net/minecraft/world/level/block/entity/BlockEntity	gatherCapabilities	()V
+net/minecraft/world/level/block/entity/BlockEntity	getCapabilities	()Lnet/minecraftforge/common/capabilities/CapabilityDispatcher;
+net/minecraft/world/level/block/entity/BlockEntity	invalidateCaps	()V
+# The same five members the 1.21 line needed (see that line's file and the branch docs): each was measured as a
+# NoSuchMethodError on this payload family - IntegratedServer.m_195518_()Z (isSaving), m_129918_()Z,
+# m_182649_()Ljava/util/Optional;, m_129921_()I and BakedModel.useAmbientOcclusion(BlockState, RenderType)Z -
+# and the loader only injects a stub where the member is absent, so listing them on a line that does not need one
+# of them is inert. The Optional one answers Optional.empty() because that is the loader rule for that type.
+net/minecraft/server/MinecraftServer	m_195518_	()Z
+net/minecraft/client/server/IntegratedServer	m_129918_	()Z
+net/minecraft/client/server/IntegratedServer	m_182649_	()Ljava/util/Optional;
+net/minecraft/client/server/IntegratedServer	m_129921_	()I
+net/minecraft/client/resources/model/BakedModel	useAmbientOcclusion	(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/client/renderer/RenderType;)Z

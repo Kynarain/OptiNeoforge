@@ -1,0 +1,10 @@
+﻿# The same five members the 1.21 line needed (see that line's file and the branch docs): each was measured as a
+# NoSuchMethodError on this payload family - IntegratedServer.m_195518_()Z (isSaving), m_129918_()Z,
+# m_182649_()Ljava/util/Optional;, m_129921_()I and BakedModel.useAmbientOcclusion(BlockState, RenderType)Z -
+# and the loader only injects a stub where the member is absent, so listing them on a line that does not need one
+# of them is inert. The Optional one answers Optional.empty() because that is the loader rule for that type.
+net/minecraft/server/MinecraftServer	m_195518_	()Z
+net/minecraft/client/server/IntegratedServer	m_129918_	()Z
+net/minecraft/client/server/IntegratedServer	m_182649_	()Ljava/util/Optional;
+net/minecraft/client/server/IntegratedServer	m_129921_	()I
+net/minecraft/client/resources/model/BakedModel	useAmbientOcclusion	(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/client/renderer/RenderType;)Z

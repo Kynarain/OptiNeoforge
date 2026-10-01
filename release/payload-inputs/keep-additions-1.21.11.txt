@@ -1,0 +1,35 @@
+# See build-fml10-payload.ps1: the payload's own PacketProcessor cannot be mixed with NeoForge's queue objects.
+net/minecraft/network/PacketProcessor	*
+# Narrowed 2026-09-23: keeping the whole PacketProcessor removed the NeoForge-added member its own
+# ListenerAndPacket.handle calls (NoSuchMethodError clientPreProcessPacket(Packet) at PacketProcessor.java:93).
+# Keeping only the inner class that mixes with NeoForge's queue objects leaves the outer class on the payload
+# side, where NeoForge's injection and OptiFine's patch land on the same copy.
+
+# Measured 2026-09-24. The runtime's IntegratedServer carries NeoForge's lifecycle hook
+#   net/neoforged/neoforge/server/ServerLifecycleHooks.handleServerAboutToStart(MinecraftServer)
+#   (and handleServerStarting), and handleServerAboutToStart is the step that loads the SERVER config. With the
+# payload's copy installed instead, config\neoforge-server.toml is never written and NeoForgeServerConfig's values
+# stay unloaded, so the first entity tick that throws dies inside Level.guardEntityTick's own error path with
+#   IllegalStateException: Cannot get config value before config is loaded
+#   (net.neoforged.neoforge.common.config.NeoForgeServerConfig.removeErroringEntities)
+# and the crash report then names the config instead of the entity - measured on 1.21.9/1.21.10/1.21.11 in the
+# save + shaders runs of 2026-09-23, all three "Exception ticking world" with "Suppressed Exceptions: ~~NONE~~".
+# OptiFine's copy of the class has no such call: `javap -c` of work\<line>\runtime-<line>.jar shows the hook, and of
+# the payload's srg/net/minecraft/client/server/IntegratedServer.class it does not.
+# The same repair fixed the same symptom on 1.21.8, where the hook was routed through OptiFine's Forge reflector.
+# STATED COST: keeping the class whole also drops whatever OptiFine changed inside IntegratedServer; the member
+# restore plan still lists two of its lambdas (lambda$reportChunkLoadFailure$3, lambda$halt$1), which the keep makes
+# moot.
+net/minecraft/client/server/IntegratedServer	*
+# Measured 2026-09-24 on 1.21.11, once the IntegratedServer keep let the save+shaders run reach world rendering:
+#   Description: Tesselating block model
+#   java.lang.NullPointerException: Cannot load from int array because
+#     "net.minecraft.client.renderer.block.ModelBlockRenderer$1.$SwitchMap$net$minecraft$util$TriState" is null
+#     at ModelBlockRenderer.tesselateWithAO(ModelBlockRenderer.java:143)
+# The same class, the same field and the same repair as the ModLauncher 1.21.x lines, which have carried this entry
+# since 1.20.4: the switch-map holder's field is restored into the installed class without the initialiser that
+# fills it, because that initialiser is not a member any donor carries, so the field is present and null and the
+# client dies the first time ambient-occlusion tessellation switches on it. Keeping the runtime's whole class is
+# what fixed 1.20.4, 1.20.6, 1.21, 1.21.1, 1.21.3, 1.21.4, 1.21.6, 1.21.7 and 1.21.8; the FML 10 lines were built
+# without it. STATED COST, as on those lines: keeping the class also drops whatever OptiFine changed inside it.
+net/minecraft/client/renderer/block/ModelBlockRenderer$1	*

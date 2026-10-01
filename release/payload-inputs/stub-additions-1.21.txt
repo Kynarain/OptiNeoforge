@@ -1,0 +1,46 @@
+﻿# Members the stub pass cannot see on this line because the payload only inherits them from the Forge superclass
+# net.minecraftforge.common.capabilities.CapabilityProvider, while the loader reparents this class onto
+# net/neoforged/neoforge/attachment/AttachmentHolder (see add-line.ps1 step 5b). The Forge stub class declares
+# exactly three members - gatherCapabilities()V, getCapabilities()Lnet/minecraftforge/common/capabilities/
+# CapabilityDispatcher; and invalidateCaps()V - and the payload BlockEntity calls all of them, so all three are
+# listed here rather than one at a time as each surfaces. Measured on 1.21 (2026-09-22): first
+#   NoSuchMethodError: BlockEntity.gatherCapabilities() at Initializing game (crash-2026-09-22_03.38.32)
+# then, once that was stubbed, the world load stalled with the spawn area at 0% and
+#   [Worker-Main-12/ERROR] [net.minecraft.Util/]: Caught exception in thread Worker-Main-12
+#   NoSuchMethodError: net.minecraftforge.common.capabilities.CapabilityDispatcher BlockEntity.getCapabilities()
+net/minecraft/world/level/block/entity/BlockEntity	gatherCapabilities	()V
+net/minecraft/world/level/block/entity/BlockEntity	getCapabilities	()Lnet/minecraftforge/common/capabilities/CapabilityDispatcher;
+net/minecraft/world/level/block/entity/BlockEntity	invalidateCaps	()V
+# MinecraftServer.m_195518_()Z is the SRG getter of the runtime's own `private volatile boolean isSaving` field.
+# The runtime view carries the field but not the getter, the payload's Gui calls it from tickAutosaveIndicator,
+# and the wide stub classpath does not see it missing either (another Minecraft version's jar resolves the name),
+# so it is listed here. A stub returning false is the correct value: "not saving". Measured on 1.21 2026-09-22:
+#   java.lang.NoSuchMethodError: 'boolean net.minecraft.server.MinecraftServer.m_195518_()'
+#     at net.minecraft.client.gui.Gui.tickAutosaveIndicator(Gui.java:1486) <- Minecraft.tick
+# (crash-2026-09-22_06.14.06-client.txt, the run in which the world had finished loading: "Time elapsed",
+# "Changing view distance to").
+net/minecraft/server/MinecraftServer	m_195518_	()Z
+# IntegratedServer.m_129918_()Z - residue fix #2. The payload's GameRenderer calls it in
+# tryTakeScreenshotIfNeeded and this runtime does not declare that SRG name (SrgResidue lists it:
+# "GameRenderer calls IntegratedServer.m_129918_()Z [no table entry]"), measured crash
+# 2026-09-22 07:10:40-client.txt at GameRenderer.tryTakeScreenshotIfNeeded(GameRenderer.java:1236).
+# GameRenderer is the shader hook and cannot be kept from the runtime, so the call site is stubbed instead;
+# false is the "not published" answer, which only affects the screenshot-on-publish path.
+net/minecraft/client/server/IntegratedServer	m_129918_	()Z
+# IntegratedServer.m_182649_()Ljava/util/Optional; - the call site right after m_129918_ in the payload's
+# GameRenderer.tryTakeScreenshotIfNeeded (SrgResidue: "GameRenderer calls IntegratedServer.m_182649_()
+# Ljava/util/Optional; [no table entry]"); measured crash-2026-09-22_07.17.03 at GameRenderer.java:1238.
+# The stub body returns Optional.empty() rather than null, which is the loader's rule for that return type now -
+# a null here would only move the failure to the caller's isPresent().
+net/minecraft/client/server/IntegratedServer	m_182649_	()Ljava/util/Optional;
+# The same family: IntegratedServer.m_129921_()I is called from two classes (SrgResidue lists it); 0 is a
+# meaningful "no value" for it and no caller can NPE on it.
+net/minecraft/client/server/IntegratedServer	m_129921_	()I
+# BakedModel.useAmbientOcclusion(BlockState, RenderType)Z - NeoForge's two-argument extension form, called by the
+# payload's ModelBlockRenderer.tesselateBlock (measured crash-2026-09-22_07.26.29:
+#   NoSuchMethodError: 'boolean BakedModel.useAmbientOcclusion(BlockState, RenderType)'
+#     at ModelBlockRenderer.tesselateBlock(ModelBlockRenderer.java:86) <- BlockRenderDispatcher.renderBatched).
+# The stub answers false. NOTE the honest cost: false means "no ambient occlusion" for that model, i.e. a VISUAL
+# deviation, not a crash - the proper repair is the targeted rewrite of the SRG/extension reference to the
+# runtime's own member (see the branch docs); this entry only stops the crash so the line can be tested.
+net/minecraft/client/resources/model/BakedModel	useAmbientOcclusion	(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/client/renderer/RenderType;)Z
