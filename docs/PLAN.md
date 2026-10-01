@@ -1208,3 +1208,14 @@ FML10 四条汇总(全部当前分支头 jar): 1.21.9 joined=1/182143B、1.21.10
 
 进世界复验累计 6/15: 四条 FML10 + 1.20.1 + 1.20.2; 待验 1.20.4/1.20.6/1.21/1.21.1/1.21.3/1.21.4/1.21.6/1.21.7/1.21.8。
 
+
+### 1.20.4 通过 —— 且 stderr = 14481 B(记录值), 目标里的 natives 疑点结清
+
+1.20.4(neoforge-20.4.251, JavaHome jdk-17, mods = OptifiNeoforge-2.0.0+mc1.20.4-registered.jar + optifine-OptiFine_1.20.4_HD_U_I7.jar; 内联 launch.ps1 --quickPlaySingleplayer=RigSession, 等 190 秒): Setting user=1, Sound engine=1, joined=1, Preparing spawn area=10, 方法错误行=0, 新崩溃=0, latest.log=1113496 B, stderr=14481 B。
+
+这结清了目标第三项: rig 自己按线选 LWJGL natives(natives-for.ps1 未被调用)导致 1.20.4 报 17841 字节 stderr 而非记录值 14481 —— 本次 stderr 正是 14481 B, 与记录值一致。
+
+如实说明: stderr 中确有一行 java.lang.NoClassDefFoundError: net/minecraft/world/level/block/state/BlockState, 来自 OptiFine 的 ReflectorMethod.getMethod 探测(属那 14481 B 既有内容), 客户端随后正常进世界, 非致命错误。
+
+进世界复验累计 7/15: 四条 FML10 + 1.20.1 + 1.20.2 + 1.20.4; 待验 1.20.6/1.21/1.21.1/1.21.3/1.21.4/1.21.6/1.21.7/1.21.8。
+
