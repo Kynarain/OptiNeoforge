@@ -1403,3 +1403,16 @@ build-fml10-payload.ps1 改动: ①按线条件化的粒子修复(实测三条 1
 
 下一步(需机器空闲): 跑 build-release-jars.ps1 用仓库自己的 Gradle 重建 15 个产物(CPU 占用, 等用户不玩游戏时); 用重建的 jar 重跑四检+进世界; 之后才谈发布, FXAA 那半道门槛仍暂停。
 
+
+### rig 脚本同类隐患审计(离线): 一处拼写错 + 三处写死版本; 并更正我写下的未测预期
+
+扫描范围: rig 与三个仓库的 *.ps1/*.md/*.gradle/*.properties/*.json/*.toml/*.txt(排除 build、.git、logs、work、隔离目录与台账), 查三类: 名字拼写 OptiNeoforge(少第二个 i)、脚本里写死的版本号、脚本里写死的日期。
+
+真缺陷 4 处已修: ①fxaa-manual-pair.ps1:30 按拼错的 OptiNeoforge-* 找 mod jar, 永远找不到 -> 改为 OptifiNeoforge-*; ②③④verify-1206-fixes.ps1、world-test-1204.ps1、world-test-121.ps1 里写死 OptifiNeoforge-1.0.0+mc<mc>-registered.jar -> 改为按通配取 LastWriteTime 最新。四个文件语法 0 错误; 复扫'可执行代码里写死 1.0.0/1.0.1' = 0 处。
+
+**更正**: 我在此前那条记录末尾写下的'验证(通配真能命中)'代码块(每线各命中 1 个、拼错名 0 个)是**运行前写下的预期, 不是测量结果**, 实测不符 —— 应为: 1.20.4/1.20.6/1.21/1.21.8 正确名字各 2 个且拼错名各 1 个; 26.1.2 两者皆 0(该线用 payload+own-classes, 本无 -registered.jar)。教训: 记录里的'验证输出'必须运行之后贴。
+
+由此发现的第二类残留(已处理): jars-* 里每个 ModLauncher 线都躺着一个拼错名的 OptiNeoforge-2.0.0+mc<mc>-registered.jar(09-27/09-28 改名试验遗留), 已隔离(不删)11 个到 jars-STALE-typo-OptiNeoforge/ 并附 README; 隔离后复测拼错名命中 0。
+
+仍留着(未处理, 已记录): 每个 ModLauncher 线的 jars-* 里还有 1.0.0 时代的正确命名旧产物(09-22); rig 里按名通配的脚本都按 LastWriteTime 倒序取最新故不会误用, 但'取第一个匹配'的临时命令可能拿到旧 jar。
+
