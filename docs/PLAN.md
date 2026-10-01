@@ -5163,3 +5163,18 @@ during this run - the values below come from an earlier run`);②启动修补的
 VERDICT: INCONCLUSIVE —— 两帧有 10.9% 像素不同,超过 0.10 场景差阈值,故这点差异测的是场景变化而非 FXAA;如实记录,不当作通过。
 最可能原因:客户端退出会把玩家朝向写回存档,而 run-fxaa-capture.ps1 为此专门做"光标压窗口中心"这一步,本轮手工流程没做,210 秒等待期间鼠标移动足以让相机漂移。
 下一轮:两次运行都先居中光标(必要时改更静态、边缘更密取景),把场景差压到阈值以下再出 VISIBLE/NOT VISIBLE;随后按同流程对 15 条线做有包(验证包加载)与无包 -Pack ''(验证 FXAA 生效)两段。
+
+### 1.20.2 通过 FXAA 门槛: VERDICT: FXAA VISIBLE, 两次测量一致
+
+关键: 上一对失败因场景差 10.9% 即相机被鼠标带偏; 本轮等待期间每 5 秒把光标放回屏幕中心, 其余不变。
+
+整幅: off 边缘能量 14.0196 / 硬边 36752; on 13.6633 / 36671; 边缘能量 -2.5%, 硬边 -0.2%, 场景差 5.1% 低于 0.10 阈值 -> FXAA VISIBLE。
+
+地形区域 600x300 at 100,120: off 18.3034 / 22783; on 17.8186 / 22525; -2.6%, -1.1%, 场景差 9.0% -> FXAA VISIBLE。
+
+设置: optionsshaders.txt antialiasingLevel=4 对 =0; optionsof.txt ofAaLevel:0 必须为 0, 否则 setFxaaShader 会把 FXAA 重置; 两次都加载了 MakeUp-UltraFast-9.5e.zip。
+
+可复用六步: 1 准备 -PrepareOnly; 2 Start-Process 全加引号字符串启动 launch.ps1; 3 等待约 200 秒并每 5 秒居中光标; 4 post-key.ps1 -Key 113 连发 3 次; 5 取 screenshots 本次新增第一张; 6 fxaa-check.ps1 -Off -On 出判定。
+
+下一轮: 把该流程逐线推广到 15 条线, 先有包验证包能加载, 再测 FXAA off/on, 并按版本调整瞄准角。
+
