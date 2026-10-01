@@ -891,3 +891,16 @@ new crash 0;stderr 14625;FXAA evidence 为 "no FXAA line in the log"。
 与 `optionsof.txt ofAaLevel:0` 均已落盘。日志无 FXAA 专有行,与 OptiFine 行为一致(启用光影包时抗锯齿由包管线负责,
 `setFxaaShader` 走无包路径),故 FXAA 判定应在 `-Pack ''` 下做 off/on 帧对比。
 下一轮:定位修 harness 启动参数;在 1.20.2 用 `-Pack ''` 做 FXAA off/on 帧对比并跑 `fxaa-check.ps1`;再逐线推进 15 线。
+
+### harness 启动与判定修好;1.20.2 光影 + FXAA 2x 得到可用判定
+
+两个真实缺陷(靠打印参数定位):①harness 原用 `& powershell @launcherArgs *> $outLog` 启动,实测 exit -1、0 字节输出,
+而手动同参启动正常;改为同进程调用(`$launcherScript = $launcherArgs[4]; & $launcherScript @scriptArgs *> $outLog`)后
+exit 变为 0;②同进程下 launcher 的 stdout 仍拿不到(`out.log bytes: 0`),故判定字段改为**从游戏日志推导**
+(`VERDICT = Setting user 且 Sound engine started`;`Setting user = /Setting user: (\S+)/`;`Sound engine = /Sound engine started/`);
+③给 `logs\launch-<VersionId>.out.log` 加新鲜度门槛(同进程输出为空会留上一轮文本 —— 实测判定块曾引用 12:05:06 的
+`Loaded shaderpack` 行,而当时是 12:18)。另清理了误插入注释的重复诊断块。
+修后 1.20.2(光影 MakeUp + FXAA 2x)判定:VERDICT/Setting user/Sound engine 全 **True**、world loaded 有标记、
+`shader pack requested MakeUp-UltraFast-9.5e.zip`、FXAA 2 与 ofAaLevel 0 已记录、0 崩溃、stderr 14,625;
+结合上一轮 12:05:06 同配置有效运行(光影包加载 + entity mappings/custom texture 解析),该线有包路径至此可信。
+下一轮:用修好的 harness 在 `-Pack ''` 下做 FXAA off/on 帧对比并跑 `fxaa-check.ps1`,再逐线推进 15 条线。
